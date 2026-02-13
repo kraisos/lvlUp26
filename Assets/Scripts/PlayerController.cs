@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,8 +9,6 @@ public class PlayerController : MonoBehaviour
     public float groundCheckDistance = 0.1f;
 
     [Header("Input Settings")]
-    public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode sprintKey = KeyCode.LeftShift;
     public float sprintMultiplier = 1.5f;
 
     [Header("Components")]
@@ -22,6 +21,11 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRigidbody;
     private bool isGrounded;
     private Vector3 moveDirection;
+
+    // Input System variables
+    private Vector2 moveInput;
+    private bool jumpInput;
+    private bool sprintInput;
 
     void Start()
     {
@@ -48,7 +52,7 @@ public class PlayerController : MonoBehaviour
             playerCamera = Camera.main;
             if (playerCamera == null)
             {
-                playerCamera = FindObjectOfType<Camera>();
+                playerCamera = FindFirstObjectByType<Camera>();
             }
         }
 
@@ -72,10 +76,6 @@ public class PlayerController : MonoBehaviour
 
     void HandleInput()
     {
-        // Get movement input
-        float horizontal = Input.GetAxis("Horizontal"); // A/D or Left/Right arrows
-        float vertical = Input.GetAxis("Vertical");     // W/S or Up/Down arrows
-
         // Calculate movement direction relative to camera
         Vector3 forward = Vector3.zero;
         Vector3 right = Vector3.zero;
@@ -99,18 +99,13 @@ public class PlayerController : MonoBehaviour
         right.Normalize();
 
         // Calculate desired movement direction
-        moveDirection = (forward * vertical + right * horizontal).normalized;
+        moveDirection = (forward * moveInput.y + right * moveInput.x).normalized;
 
         // Handle jumping
-        if (Input.GetKeyDown(jumpKey) && isGrounded)
+        if (jumpInput && isGrounded)
         {
             Jump();
-        }
-
-        // Handle cursor lock toggle
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            ToggleCursorLock();
+            jumpInput = false; // Reset jump input
         }
     }
 
@@ -118,7 +113,7 @@ public class PlayerController : MonoBehaviour
     {
         // Calculate current movement speed
         float currentSpeed = moveSpeed;
-        if (Input.GetKey(sprintKey))
+        if (sprintInput)
         {
             currentSpeed *= sprintMultiplier;
         }
@@ -177,6 +172,33 @@ public class PlayerController : MonoBehaviour
         else
         {
             Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
+    // Input System event handlers
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        moveInput = context.ReadValue<Vector2>();
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            jumpInput = true;
+        }
+    }
+
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        sprintInput = context.performed || context.started;
+    }
+
+    public void OnEscape(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            ToggleCursorLock();
         }
     }
 

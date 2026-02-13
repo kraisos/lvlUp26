@@ -78,7 +78,6 @@ public class PlayerSetup : MonoBehaviour
             // Add LightSource component
             LightSource lightSource = lightObject.AddComponent<LightSource>();
             lightSource.lightRadius = defaultLightRadius;
-            lightSource.lightColor = defaultLightColor;
 
             // Link to player controller
             controller.attachedLight = lightSource;

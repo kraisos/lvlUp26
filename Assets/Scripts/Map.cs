@@ -4,18 +4,12 @@ using System.Collections.Generic;
 public class Map : MonoBehaviour
 {
     [Header("Grid Settings")]
-    public int gridWidth = 10;
-    public int gridHeight = 10;
     public float tileSize = 1.0f;
+    public int maxGridSize = 50; // Maximum grid size for dynamic expansion
 
     [Header("Tile Settings")]
     public GameObject tilePrefab;
     public Material defaultTileMaterial;
-    public Material illuminatedTileMaterial;
-
-    [Header("Dynamic Tile Generation")]
-    public bool useDynamicGeneration = true;
-    public int maxGridSize = 50; // Maximum grid size for dynamic expansion
 
     private GameObject[,] tileGrid;
     private HashSet<Vector2Int> activeTiles = new HashSet<Vector2Int>();
@@ -24,33 +18,12 @@ public class Map : MonoBehaviour
 
     void Start()
     {
-        // Initialize grid with larger potential size for dynamic generation
-        int actualGridSize = useDynamicGeneration ? maxGridSize : Mathf.Max(gridWidth, gridHeight);
-        tileGrid = new GameObject[actualGridSize, actualGridSize];
+        // Initialize grid for dynamic generation
+        tileGrid = new GameObject[maxGridSize, maxGridSize];
 
         // Create parent object for organization
         gridParent = new GameObject("TileGrid");
         gridParent.transform.parent = transform;
-
-        if (!useDynamicGeneration)
-        {
-            GenerateStaticGrid();
-        }
-    }
-
-    void GenerateStaticGrid()
-    {
-        for (int x = 0; x < gridWidth; x++)
-        {
-            for (int z = 0; z < gridHeight; z++)
-            {
-                CreateTileAt(x, z);
-                activeTiles.Add(new Vector2Int(x, z));
-            }
-        }
-
-        // Center the grid
-        gridParent.transform.position = new Vector3(-gridWidth * tileSize * 0.5f, 0, -gridHeight * tileSize * 0.5f);
     }
 
     public void RegisterLightSource(LightSource lightSource)
@@ -58,6 +31,7 @@ public class Map : MonoBehaviour
         if (!lightSources.Contains(lightSource))
         {
             lightSources.Add(lightSource);
+            UpdateTilesAroundLightSources();
             Debug.Log($"Light source registered. Total: {lightSources.Count}");
         }
     }
@@ -79,8 +53,6 @@ public class Map : MonoBehaviour
 
     void UpdateTilesAroundLightSources()
     {
-        if (!useDynamicGeneration) return;
-
         HashSet<Vector2Int> newActiveTiles = new HashSet<Vector2Int>();
 
         // Calculate which tiles should be active based on light sources
@@ -133,7 +105,6 @@ public class Map : MonoBehaviour
         }
 
         activeTiles = newActiveTiles;
-        UpdateTileVisuals();
     }
 
     void CreateTileAt(int x, int z)
@@ -156,23 +127,18 @@ public class Map : MonoBehaviour
         }
         else
         {
-            tile = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            tile.transform.position = position;
-            tile.transform.localScale = new Vector3(tileSize * 0.9f, 0.1f, tileSize * 0.9f);
-
-            if (defaultTileMaterial != null)
-            {
-                Renderer renderer = tile.GetComponent<Renderer>();
-                renderer.material = defaultTileMaterial;
-            }
+            throw new System.Exception("Tile prefab is not assigned in the Map script!");
         }
 
         tile.transform.parent = gridParent.transform;
         tile.name = $"Tile_{x - maxGridSize / 2}_{z - maxGridSize / 2}";
 
-        TileComponent tileComponent = tile.AddComponent<TileComponent>();
-        tileComponent.gridX = x - maxGridSize / 2;
-        tileComponent.gridZ = z - maxGridSize / 2;
+        TileComponent tileComponent = tile.GetComponent<TileComponent>();
+        if (tileComponent != null)
+        {
+            tileComponent.gridX = x - maxGridSize / 2;
+            tileComponent.gridZ = z - maxGridSize / 2;
+        }
 
         tileGrid[x, z] = tile;
     }
@@ -186,71 +152,19 @@ public class Map : MonoBehaviour
         }
     }
 
-    void UpdateTileVisuals()
-    {
-        foreach (Vector2Int pos in activeTiles)
-        {
-            GameObject tile = tileGrid[pos.x, pos.y];
-            if (tile != null)
-            {
-                TileComponent tileComponent = tile.GetComponent<TileComponent>();
-                if (tileComponent != null)
-                {
-                    bool isIlluminated = IsTileIlluminated(tileComponent.gridX, tileComponent.gridZ);
-                    UpdateTileAppearance(tile, isIlluminated);
-                }
-            }
-        }
-    }
-
-    bool IsTileIlluminated(int tileX, int tileZ)
-    {
-        foreach (LightSource lightSource in lightSources)
-        {
-            Vector2Int lightPos = lightSource.GetGridPosition();
-            float distance = Vector2Int.Distance(new Vector2Int(tileX, tileZ), lightPos);
-
-            if (distance <= lightSource.GetLightRadiusInTiles())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void UpdateTileAppearance(GameObject tile, bool isIlluminated)
-    {
-        Renderer renderer = tile.GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            if (isIlluminated && illuminatedTileMaterial != null)
-            {
-                renderer.material = illuminatedTileMaterial;
-            }
-            else if (defaultTileMaterial != null)
-            {
-                renderer.material = defaultTileMaterial;
-            }
-        }
-    }
-
     bool IsValidGridPosition(Vector2Int pos)
     {
-        return pos.x >= 0 && pos.x < (useDynamicGeneration ? maxGridSize : gridWidth) &&
-               pos.y >= 0 && pos.y < (useDynamicGeneration ? maxGridSize : gridHeight);
+        return pos.x >= 0 && pos.x < maxGridSize &&
+               pos.y >= 0 && pos.y < maxGridSize;
     }
 
     public GameObject GetTile(int x, int z)
     {
-        // Adjust for grid centering in dynamic mode
-        if (useDynamicGeneration)
-        {
-            x += maxGridSize / 2;
-            z += maxGridSize / 2;
-        }
+        // Adjust for grid centering
+        x += maxGridSize / 2;
+        z += maxGridSize / 2;
 
-        if (x >= 0 && x < (useDynamicGeneration ? maxGridSize : gridWidth) &&
-            z >= 0 && z < (useDynamicGeneration ? maxGridSize : gridHeight))
+        if (x >= 0 && x < maxGridSize && z >= 0 && z < maxGridSize)
         {
             return tileGrid[x, z];
         }

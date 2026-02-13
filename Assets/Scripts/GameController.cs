@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LightSourceController : MonoBehaviour
+public class GameController : MonoBehaviour
 {
     [Header("Player Management")]
     public GameObject playerPrefab;
@@ -18,7 +18,7 @@ public class LightSourceController : MonoBehaviour
 
     void Start()
     {
-        mapReference = FindObjectOfType<Map>();
+        mapReference = FindFirstObjectByType<Map>();
 
         // Automatically spawn a player at the start for testing
         if (playerPrefab != null)
@@ -92,12 +92,6 @@ public class LightSourceController : MonoBehaviour
 
         // Randomize light properties for variety
         lightSource.lightRadius = Random.Range(3f, 8f);
-        lightSource.lightColor = new Color(
-            Random.Range(0.5f, 1f),
-            Random.Range(0.5f, 1f),
-            Random.Range(0.5f, 1f),
-            1f
-        );
 
         Debug.Log($"Spawned player with light at {position}");
     }
@@ -128,7 +122,7 @@ public class LightSourceController : MonoBehaviour
 
     void RemoveLastPlayer()
     {
-        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
         if (players.Length > 0)
         {
@@ -144,7 +138,7 @@ public class LightSourceController : MonoBehaviour
 
     void MoveRandomPlayer()
     {
-        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
         if (players.Length > 0)
         {
@@ -162,7 +156,7 @@ public class LightSourceController : MonoBehaviour
 
     void ResetAllPlayers()
     {
-        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
         foreach (PlayerController player in players)
         {
@@ -191,8 +185,8 @@ public class LightSourceController : MonoBehaviour
         GUILayout.Label("Space - Jump");
         GUILayout.Label("Shift - Sprint");
 
-        int playerCount = FindObjectsOfType<PlayerController>().Length;
-        int lightCount = FindObjectsOfType<LightSource>().Length;
+        int playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
+        int lightCount = FindObjectsByType<LightSource>(FindObjectsSortMode.None).Length;
         GUILayout.Label($"Active Players: {playerCount}");
         GUILayout.Label($"Active Light Sources: {lightCount}");
         GUILayout.EndArea();

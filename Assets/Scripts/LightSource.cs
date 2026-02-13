@@ -4,8 +4,6 @@ public class LightSource : MonoBehaviour
 {
     [Header("Light Properties")]
     public float lightRadius = 5.0f;
-    public float intensity = 1.0f;
-    public Color lightColor = Color.white;
 
     private Map mapReference;
     private Vector2Int gridPosition;
@@ -14,7 +12,7 @@ public class LightSource : MonoBehaviour
     void Start()
     {
         // Find the map reference
-        mapReference = FindObjectOfType<Map>();
+        mapReference = FindFirstObjectByType<Map>();
         if (mapReference == null)
         {
             Debug.LogError("LightSource: No Map found in scene!");
@@ -96,11 +94,10 @@ public class LightSource : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         // Visualize light radius in editor
-        Gizmos.color = lightColor;
-        Gizmos.color = new Color(lightColor.r, lightColor.g, lightColor.b, 0.3f);
+        Gizmos.color = new Color(1f, 1f, 0f, 0.3f); // Yellow with transparency
         Gizmos.DrawSphere(transform.position, lightRadius);
 
-        Gizmos.color = lightColor;
+        Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, lightRadius);
     }
 }
