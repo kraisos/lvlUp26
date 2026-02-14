@@ -735,6 +735,19 @@ MonoBehaviour:
   maxGridSize: 100
   tilePrefab: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
   defaultTileMaterial: {fileID: 2100000, guid: 015072a8d2619a545b31a281bbd3ebf1, type: 2}
+  tileDataList:
+  - type: 0
+    prefab: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+    weight: 1
+  - type: 2
+    prefab: {fileID: 4339614922478637303, guid: a26e2549ef24e8844af7c025590a0a22, type: 3}
+    weight: 1
+  - type: 3
+    prefab: {fileID: 5903024189785162291, guid: 1d8b70bdcfa912c4dbb696067d6e836c, type: 3}
+    weight: 1
+  - type: 5
+    prefab: {fileID: 5903024189785162291, guid: 79d9739164fbdf541af82731fc701ebd, type: 3}
+    weight: 1
 --- !u!4 &1407019893
 Transform:
   m_ObjectHideFlags: 0
