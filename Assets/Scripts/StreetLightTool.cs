@@ -15,7 +15,7 @@ public class StreetlightTool : MonoBehaviour
     [SerializeField] private LayerMask placementRaycastMask = ~0;
     [SerializeField] private LayerMask placementBlockingMask = ~0;
     [SerializeField] private float maxPlaceDistance = 20f;
-    [SerializeField] private float placementClearanceRadius = 0.8f;
+    [SerializeField] private float minStreetlightSpacing = 0.8f;
     [SerializeField] private float ghostYOffset = 0.02f;
     [SerializeField] private float requiredStreetlightDistance = 10f;
 
@@ -184,7 +184,33 @@ public class StreetlightTool : MonoBehaviour
             return false;
         }
 */
+        if (IsTooCloseToStreetlight(position))
+        {
+            return false;
+        }
+
         return HasStreetlightInRange(position);
+    }
+
+    private bool IsTooCloseToStreetlight(Vector3 candidatePosition)
+    {
+        var existingStreetlights = FindObjectsByType<Streetlight>(FindObjectsSortMode.None);
+        for (var i = 0; i < existingStreetlights.Length; i++)
+        {
+            var light = existingStreetlights[i];
+            if (light == null)
+            {
+                continue;
+            }
+
+            var distance = Vector3.Distance(candidatePosition, light.transform.position);
+            if (distance < minStreetlightSpacing)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private bool HasStreetlightInRange(Vector3 candidatePosition)
