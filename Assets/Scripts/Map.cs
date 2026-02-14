@@ -382,4 +382,133 @@ public class Map : MonoBehaviour
         }
         return null;
     }
+
+    /// <summary>
+    /// Finds a tile at the given distance (in tiles) from originWorld where the
+    /// circular area of the given radius (in world units) is entirely void, seeds
+    /// all tiles within that radius with Ground, and returns the world-space
+    /// position of the centre tile.
+    /// </summary>
+    /// <param name="clearRadiusWorld">Radius in world units of the area to clear.
+    /// Defaults to one tile step (i.e. a 3×3 area).</param>
+    public Vector3 ReserveClearTile(Vector3 originWorld, int tileDistance, float clearRadiusWorld = -1f)
+    {
+        float worldStep = tileSize * tileScale;
+
+        // Default clear radius: 1 tile step → covers the 3×3 neighbourhood
+        if (clearRadiusWorld < 0f)
+            clearRadiusWorld = worldStep;
+
+        int clearRadiusTiles = Mathf.CeilToInt(clearRadiusWorld / worldStep);
+
+        // Convert the world-space origin to a grid coordinate (un-adjusted, centred)
+        Vector2Int originGrid = new Vector2Int(
+            Mathf.RoundToInt(originWorld.x / worldStep),
+            Mathf.RoundToInt(originWorld.z / worldStep)
+        );
+
+        const int maxAttempts = 36;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            float angle = Random.Range(0f, 360f);
+            int gx = originGrid.x + Mathf.RoundToInt(Mathf.Cos(angle * Mathf.Deg2Rad) * tileDistance);
+            int gz = originGrid.y + Mathf.RoundToInt(Mathf.Sin(angle * Mathf.Deg2Rad) * tileDistance);
+
+            Vector2Int candidate = new Vector2Int(gx, gz);
+
+            if (IsAreaClear(candidate, clearRadiusTiles))
+            {
+                SeedGroundArea(candidate, clearRadiusTiles);
+                return GridToWorld(candidate, originWorld.y);
+            }
+        }
+
+        // Fallback: scan a ring at the exact distance and pick the first clear spot
+        for (int angle = 0; angle < 360; angle += 5)
+        {
+            int gx = originGrid.x + Mathf.RoundToInt(Mathf.Cos(angle * Mathf.Deg2Rad) * tileDistance);
+            int gz = originGrid.y + Mathf.RoundToInt(Mathf.Sin(angle * Mathf.Deg2Rad) * tileDistance);
+
+            Vector2Int candidate = new Vector2Int(gx, gz);
+
+            if (IsAreaClear(candidate, clearRadiusTiles))
+            {
+                SeedGroundArea(candidate, clearRadiusTiles);
+                return GridToWorld(candidate, originWorld.y);
+            }
+        }
+
+        // Last resort: force-clear even if not void
+        float fallbackAngle = Random.Range(0f, 360f);
+        int fx = originGrid.x + Mathf.RoundToInt(Mathf.Cos(fallbackAngle * Mathf.Deg2Rad) * tileDistance);
+        int fz = originGrid.y + Mathf.RoundToInt(Mathf.Sin(fallbackAngle * Mathf.Deg2Rad) * tileDistance);
+        Vector2Int fallback = new Vector2Int(fx, fz);
+        SeedGroundArea(fallback, clearRadiusTiles);
+        Debug.LogWarning($"ReserveClearTile: no fully clear area (r={clearRadiusTiles}) found at distance {tileDistance}, force-cleared at {fallback}");
+        return GridToWorld(fallback, originWorld.y);
+    }
+
+    /// <summary>
+    /// Returns true when every tile within the given tile radius (circular) of
+    /// gridPos is void and within valid grid bounds.
+    /// </summary>
+    private bool IsAreaClear(Vector2Int gridPos, int radiusTiles)
+    {
+        for (int dx = -radiusTiles; dx <= radiusTiles; dx++)
+        {
+            for (int dz = -radiusTiles; dz <= radiusTiles; dz++)
+            {
+                if (dx * dx + dz * dz > radiusTiles * radiusTiles)
+                    continue;
+
+                Vector2Int adjusted = new Vector2Int(
+                    gridPos.x + dx + maxGridSize / 2,
+                    gridPos.y + dz + maxGridSize / 2
+                );
+
+                if (!IsValidGridPosition(adjusted))
+                    return false;
+
+                if (!tileInfoMap.Get(adjusted).IsVoid)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Seeds all tiles within the given tile radius (circular) of gridPos
+    /// with Ground tiles in the tile info map.
+    /// </summary>
+    private void SeedGroundArea(Vector2Int gridPos, int radiusTiles)
+    {
+        for (int dx = -radiusTiles; dx <= radiusTiles; dx++)
+        {
+            for (int dz = -radiusTiles; dz <= radiusTiles; dz++)
+            {
+                if (dx * dx + dz * dz > radiusTiles * radiusTiles)
+                    continue;
+
+                Vector2Int adjusted = new Vector2Int(
+                    gridPos.x + dx + maxGridSize / 2,
+                    gridPos.y + dz + maxGridSize / 2
+                );
+
+                if (IsValidGridPosition(adjusted))
+                {
+                    tileInfoMap.Set(adjusted, new TileInfo(TileType.Ground));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Converts a centred grid coordinate to a world-space position.
+    /// </summary>
+    private Vector3 GridToWorld(Vector2Int gridPos, float y)
+    {
+        float worldStep = tileSize * tileScale;
+        return new Vector3(gridPos.x * worldStep, y, gridPos.y * worldStep);
+    }
 }

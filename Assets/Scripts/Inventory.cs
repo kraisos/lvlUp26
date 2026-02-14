@@ -54,6 +54,60 @@ public class Inventory : MonoBehaviour
         Changed?.Invoke();
     }
 
+    public bool HasItem(string itemId, int quantity = 1)
+    {
+        if (string.IsNullOrWhiteSpace(itemId) || quantity <= 0)
+        {
+            return false;
+        }
+
+        var existing = items.Find(item => item.itemId == itemId);
+        if (existing == null)
+        {
+            return false;
+        }
+
+        if (existing.quantity == int.MaxValue)
+        {
+            return true;
+        }
+
+        return existing.quantity >= quantity;
+    }
+
+    public bool TryConsumeItem(string itemId, int quantity = 1)
+    {
+        if (string.IsNullOrWhiteSpace(itemId) || quantity <= 0)
+        {
+            return false;
+        }
+
+        var existing = items.Find(item => item.itemId == itemId);
+        if (existing == null)
+        {
+            return false;
+        }
+
+        if (existing.quantity == int.MaxValue)
+        {
+            return true;
+        }
+
+        if (existing.quantity < quantity)
+        {
+            return false;
+        }
+
+        existing.quantity -= quantity;
+        if (existing.quantity <= 0)
+        {
+            items.Remove(existing);
+        }
+
+        Changed?.Invoke();
+        return true;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         Item item = other.gameObject?.GetComponentInParent<Item>();
