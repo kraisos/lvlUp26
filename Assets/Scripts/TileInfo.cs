@@ -42,22 +42,21 @@ public class TileTypeInfo
 		isDoor = door;
 	}
 
-	public static readonly TileTypeInfo[] wallTypes =
-	[
-		new(TileType.WallNW, false, true, true, false, true, false),
-		new(TileType.WallNE, false, false, true, true, true, false),
-		new(TileType.WallSE, true, false, false, true, true, false),
-		new(TileType.WallSW, true, true, false, false, true, false),
-		new(TileType.WallVertical, true, false, true, false, true, false),
-		new(TileType.WallHorizontal, false, true, false, true, true, false),
-		new(TileType.WallTN, false, true, true, true, true, false),
-		new(TileType.WallTE, true, false, true, true, true, false),
-		new(TileType.WallTS, true, true, false, true, true, false),
-		new(TileType.WallTW, true, true, true, false, true, false),
-		new(TileType.WallCross, true, true, true, true, true, false),
-		new(TileType.DoorVertical, true, false, true, false, true, true),
-		new(TileType.DoorHorizontal, false, true, false, true, true, true)
-	];
+	public static readonly TileTypeInfo[] wallTypes = new TileTypeInfo[] {
+		new TileTypeInfo(TileType.WallNW, false, true, true, false, true, false),
+		new TileTypeInfo(TileType.WallNE, false, false, true, true, true, false),
+		new TileTypeInfo(TileType.WallSE, true, false, false, true, true, false),
+		new TileTypeInfo(TileType.WallSW, true, true, false, false, true, false),
+		new TileTypeInfo(TileType.WallVertical, true, false, true, false, true, false),
+		new TileTypeInfo(TileType.WallHorizontal, false, true, false, true, true, false),
+		new TileTypeInfo(TileType.WallTN, false, true, true, true, true, false),
+		new TileTypeInfo(TileType.WallTE, true, false, true, true, true, false),
+		new TileTypeInfo(TileType.WallTS, true, true, false, true, true, false),
+		new TileTypeInfo(TileType.WallTW, true, true, true, false, true, false),
+		new TileTypeInfo(TileType.WallCross, true, true, true, true, true, false),
+		new TileTypeInfo(TileType.DoorVertical, true, false, true, false, true, true),
+		new TileTypeInfo(TileType.DoorHorizontal, false, true, false, true, true, true)
+	};
 }
 
 public enum TilePrefabType {
