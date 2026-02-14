@@ -286,14 +286,14 @@ public class Map : MonoBehaviour
             case TileType.WallSE:           return 270f;
 
             // T-junctions (base: TN ┬)
-            case TileType.WallTN:           return 0f;
-            case TileType.WallTE:           return 90f;
-            case TileType.WallTS:           return 180f;
-            case TileType.WallTW:           return 270f;
+            case TileType.WallTS:           return 0f;
+            case TileType.WallTW:           return 90f;
+            case TileType.WallTN:           return 180f;
+            case TileType.WallTE:           return 270f;
 
             // Doors
-            case TileType.DoorVertical:     return 0f;
-            case TileType.DoorHorizontal:   return 90f;
+            case TileType.DoorHorizontal:   return 0f;
+            case TileType.DoorVertical:     return 90f;
 
             // Cross, terrain, void — no rotation
             default:                        return 0f;

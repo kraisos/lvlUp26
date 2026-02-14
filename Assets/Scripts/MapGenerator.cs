@@ -5,7 +5,7 @@ using UnityEngine;
 public class MapGenerator
 {
     private TileInfoMap tileInfoMap;
-    private float wallSpawnChance = 0.08f;
+    private float wallSpawnChance = 0.01f;
 
     public MapGenerator(TileInfoMap tileInfoMap)
     {

@@ -49,13 +49,13 @@ public class TileTypeInfo
 		new TileTypeInfo(TileType.WallSW, true, true, false, false, true, false),
 		new TileTypeInfo(TileType.WallVertical, true, false, true, false, true, false),
 		new TileTypeInfo(TileType.WallHorizontal, false, true, false, true, true, false),
-		//new TileTypeInfo(TileType.WallTN, false, true, true, true, true, false),
-		//new TileTypeInfo(TileType.WallTE, true, false, true, true, true, false),
-		//new TileTypeInfo(TileType.WallTS, true, true, false, true, true, false),
-		//new TileTypeInfo(TileType.WallTW, true, true, true, false, true, false),
-		//new TileTypeInfo(TileType.WallCross, true, true, true, true, true, false),
-		//new TileTypeInfo(TileType.DoorVertical, true, false, true, false, true, true),
-		//new TileTypeInfo(TileType.DoorHorizontal, false, true, false, true, true, true)
+		new TileTypeInfo(TileType.WallTN, false, true, true, true, true, false),
+		new TileTypeInfo(TileType.WallTE, true, false, true, true, true, false),
+		new TileTypeInfo(TileType.WallTS, true, true, false, true, true, false),
+		new TileTypeInfo(TileType.WallTW, true, true, true, false, true, false),
+		new TileTypeInfo(TileType.WallCross, true, true, true, true, true, false),
+		new TileTypeInfo(TileType.DoorVertical, true, false, true, false, true, true),
+		new TileTypeInfo(TileType.DoorHorizontal, false, true, false, true, true, true)
 	};
 }
 
