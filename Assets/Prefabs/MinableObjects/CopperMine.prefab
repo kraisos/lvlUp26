@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e66a3494b2b94f44ab22259a9a39baed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MineableObject
-  miningDuration: 1.5
+  miningDuration: 5
   dropPrefab: {fileID: 8687389272555865014, guid: a37b1b424d5385a4bb22a208023e24fa, type: 3}
 --- !u!135 &1507081876541864780
 SphereCollider:
