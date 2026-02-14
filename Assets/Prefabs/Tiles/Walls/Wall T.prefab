@@ -122,7 +122,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalScale.y
-      value: 12
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalScale.z
@@ -134,7 +134,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -175,13 +175,34 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 420279162054415730}
   m_SourcePrefab: {fileID: 100100000, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
 --- !u!4 &99969328078525908 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
   m_PrefabInstance: {fileID: 5599429001237696233}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8181989140432805406 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+  m_PrefabInstance: {fileID: 5599429001237696233}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &420279162054415730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8181989140432805406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda49f2bc3ca89785b72cff843ec101a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WallHeight
+  x: 3
 --- !u!1001 &7845944231127818733
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -200,7 +221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalScale.y
-      value: 12
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalScale.z
@@ -212,7 +233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -253,10 +274,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7366697121176046101}
   m_SourcePrefab: {fileID: 100100000, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
 --- !u!4 &2320592013153745616 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
   m_PrefabInstance: {fileID: 7845944231127818733}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5826264230922613018 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+  m_PrefabInstance: {fileID: 7845944231127818733}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7366697121176046101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5826264230922613018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda49f2bc3ca89785b72cff843ec101a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WallHeight
+  x: 3

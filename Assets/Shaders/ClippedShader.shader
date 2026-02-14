@@ -9,7 +9,7 @@ Shader "Custom/ClippedByVolumeSoftEdge"
         
         _CutColor ("Cut Color", Color) = (0,0,0,1)
         _EdgeSoftness ("Edge Softness", Range(0.001, 0.5)) = 0.05
-        
+
         [Toggle] _SceneViewDebug ("Scene View Debug", Float) = 0
         _DebugColor ("Debug Color", Color) = (0,1,0,0.5)
     }
@@ -122,6 +122,7 @@ Shader "Custom/ClippedByVolumeSoftEdge"
 
                 // Albedo comes from a texture tinted by color
                 fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
+
                 o.Albedo = c.rgb;
                 // Metallic and smoothness come from slider variables
                 o.Metallic = _Metallic;

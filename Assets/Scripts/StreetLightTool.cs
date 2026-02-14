@@ -15,7 +15,6 @@ public class StreetlightTool : MonoBehaviour
     [SerializeField] private LayerMask placementRaycastMask = ~0;
     [SerializeField] private LayerMask placementBlockingMask = ~0;
     [SerializeField] private float maxPlaceDistance = 20f;
-    [SerializeField] private float placementClearanceRadius = 0.8f;
     [SerializeField] private float ghostYOffset = 0.02f;
     [SerializeField] private float requiredStreetlightDistance = 10f;
 
