@@ -10,8 +10,12 @@ public class MainMenuController : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Button playButton;
 
-    void Start()
+void Start()
     {
+        // Force cursor visible and unlocked for menu
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         if (playButton != null)
             playButton.onClick.AddListener(OnPlayClicked);
     }
