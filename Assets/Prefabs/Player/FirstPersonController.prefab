@@ -174,14 +174,14 @@ MonoBehaviour:
   zoomFOV: 30
   zoomStepTime: 5
   playerCanMove: 1
-  walkSpeed: 5
+  walkSpeed: 2
   maxVelocityChange: 10
   enableSprint: 1
   unlimitedSprint: 0
-  sprintSpeed: 7
+  sprintSpeed: 5
   sprintDuration: 5
   sprintCooldown: 3
-  sprintFOV: 80
+  sprintFOV: 90
   sprintFOVStepTime: 10
   useSprintBar: 1
   hideBarWhenFull: 1
@@ -526,6 +526,7 @@ GameObject:
   - component: {fileID: 4459864851310106427}
   - component: {fileID: 5132216616069239669}
   - component: {fileID: 1084405019230348929}
+  - component: {fileID: 4260822606168740914}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: MainCamera
@@ -662,6 +663,20 @@ Skybox:
   m_GameObject: {fileID: 4459864851310106424}
   m_Enabled: 0
   m_CustomSkybox: {fileID: 2100000, guid: 2d056ac30ecc9e542b26e06133f23602, type: 2}
+--- !u!114 &4260822606168740914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4459864851310106424}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1f10d9dd1203b9bb9290c5e2dc9d067, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenOverlay
+  darkenMaterial: {fileID: 2100000, guid: 6b880002e0a474ec9b5b408ada832572, type: 2}
+  darkness: 0.101
 --- !u!1 &4459864851397454630
 GameObject:
   m_ObjectHideFlags: 0
