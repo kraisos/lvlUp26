@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/michael.unity
     guid: 05c2a4ddbd9cd714b82c9ad4d81af764
   - enabled: 1
-    path: Assets/Scenes/Gilles 2.unity
+    path: Assets/Scenes/GameScene.unity
     guid: 1e91fff17f1b3a44bb5a82c2f47963a4
   - enabled: 1
     path: Assets/Scenes/Caco.unity

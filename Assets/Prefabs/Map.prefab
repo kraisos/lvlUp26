@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &787395536239060122
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2971795865648471488}
+  - component: {fileID: 6151840828906463654}
+  m_Layer: 0
+  m_Name: Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2971795865648471488
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 787395536239060122}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6151840828906463654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 787395536239060122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd68c47a7b71c741b3215f1c2d8d9ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Map
+  tileSize: 1
+  tileScale: 3
+  maxGridSize: 100
+  tilePrefab: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+  defaultTileMaterial: {fileID: 2100000, guid: 015072a8d2619a545b31a281bbd3ebf1, type: 2}
+  tileDataList:
+  - type: 0
+    prefab: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+    weight: 1
+  - type: 1
+    prefab: {fileID: 4339614922478637303, guid: 4df95d6f228075648a18b16cfd743e5f, type: 3}
+    weight: 1
+  - type: 2
+    prefab: {fileID: 4339614922478637303, guid: a26e2549ef24e8844af7c025590a0a22, type: 3}
+    weight: 1
+  - type: 3
+    prefab: {fileID: 5903024189785162291, guid: 1d8b70bdcfa912c4dbb696067d6e836c, type: 3}
+    weight: 1
+  - type: 5
+    prefab: {fileID: 5903024189785162291, guid: d87b3cd0eb0aa914f9e41e2dc5859aa9, type: 3}
+    weight: 1
+  - type: 6
+    prefab: {fileID: 5903024189785162291, guid: 79d9739164fbdf541af82731fc701ebd, type: 3}
+    weight: 1
+  - type: 7
+    prefab: {fileID: 5903024189785162291, guid: 453039f091daf2947b0ac7ebb6955ccf, type: 3}
+    weight: 1
+  - type: 4
+    prefab: {fileID: 5903024189785162291, guid: f56ecd52eaec64a479b948ee4f63439d, type: 3}
+    weight: 1
