@@ -76,11 +76,11 @@ MonoBehaviour:
     prefab: {fileID: 5903024189785162291, guid: f56ecd52eaec64a479b948ee4f63439d, type: 3}
     weight: 1
   - type: 1
-    prefab: {fileID: 5903024189785162291, guid: f56ecd52eaec64a479b948ee4f63439d, type: 3}
+    prefab: {fileID: 4339614922478637303, guid: 6ccd5c6abda2c75f2b6d12662d81fdb3, type: 3}
     weight: 1
-  - type: 4
-    prefab: {fileID: 5903024189785162291, guid: f56ecd52eaec64a479b948ee4f63439d, type: 3}
+  - type: 1
+    prefab: {fileID: 4339614922478637303, guid: bc3458b11283c08448c7b85912e5eb43, type: 3}
     weight: 1
-  - type: 4
-    prefab: {fileID: 5903024189785162291, guid: f56ecd52eaec64a479b948ee4f63439d, type: 3}
+  - type: 1
+    prefab: {fileID: 4339614922478637303, guid: eed1a9794cb89e6968d7195702e04206, type: 3}
     weight: 1
