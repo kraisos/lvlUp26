@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -31,6 +32,15 @@ public class StreetlightTool : MonoBehaviour
     private Vector3 lastSnappedPosition;
     private bool hasValidPlacement;
 
+    private readonly List<LineRenderer> ghostPipePool = new List<LineRenderer>();
+    private int activeGhostPipeCount;
+    private const int GhostPipeSegments = 16;
+    private const float GhostPipeWidth = 0.15f;
+    private const float GhostPipeAnchorY = 0.05f;
+    private const float GhostPipeAnchorOffset = 0.3f;
+    private const float GhostPipeTangentStrength = 0.4f;
+    private const float GhostPipeSCurveOffset = 0.5f;
+
     private void Awake()
     {
         if (playerCamera == null)
@@ -57,6 +67,8 @@ public class StreetlightTool : MonoBehaviour
         {
             ghostInstance.SetActive(false);
         }
+
+        HideAllGhostPipes();
     }
 
     private void Update()
@@ -108,6 +120,7 @@ public class StreetlightTool : MonoBehaviour
             {
                 ghostInstance.SetActive(false);
             }
+            HideAllGhostPipes();
             return;
         }
 
@@ -115,6 +128,7 @@ public class StreetlightTool : MonoBehaviour
         {
             hasValidPlacement = false;
             ghostInstance.SetActive(false);
+            HideAllGhostPipes();
             return;
         }
 
@@ -130,7 +144,154 @@ public class StreetlightTool : MonoBehaviour
 
         ghostInstance.transform.position = snappedPosition + new Vector3(0f, ghostYOffset, 0f);
         ghostInstance.transform.rotation = Quaternion.identity;
-        ApplyGhostMaterial(hasValidPlacement ? validGhostMaterial : invalidGhostMaterial);
+
+        var ghostMat = hasValidPlacement ? validGhostMaterial : invalidGhostMaterial;
+        ApplyGhostMaterial(ghostMat);
+        UpdateGhostPipes(snappedPosition, ghostMat);
+    }
+
+    private void UpdateGhostPipes(Vector3 ghostPosition, Material ghostMaterial)
+    {
+        var ghostBase = ghostPosition + Vector3.up * GhostPipeAnchorY;
+        var existingStreetlights = FindObjectsByType<Streetlight>(FindObjectsSortMode.None);
+
+        activeGhostPipeCount = 0;
+
+        for (var i = 0; i < existingStreetlights.Length; i++)
+        {
+            var sl = existingStreetlights[i];
+            if (sl == null)
+            {
+                continue;
+            }
+
+            var distance = Vector3.Distance(ghostPosition, sl.transform.position);
+            if (distance > requiredStreetlightDistance || distance < minStreetlightSpacing)
+            {
+                continue;
+            }
+
+            // Ghost start anchor: at the foot of the ghost lamppost
+            var dir = sl.transform.position - ghostPosition;
+            dir.y = 0f;
+            var start = ghostBase + GetCardinalOffset(dir) * GhostPipeAnchorOffset;
+
+            // End anchor: at the foot of the existing lamppost
+            var anchorComp = sl.GetComponent<CableAnchor>();
+            Vector3 end;
+            if (anchorComp != null)
+            {
+                end = anchorComp.GetAnchorToward(ghostPosition).position;
+            }
+            else
+            {
+                end = sl.transform.position + Vector3.up * GhostPipeAnchorY;
+            }
+
+            var lr = GetOrCreateGhostPipe(activeGhostPipeCount);
+            SetGhostPipeCurve(lr, start, end, ghostMaterial);
+            lr.gameObject.SetActive(true);
+            activeGhostPipeCount++;
+        }
+
+        // Hide unused ghost pipes
+        for (var i = activeGhostPipeCount; i < ghostPipePool.Count; i++)
+        {
+            ghostPipePool[i].gameObject.SetActive(false);
+        }
+    }
+
+    private Vector3 GetCardinalOffset(Vector3 direction)
+    {
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            return Vector3.forward;
+        }
+
+        var absX = Mathf.Abs(direction.x);
+        var absZ = Mathf.Abs(direction.z);
+
+        if (absZ >= absX)
+        {
+            return direction.z >= 0f ? Vector3.forward : Vector3.back;
+        }
+
+        return direction.x >= 0f ? Vector3.right : Vector3.left;
+    }
+
+    private LineRenderer GetOrCreateGhostPipe(int index)
+    {
+        if (index < ghostPipePool.Count)
+        {
+            return ghostPipePool[index];
+        }
+
+        var go = new GameObject($"GhostPipe_{index}");
+        go.transform.SetParent(transform, false);
+
+        var lr = go.AddComponent<LineRenderer>();
+        lr.positionCount = GhostPipeSegments + 1;
+        lr.startWidth = GhostPipeWidth;
+        lr.endWidth = GhostPipeWidth;
+        lr.useWorldSpace = true;
+        lr.numCapVertices = 3;
+        lr.numCornerVertices = 3;
+        lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        lr.receiveShadows = false;
+
+        ghostPipePool.Add(lr);
+        return lr;
+    }
+
+    private void SetGhostPipeCurve(LineRenderer lr, Vector3 start, Vector3 end, Material material)
+    {
+        lr.positionCount = GhostPipeSegments + 1;
+        lr.material = material;
+
+        var dist = Vector3.Distance(start, end);
+        var tangentLen = dist * GhostPipeTangentStrength;
+
+        var dirXZ = end - start;
+        dirXZ.y = 0f;
+        if (dirXZ.sqrMagnitude > 0.001f)
+        {
+            dirXZ.Normalize();
+        }
+        else
+        {
+            dirXZ = Vector3.forward;
+        }
+
+        var perp = new Vector3(-dirXZ.z, 0f, dirXZ.x);
+        var groundY = Mathf.Min(start.y, end.y);
+
+        var p0 = start;
+        var p1 = start + dirXZ * tangentLen + perp * GhostPipeSCurveOffset;
+        p1.y = groundY;
+        var p2 = end - dirXZ * tangentLen - perp * GhostPipeSCurveOffset;
+        p2.y = groundY;
+        var p3 = end;
+
+        for (var i = 0; i <= GhostPipeSegments; i++)
+        {
+            var t = (float)i / GhostPipeSegments;
+            var u = 1f - t;
+            var position = u * u * u * p0 + 3f * u * u * t * p1 + 3f * u * t * t * p2 + t * t * t * p3;
+            lr.SetPosition(i, position);
+        }
+    }
+
+    private void HideAllGhostPipes()
+    {
+        for (var i = 0; i < ghostPipePool.Count; i++)
+        {
+            if (ghostPipePool[i] != null)
+            {
+                ghostPipePool[i].gameObject.SetActive(false);
+            }
+        }
+
+        activeGhostPipeCount = 0;
     }
 
     private bool TryGetPointedWorldPoint(out Vector3 point)
@@ -173,7 +334,7 @@ public class StreetlightTool : MonoBehaviour
         {
             return false;
         }
-        
+
         if (IsTooCloseToStreetlight(position))
         {
             return false;
