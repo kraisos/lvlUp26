@@ -66,7 +66,6 @@ public class GameController : MonoBehaviour
     public void SpawnPlayer(Vector3 position)
     {
         player = Instantiate(playerPrefab, position, Quaternion.identity);
-        player.transform.localScale = Vector3.one * 0.75f;
         Debug.Log($"Spawned player at {position}");
 
         // Track streetlight pickups via inventory
