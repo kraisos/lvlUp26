@@ -22,7 +22,7 @@ Shader "Custom/ClippedByVolumeSoftEdge"
         CGINCLUDE
             #include "UnityCG.cginc"
             
-            #define MAX_VOLUMES 16
+            #define MAX_VOLUMES 64
             
             float4x4 _MaskMatrices[MAX_VOLUMES];
             float4 _MaskShapeData[MAX_VOLUMES];

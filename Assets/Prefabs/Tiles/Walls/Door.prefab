@@ -271,6 +271,10 @@ PrefabInstance:
       value: Wall_Set
       objectReference: {fileID: 0}
     - target: {fileID: 6234689798981087958, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 20a74f762601fd24897dd26537bc81fc, type: 2}
+    - target: {fileID: 6234689798981087958, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: d70949a1b11debb4293e9981d80b331a, type: 2}
