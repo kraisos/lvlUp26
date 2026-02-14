@@ -463,7 +463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46354ad72ca285946a597c5ddfd62627, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TankAI
-  detectionRange: 5
+  detectionRange: 30
   fieldOfViewAngle: 360
   moveSpeed: 4
   rotationSpeed: 5
