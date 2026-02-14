@@ -47,10 +47,12 @@ public class TilesGenerator : MonoBehaviour
         if (mapReference != null)
         {
             // Convert world position to grid coordinates
+            // Tiles are spaced at tileSize * tileScale in world units
+            float worldStep = mapReference.tileSize * mapReference.tileScale;
             Vector3 localPos = transform.position - mapReference.transform.position;
             gridPosition = new Vector2Int(
-                Mathf.RoundToInt(localPos.x / mapReference.tileSize),
-                Mathf.RoundToInt(localPos.z / mapReference.tileSize)
+                Mathf.RoundToInt(localPos.x / worldStep),
+                Mathf.RoundToInt(localPos.z / worldStep)
             );
         }
     }
@@ -72,7 +74,8 @@ public class TilesGenerator : MonoBehaviour
     {
         if (mapReference != null)
         {
-            return Mathf.CeilToInt(radius / mapReference.tileSize);
+            float worldStep = mapReference.tileSize * mapReference.tileScale;
+            return Mathf.CeilToInt(radius / worldStep);
         }
         return Mathf.CeilToInt(radius);
     }
