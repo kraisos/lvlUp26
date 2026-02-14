@@ -1,6 +1,16 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public class MapGenerator
+{
+    private Dictionary<Vector2Int, TileInfo> tileInfoMap;
+
+    public MapGenerator(Dictionary<Vector2Int, TileInfo> tileInfoMap)
+    {
+        this.tileInfoMap = tileInfoMap;
+    }
+}
+
 public class WFCGenerator : MonoBehaviour
 {
     public enum TileType
