@@ -119,9 +119,44 @@ Shader "Custom/ClippedByVolumeSoftEdge"
         // Pass 2: Render front faces (Outside)
         Cull Back
         CGPROGRAM
-        #pragma surface surf Standard fullforwardshadows
+        #pragma surface surf Standard fullforwardshadows addshadow
         #pragma target 3.0
         ENDCG
+        
+        // Shadow caster pass - respects clipping
+        Pass
+        {
+            Tags { "LightMode" = "ShadowCaster" }
+            
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+            #include "UnityCG.cginc"
+            
+            struct v2f {
+                V2F_SHADOW_CASTER;
+                float3 worldPos : TEXCOORD1;
+            };
+            
+            v2f vert(appdata_base v)
+            {
+                v2f o;
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+                return o;
+            }
+            
+            float4 frag(v2f i) : SV_Target
+            {
+                float dist = GetMaxDistanceInsideMasks(i.worldPos);
+                if (dist < 0)
+                    discard;
+                    
+                SHADOW_CASTER_FRAGMENT(i)
+            }
+            ENDCG
+        }
     }
     FallBack "Diffuse"
 }
