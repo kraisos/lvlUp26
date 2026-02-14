@@ -9,12 +9,9 @@ public class LightedZone : MonoBehaviour
     [SerializeField] private bool ignoreTriggerColliders = true;
 
     [Header("Behavior")]
-    [SerializeField] private bool triggerOnce = true;
     [SerializeField] private bool triggerStoryLine = true;
 
     [SerializeField] private GameObject maskSphere;
-
-    private bool hasTriggered;
 
 
     private void Start()
@@ -36,10 +33,6 @@ public class LightedZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (hasTriggered && triggerOnce)
-        {
-            return;
-        }
 
         Debug.Log($"LightedZone: Triggered by {other.name}");
         if (!IsPlayer(other))
@@ -48,7 +41,6 @@ public class LightedZone : MonoBehaviour
         }
 
         int killedCount = KillAllMobs();
-        hasTriggered = true;
 
         if (triggerStoryLine && killedCount > 0 && StoryAudioManager.Instance != null)
         {
