@@ -1,14 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// End-goal beacon that the player must reach.
-/// Place this on a GameObject with a trigger collider to detect player arrival.
+/// End-goal beacon. The player wins by placing a streetlight close enough to it.
 /// </summary>
 public class Beacon : MonoBehaviour
 {
     [Header("Detection")]
-    public float activationRadius = 3f;
-    public string playerTag = "Player";
+    public float activationRadius = 20f;
 
     [Header("Visuals")]
     public Color beaconColor = new Color(0.2f, 0.8f, 1f, 1f);
@@ -21,21 +19,12 @@ public class Beacon : MonoBehaviour
     public bool IsReached => reached;
 
     /// <summary>
-    /// Fired when the player reaches the beacon.
+    /// Fired when a streetlight is placed close enough to the beacon.
     /// </summary>
     public event System.Action OnBeaconReached;
 
     void Start()
     {
-        // Add a sphere trigger collider for player detection
-        SphereCollider trigger = gameObject.GetComponent<SphereCollider>();
-        if (trigger == null)
-        {
-            trigger = gameObject.AddComponent<SphereCollider>();
-        }
-        trigger.isTrigger = true;
-        trigger.radius = activationRadius;
-
         // Add a point light as a visual beacon
         beaconLight = gameObject.GetComponentInChildren<Light>();
         if (beaconLight == null)
@@ -63,16 +52,17 @@ public class Beacon : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    /// <summary>
+    /// Called by a Streetlight when it's placed close enough to this beacon.
+    /// </summary>
+    public void NotifyReached(Streetlight streetlight)
     {
         if (reached) return;
 
-        if (other.CompareTag(playerTag) || other.GetComponentInParent<Inventory>() != null)
-        {
-            reached = true;
-            Debug.Log("Beacon reached! Objective complete.");
-            OnBeaconReached?.Invoke();
-        }
+        float dist = Vector3.Distance(transform.position, streetlight.transform.position);
+        reached = true;
+        Debug.Log($"Beacon activated! Streetlight placed at distance {dist:F1}m (radius {activationRadius}m).");
+        OnBeaconReached?.Invoke();
     }
 
     void OnDrawGizmos()
