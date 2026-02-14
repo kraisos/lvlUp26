@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class MobAI : MonoBehaviour
 {
+    private static readonly System.Collections.Generic.List<MobAI> ActiveMobs = new System.Collections.Generic.List<MobAI>();
+
     [Header("Detection")]
     public float detectionRange = 15f;
     public float fieldOfViewAngle = 360f;
@@ -10,6 +12,14 @@ public class MobAI : MonoBehaviour
     public float moveSpeed = 5f;
     public float rotationSpeed = 5f;
     public float stoppingDistance = 1.5f;
+
+    [Header("Physics")]
+    public bool autoConfigureRigidbody = true;
+
+    [Header("Mob Separation")]
+    public float separationRadius = 2f;
+    [Tooltip("How strongly this mob pushes away from nearby mobs while moving")]
+    public float separationStrength = 2f;
 
     [Header("Ground")]
     public float groundCheckDistance = 2f;
@@ -25,15 +35,47 @@ public class MobAI : MonoBehaviour
 
     private Transform currentTarget;
     private Animator animator;
+    private Rigidbody rb;
     private bool isWalking;
+    private Vector3 desiredMoveDirection;
+    private bool shouldMove;
 
     void Awake()
     {
         animator = GetComponent<Animator>();
+
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody>();
+        }
+
+        if (autoConfigureRigidbody && rb != null)
+        {
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+    }
+
+    void OnEnable()
+    {
+        if (!ActiveMobs.Contains(this))
+        {
+            ActiveMobs.Add(this);
+        }
+    }
+
+    void OnDisable()
+    {
+        ActiveMobs.Remove(this);
     }
 
     void Update()
     {
+        shouldMove = false;
+        desiredMoveDirection = Vector3.zero;
+
         FindClosestTarget();
 
         if (currentTarget != null)
@@ -54,6 +96,29 @@ public class MobAI : MonoBehaviour
         {
             UpdateAnimation(false);
         }
+    }
+
+    void FixedUpdate()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        Vector3 currentVelocity = rb.linearVelocity;
+
+        if (!shouldMove || desiredMoveDirection.sqrMagnitude < 0.001f)
+        {
+            rb.linearVelocity = new Vector3(0f, currentVelocity.y, 0f);
+            return;
+        }
+
+        Vector3 horizontalVelocity = desiredMoveDirection * moveSpeed;
+        rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
+
+        Quaternion targetRotation = Quaternion.LookRotation(desiredMoveDirection);
+        Quaternion smoothedRotation = Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+        rb.MoveRotation(smoothedRotation);
     }
 
     void FindClosestTarget()
@@ -85,17 +150,67 @@ public class MobAI : MonoBehaviour
 
     void MoveTowardTarget()
     {
-        Vector3 direction = (currentTarget.position - transform.position);
-        direction.y = 0f; // Keep movement on the horizontal plane
+        Vector3 direction = currentTarget.position - transform.position;
+        direction.y = 0f;
 
         if (direction.sqrMagnitude < 0.001f) return;
 
-        // Rotate toward target
-        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        Vector3 chaseDirection = direction.normalized;
+        Vector3 separationDirection = GetSeparationDirection();
+        Vector3 moveDirection = chaseDirection + separationDirection * separationStrength;
+        moveDirection.y = 0f;
 
-        // Move forward
-        transform.position += transform.forward * moveSpeed * Time.deltaTime;
+        if (moveDirection.sqrMagnitude < 0.001f)
+        {
+            moveDirection = chaseDirection;
+        }
+
+        moveDirection.Normalize();
+        desiredMoveDirection = moveDirection;
+        shouldMove = true;
+    }
+
+    Vector3 GetSeparationDirection()
+    {
+        if (separationRadius <= 0f || ActiveMobs.Count <= 1)
+        {
+            return Vector3.zero;
+        }
+
+        Vector3 separation = Vector3.zero;
+        int neighborCount = 0;
+        float radiusSqr = separationRadius * separationRadius;
+
+        for (int i = 0; i < ActiveMobs.Count; i++)
+        {
+            MobAI otherMob = ActiveMobs[i];
+            if (otherMob == null || otherMob == this)
+            {
+                continue;
+            }
+
+            Vector3 away = transform.position - otherMob.transform.position;
+            away.y = 0f;
+
+            float distanceSqr = away.sqrMagnitude;
+            if (distanceSqr < 0.0001f || distanceSqr > radiusSqr)
+            {
+                continue;
+            }
+
+            float distance = Mathf.Sqrt(distanceSqr);
+            float weight = 1f - (distance / separationRadius);
+            separation += away.normalized * weight;
+            neighborCount++;
+        }
+
+        if (neighborCount == 0)
+        {
+            return Vector3.zero;
+        }
+
+        separation /= neighborCount;
+        return separation.normalized;
     }
 
     void UpdateAnimation(bool moving)

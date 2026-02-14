@@ -34,6 +34,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private bool restartOnPlayerDeath = true;
     [SerializeField] private string deathSceneName = "GameOverScene";
 
+    [Header("Win")]
+    [SerializeField] private string winSceneName = "WinScene";
+
     void Start()
     {
         map = FindFirstObjectByType<Map>();
@@ -56,12 +59,6 @@ public class GameController : MonoBehaviour
     void Update()
     {
         if (gameOver) return;
-
-        // Check win condition: player reached the beacon
-        if (beacon != null && beacon.IsReached)
-        {
-            OnGameWon();
-        }
     }
 
     // ─── Spawning ───
@@ -203,7 +200,7 @@ public class GameController : MonoBehaviour
     {
         if (gameOver) return;
         gameOver = true;
-        Debug.Log("=== GAME WON — You reached the beacon! ===");
+        SceneManager.LoadScene(winSceneName);
     }
 
     public void OnPlayerCaught(Transform caughtBy = null)
