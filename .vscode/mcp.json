@@ -1,9 +1,0 @@
-{
-	"servers": {
-		"my-mcp-server-cb64fadf": {
-			"url": "http://localhost:8080/mcp",
-			"type": "http"
-		}
-	},
-	"inputs": []
-}
