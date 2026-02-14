@@ -250,7 +250,7 @@ public class PickaxeTool : MonoBehaviour
             elapsed += Time.deltaTime;
             var normalized = Mathf.Clamp01(elapsed / swingDuration);
             var angle = Mathf.Sin(normalized * Mathf.PI) * swingAngle;
-            visualTransform.localRotation = visualBaseRotation * Quaternion.Euler(-angle, 0f, 0f);
+            visualTransform.localRotation = Quaternion.Euler(-angle, 0f, 0f) * visualBaseRotation;
             yield return null;
         }
 
