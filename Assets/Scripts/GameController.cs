@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameController : MonoBehaviour
 {
@@ -22,6 +24,10 @@ public class GameController : MonoBehaviour
     private Map map;
     private bool gameOver = false;
     private Vector3 originPosition;
+
+    [Header("Death")]
+    [SerializeField] private bool restartOnPlayerDeath = true;
+    [SerializeField] private float restartDelay = 1.5f;
 
     void Start()
     {
@@ -137,6 +143,35 @@ public class GameController : MonoBehaviour
         if (gameOver) return;
         gameOver = true;
         Debug.Log("=== GAME WON — You reached the beacon! ===");
+    }
+
+    public void OnPlayerCaught(Transform caughtBy = null)
+    {
+        if (gameOver) return;
+
+        gameOver = true;
+        Debug.Log($"=== GAME OVER — Player was caught by {(caughtBy != null ? caughtBy.name : "an enemy")} ===");
+
+        if (StoryAudioManager.Instance != null)
+            StoryAudioManager.Instance.TriggerStory(StoryTriggerType.FirstDeath);
+
+        if (player != null)
+        {
+            Destroy(player);
+            player = null;
+        }
+
+        if (restartOnPlayerDeath)
+        {
+            StartCoroutine(RestartSceneAfterDelay());
+        }
+    }
+
+    IEnumerator RestartSceneAfterDelay()
+    {
+        float delay = Mathf.Max(0f, restartDelay);
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     // ─── Placeholder visuals (used when no prefab is assigned) ───

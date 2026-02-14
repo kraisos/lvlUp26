@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -19,6 +20,7 @@ using System.Net;
 public class FirstPersonController : MonoBehaviour
 {
     private Rigidbody rb;
+    private bool isDead;
 
     #region Camera Movement Variables
 
@@ -241,6 +243,11 @@ public class FirstPersonController : MonoBehaviour
 
     private void Update()
     {
+        if (isDead)
+        {
+            return;
+        }
+
         if (EscapeMenu.IsMenuOpen)
         {
             isWalking = false;
@@ -414,6 +421,11 @@ public class FirstPersonController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isDead)
+        {
+            return;
+        }
+
         if (EscapeMenu.IsMenuOpen)
         {
             isWalking = false;
@@ -581,6 +593,57 @@ public class FirstPersonController : MonoBehaviour
             timer = 0;
             joint.localPosition = new Vector3(Mathf.Lerp(joint.localPosition.x, jointOriginalPos.x, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.y, jointOriginalPos.y, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.z, jointOriginalPos.z, Time.deltaTime * bobSpeed));
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision == null) return;
+        TryHandleMobContact(collision.collider);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        TryHandleMobContact(other);
+    }
+
+    private void TryHandleMobContact(Collider other)
+    {
+        if (isDead || other == null)
+        {
+            return;
+        }
+
+        MobAI mobAI = other.GetComponentInParent<MobAI>();
+        if (mobAI == null)
+        {
+            return;
+        }
+
+        HandlePlayerDeath(mobAI.transform);
+    }
+
+    private void HandlePlayerDeath(Transform mobTransform)
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        isDead = true;
+        isWalking = false;
+        isSprinting = false;
+        playerCanMove = false;
+        cameraCanMove = false;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+
+        GameController gameController = FindFirstObjectByType<GameController>();
+        gameController.OnPlayerCaught(mobTransform);
     }
 }
 

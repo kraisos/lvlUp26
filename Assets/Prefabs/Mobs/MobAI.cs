@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TankAI : MonoBehaviour
+public class MobAI : MonoBehaviour
 {
     [Header("Detection")]
     public float detectionRange = 15f;
