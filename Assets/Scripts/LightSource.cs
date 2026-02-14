@@ -3,7 +3,7 @@ using UnityEngine;
 public class LightSource : MonoBehaviour
 {
     [Header("Light Properties")]
-    public float lightRadius = 20.0f;
+    public float lightRadius = 10.0f;
 
     private Map mapReference;
     private Vector2Int gridPosition;
