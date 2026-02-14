@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MapGenerator
@@ -12,13 +13,97 @@ public class MapGenerator
 
     public TileInfo CreateTile(Vector2Int position)
     {
-        // Establish tile probabilities based on existing neightboring tiles
-        // Try to create clusters of similar tiles for woods and lakes
-        // Try to create buildings with walls around 
+        // First check the neighbors for any open walls towards that tile
+        Neighbors neighbors = new Neighbors(position);
+        TileInfo northTile = tileInfoMap.Get(neighbors.north);
+        TileInfo eastTile = tileInfoMap.Get(neighbors.east);
+        TileInfo southTile = tileInfoMap.Get(neighbors.south);
+        TileInfo westTile = tileInfoMap.Get(neighbors.west);
 
-        // First check the neighbors for any open walls
-        return TileInfo.VOID; 
+        bool needsWallNorth = northTile.IsOpenWallSouth;
+        bool needsWallEast = eastTile.IsOpenWallWest;
+        bool needsWallSouth = southTile.IsOpenWallNorth;
+        bool needsWallWest = westTile.IsOpenWallEast;
 
+        if (needsWallNorth || needsWallEast || needsWallSouth || needsWallWest)
+        {
+            // Need to place a wall tile that connects to existing walls
+            List<TileType> validTypes = TileTypeInfo.wallTypes.Where(w =>
+                // Must have walls where neighbors require them
+                (!needsWallNorth || w.wallNorth) &&
+                (!needsWallEast || w.wallEast) &&
+                (!needsWallSouth || w.wallSouth) &&
+                (!needsWallWest || w.wallWest) &&
+                // Walls can only extend into void tiles
+                (!w.wallNorth || needsWallNorth || northTile.IsVoid) &&
+                (!w.wallEast || needsWallEast || eastTile.IsVoid) &&
+                (!w.wallSouth || needsWallSouth || southTile.IsVoid) &&
+                (!w.wallWest || needsWallWest || westTile.IsVoid)
+            ).Select(w => w.tileType).ToList();
+
+            if (validTypes.Count > 0)
+            {
+                TileType chosen = validTypes[Random.Range(0, validTypes.Count)];
+                return new TileInfo(chosen);
+            }
+        }
+
+        // No wall constraints - generate terrain with clustering
+        TileType terrainType = ChooseTerrainType(northTile, eastTile, southTile, westTile);
+        return new TileInfo(terrainType);
+    }
+
+    private TileType ChooseTerrainType(TileInfo north, TileInfo east, TileInfo south, TileInfo west)
+    {
+        // Count neighboring terrain types for clustering
+        int groundCount = 0, woodsCount = 0, lakeCount = 0;
+
+        foreach (TileInfo neighbor in new[] { north, east, south, west })
+        {
+            switch (neighbor.tileType)
+            {
+                case TileType.Ground: groundCount++; break;
+                case TileType.Woods: woodsCount++; break;
+                case TileType.Lake: lakeCount++; break;
+            }
+        }
+
+        // Base weights
+        float groundWeight = 0.6f;
+        float woodsWeight = 0.25f;
+        float lakeWeight = 0.15f;
+
+        // Apply clustering boost (neighbors of same type increase weight)
+        float clusterBoost = 2.0f;
+        groundWeight += groundCount * clusterBoost;
+        woodsWeight += woodsCount * clusterBoost;
+        lakeWeight += lakeCount * clusterBoost;
+
+        float totalWeight = groundWeight + woodsWeight + lakeWeight;
+        float roll = Random.value * totalWeight;
+
+        if (roll < groundWeight)
+            return TileType.Ground;
+        else if (roll < groundWeight + woodsWeight)
+            return TileType.Woods;
+        else
+            return TileType.Lake;
+    }
+
+    private class Neighbors
+    {
+        public readonly Vector2Int north;
+        public readonly Vector2Int east;
+        public readonly Vector2Int south;
+        public readonly Vector2Int west;
+
+        public Neighbors(Vector2Int pos)
+        {
+            north = pos + Vector2Int.up;
+            east = pos + Vector2Int.right;
+            south = pos + Vector2Int.down;
+            west = pos + Vector2Int.left;
+        }
     }
 }
 

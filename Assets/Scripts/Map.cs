@@ -149,6 +149,15 @@ public class Map : MonoBehaviour
         if (!IsValidGridPosition(pos) || tileGrid[pos.x, pos.y] != null)
             return;
 
+        TileInfo tileInfo = mapGenerator.CreateTile(pos);
+        tileInfoMap.Set(pos, tileInfo);
+
+        GameObject selectedPrefab = GetPrefabForTileInfo(tileInfo);
+        if (selectedPrefab == null)
+        {
+            selectedPrefab = tilePrefab;
+        }
+
         // Calculate world position (adjusted for centering)
         Vector3 position = new Vector3(
             (pos.x - maxGridSize / 2) * tileSize,
@@ -156,15 +165,17 @@ public class Map : MonoBehaviour
             (pos.y - maxGridSize / 2) * tileSize
         );
 
+        Quaternion rotation = Quaternion.Euler(0, GetTileRotation(tileInfo.tileType), 0);
+
         GameObject tile;
 
-        if (tilePrefab != null)
+        if (selectedPrefab != null)
         {
-            tile = Instantiate(tilePrefab, position, Quaternion.identity);
+            tile = Instantiate(selectedPrefab, position, rotation);
         }
         else
         {
-            throw new System.Exception("Tile prefab is not assigned in the Map script!");
+            throw new System.Exception("No tile prefab resolved. Assign either tilePrefab or tileDataList prefabs in the Map script.");
         }
 
         tile.transform.parent = gridParent.transform;
@@ -178,6 +189,91 @@ public class Map : MonoBehaviour
         }
 
         tileGrid[pos.x, pos.y] = tile;
+    }
+
+    private GameObject GetPrefabForTileInfo(TileInfo tileInfo)
+    {
+        if (tileInfo == null || tileDataList == null)
+            return null;
+
+        TilePrefabType prefabType = ToPrefabType(tileInfo.tileType);
+
+        for (int i = 0; i < tileDataList.Length; i++)
+        {
+            if (tileDataList[i] != null && tileDataList[i].type == prefabType)
+                return tileDataList[i].prefab;
+        }
+
+        return null;
+    }
+
+    private TilePrefabType ToPrefabType(TileType tileType)
+    {
+        switch (tileType)
+        {
+            case TileType.Ground:
+                return TilePrefabType.Ground;
+            case TileType.Woods:
+                return TilePrefabType.Woods;
+            case TileType.Lake:
+                return TilePrefabType.Lake;
+            case TileType.DoorVertical:
+            case TileType.DoorHorizontal:
+                return TilePrefabType.Door;
+            case TileType.WallVertical:
+            case TileType.WallHorizontal:
+                return TilePrefabType.WallStraight;
+            case TileType.WallNW:
+            case TileType.WallNE:
+            case TileType.WallSE:
+            case TileType.WallSW:
+                return TilePrefabType.WallCorner;
+            case TileType.WallTN:
+            case TileType.WallTE:
+            case TileType.WallTS:
+            case TileType.WallTW:
+                return TilePrefabType.WallT;
+            case TileType.WallCross:
+                return TilePrefabType.WallCross;
+            case TileType.Void:
+            default:
+                return TilePrefabType.Ground;
+        }
+    }
+
+    // Returns the Y-axis rotation in degrees for each TileType.
+    // Each prefab group has a base orientation:
+    //   WallStraight prefab: vertical (│) by default
+    //   WallCorner prefab:   NW (┌) by default
+    //   WallT prefab:        TN (┬) by default
+    //   Door prefab:         vertical (║) by default
+    private float GetTileRotation(TileType tileType)
+    {
+        switch (tileType)
+        {
+            // Straight walls
+            case TileType.WallVertical:     return 0f;
+            case TileType.WallHorizontal:   return 90f;
+
+            // Corners (base: NW ┌)
+            case TileType.WallNW:           return 0f;
+            case TileType.WallNE:           return 90f;
+            case TileType.WallSE:           return 180f;
+            case TileType.WallSW:           return 270f;
+
+            // T-junctions (base: TN ┬)
+            case TileType.WallTN:           return 0f;
+            case TileType.WallTE:           return 90f;
+            case TileType.WallTS:           return 180f;
+            case TileType.WallTW:           return 270f;
+
+            // Doors
+            case TileType.DoorVertical:     return 0f;
+            case TileType.DoorHorizontal:   return 90f;
+
+            // Cross, terrain, void — no rotation
+            default:                        return 0f;
+        }
     }
 
     void DeactivateTileAt(Vector2Int pos)
