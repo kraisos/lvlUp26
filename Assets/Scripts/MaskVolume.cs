@@ -15,6 +15,7 @@ public class MaskVolume : MonoBehaviour
     [Header("Tile Generation")]
     public TilesGenerator tilesGenerator;
     public Light pointLight;
+    public GameObject darknessVolumeMesh;
 
     [Header("Cone Settings")]
     [Range(0f, 1f)]
@@ -44,13 +45,7 @@ public class MaskVolume : MonoBehaviour
 
     void Start()
     {
-        // Get the radius from the sphere mesh (Unity sphere has diameter 1, so base radius is 0.5)
-        // Use the maximum scale component to get the sphere radius
-        float radius = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z) * 0.5f;
-
-        // TODO here don't add "1" but add the tile size
-        tilesGenerator.radius = radius + 1; // Ensure tile generation radius matches the sphere
-        pointLight.range = radius; // Ensure light range matches the sphere
+        updateLinkedRanges();
     }
 
     void OnEnable()
@@ -68,7 +63,21 @@ public class MaskVolume : MonoBehaviour
 
     void Update()
     {
+        updateLinkedRanges();
         UpdateShaderData();
+    }
+
+    void updateLinkedRanges()
+    {
+        // Get the radius from the sphere mesh (Unity sphere has diameter 1, so base radius is 0.5)
+        // Use the maximum scale component to get the sphere radius
+        float radius = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z) * 0.5f;
+
+        // TODO here don't add "1" but add the tile size
+        tilesGenerator.radius = radius + 1; // Ensure tile generation radius matches the sphere
+        pointLight.range = radius; // Ensure light range matches the sphere
+
+        darknessVolumeMesh.transform.localScale = transform.localScale; // Ensure darkness volume matches the sphere
     }
 
     static void UpdateShaderData()

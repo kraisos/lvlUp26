@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4523960015930355954}
   - component: {fileID: 7589455746984200935}
   m_Layer: 0
-  m_Name: LightpoleTool
+  m_Name: StreetlightTool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,3 +44,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f74b460838d22b4ab9ede30c6a4f665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  playerCamera: {fileID: 0}
+  map: {fileID: 0}
+  streetlightPrefab: {fileID: 7203416797246555107, guid: 56cca98d86b9c8c4cbea37d5df65478a, type: 3}
+  ghostPrefab: {fileID: 7203416797246555107, guid: 98f464cd23de52b45b0cddf4b78ef1cc, type: 3}
+  placementRaycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  placementBlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maxPlaceDistance: 20
+  placementClearanceRadius: 0.8
+  ghostYOffset: 0.02
+  validGhostMaterial: {fileID: 2100000, guid: 0daece4b02a3f0e4f97358d564c80227, type: 2}
+  invalidGhostMaterial: {fileID: 2100000, guid: dd7376b46828c0342850b7ff651167ce, type: 2}

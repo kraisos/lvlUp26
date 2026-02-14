@@ -47,6 +47,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9f981a3f1e1fa34394f22fd1f92d3eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  inventoryBarUI: {fileID: 0}
+  autoFindInventoryBarUI: 1
+  toolBindings:
+  - itemId: pickaxe
+    toolObject: {fileID: 5292890639863532293}
+  - itemId: streetlight
+    toolObject: {fileID: 1960277870186626898}
+  - itemId: flare
+    toolObject: {fileID: 307452227273225487}
 --- !u!1001 &663910016899718204
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57,7 +66,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1297846976140403566, guid: 79ca836a7bce78b4c86dc8a1f1b6faac, type: 3}
       propertyPath: m_Name
-      value: LightpoleTool
+      value: StreetlightTool
       objectReference: {fileID: 0}
     - target: {fileID: 4523960015930355954, guid: 79ca836a7bce78b4c86dc8a1f1b6faac, type: 3}
       propertyPath: m_LocalPosition.x
@@ -104,6 +113,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 79ca836a7bce78b4c86dc8a1f1b6faac, type: 3}
+--- !u!1 &1960277870186626898 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1297846976140403566, guid: 79ca836a7bce78b4c86dc8a1f1b6faac, type: 3}
+  m_PrefabInstance: {fileID: 663910016899718204}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4034938357203659982 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4523960015930355954, guid: 79ca836a7bce78b4c86dc8a1f1b6faac, type: 3}
@@ -166,6 +180,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad1c01198c554314dbe266e4541db4a3, type: 3}
+--- !u!1 &307452227273225487 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1098047518238838381, guid: ad1c01198c554314dbe266e4541db4a3, type: 3}
+  m_PrefabInstance: {fileID: 826769305661471586}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1571867680770894407 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2209335705256186149, guid: ad1c01198c554314dbe266e4541db4a3, type: 3}
@@ -231,5 +250,10 @@ PrefabInstance:
 --- !u!4 &2062511315884925845 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8957474926106639874, guid: f5000a71e9a55d24bbee5aad6610fb15, type: 3}
+  m_PrefabInstance: {fileID: 6976309888708681111}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5292890639863532293 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3000746589221869202, guid: f5000a71e9a55d24bbee5aad6610fb15, type: 3}
   m_PrefabInstance: {fileID: 6976309888708681111}
   m_PrefabAsset: {fileID: 0}

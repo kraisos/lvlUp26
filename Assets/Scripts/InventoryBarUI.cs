@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
@@ -7,6 +8,8 @@ using UnityEngine.InputSystem;
 
 public class InventoryBarUI : MonoBehaviour
 {
+    public event Action<string> SelectedItemIdChanged;
+
     [Header("Inventory")]
     [SerializeField] private Inventory inventory;
     [SerializeField] private bool autoFindInventory = true;
@@ -31,6 +34,9 @@ public class InventoryBarUI : MonoBehaviour
     private readonly List<Text> slotTexts = new List<Text>();
     private Inventory subscribedInventory;
     private int selectedIndex;
+    private string selectedItemId = string.Empty;
+
+    public string SelectedItemId => selectedItemId;
 
     private void Awake()
     {
@@ -55,6 +61,11 @@ public class InventoryBarUI : MonoBehaviour
         if (inventory == null && autoFindInventory)
         {
             TryBindInventory();
+        }
+
+        if (EscapeMenu.IsMenuOpen)
+        {
+            return;
         }
 
         if (IsSlotKeyPressed(1))
@@ -254,6 +265,7 @@ public class InventoryBarUI : MonoBehaviour
     private void OnInventoryChanged()
     {
         RefreshSlotContent();
+        UpdateSelectedItemId();
     }
 
     private void RefreshSlotContent()
@@ -305,5 +317,26 @@ public class InventoryBarUI : MonoBehaviour
         {
             slotImages[i].color = i == selectedIndex ? slotSelectedColor : slotNormalColor;
         }
+
+        UpdateSelectedItemId();
+    }
+
+    private void UpdateSelectedItemId()
+    {
+        string newItemId = string.Empty;
+
+        if (inventory != null && selectedIndex >= 0 && selectedIndex < inventory.Items.Count)
+        {
+            var selectedStack = inventory.Items[selectedIndex];
+            newItemId = selectedStack != null ? selectedStack.itemId : string.Empty;
+        }
+
+        if (newItemId == selectedItemId)
+        {
+            return;
+        }
+
+        selectedItemId = newItemId;
+        SelectedItemIdChanged?.Invoke(selectedItemId);
     }
 }
