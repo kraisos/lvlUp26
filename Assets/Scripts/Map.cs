@@ -1,6 +1,30 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+public class TileInfoMap
+{
+    private Dictionary<Vector2Int, TileInfo> tileInfoMap = new Dictionary<Vector2Int, TileInfo>();
+
+    public void Set(Vector2Int pos, TileInfo info)
+    {
+        tileInfoMap[pos] = info;
+    }
+
+    public TileInfo Get(Vector2Int pos)
+    {
+        if (tileInfoMap.TryGetValue(pos, out TileInfo info))
+        {
+            return info;
+        }
+        return TileInfo.VOID; // Default to VOID if not set
+    }
+
+    public void Remove(Vector2Int pos)
+    {
+        tileInfoMap.Remove(pos);
+    }
+}
+
 public class Map : MonoBehaviour
 {
     [Header("Grid Settings")]
@@ -11,22 +35,35 @@ public class Map : MonoBehaviour
     public GameObject tilePrefab;
     public Material defaultTileMaterial;
 
+    [System.Serializable]
+    public class TileData
+    {
+        public TilePrefabType type;
+        public GameObject prefab;
+        [Range(0f, 1f)]
+        public float weight = 1f;
+    }
+    public TileData[] tileDataList;
+
     private GameObject[,] tileGrid;
     private HashSet<Vector2Int> activeTiles = new HashSet<Vector2Int>();
-    private List<LightSource> lightSources = new List<LightSource>();
+    private TileInfoMap tileInfoMap = new TileInfoMap();
+    private List<TilesGenerator> lightSources = new List<TilesGenerator>();
     private GameObject gridParent;
+    private MapGenerator mapGenerator;
 
     void Start()
     {
         // Initialize grid for dynamic generation
         tileGrid = new GameObject[maxGridSize, maxGridSize];
+        mapGenerator = new MapGenerator(this.tileInfoMap);
 
         // Create parent object for organization
         gridParent = new GameObject("TileGrid");
         gridParent.transform.parent = transform;
     }
 
-    public void RegisterLightSource(LightSource lightSource)
+    public void RegisterLightSource(TilesGenerator lightSource)
     {
         if (!lightSources.Contains(lightSource))
         {
@@ -36,7 +73,7 @@ public class Map : MonoBehaviour
         }
     }
 
-    public void UnregisterLightSource(LightSource lightSource)
+    public void UnregisterLightSource(TilesGenerator lightSource)
     {
         if (lightSources.Contains(lightSource))
         {
@@ -46,7 +83,7 @@ public class Map : MonoBehaviour
         }
     }
 
-    public void OnLightSourceMoved(LightSource lightSource)
+    public void OnLightSourceMoved(TilesGenerator lightSource)
     {
         UpdateTilesAroundLightSources();
     }
@@ -56,7 +93,7 @@ public class Map : MonoBehaviour
         HashSet<Vector2Int> newActiveTiles = new HashSet<Vector2Int>();
 
         // Calculate which tiles should be active based on light sources
-        foreach (LightSource lightSource in lightSources)
+        foreach (TilesGenerator lightSource in lightSources)
         {
             Vector2Int lightPos = lightSource.GetGridPosition();
             int radius = lightSource.GetLightRadiusInTiles();
@@ -92,7 +129,7 @@ public class Map : MonoBehaviour
 
         foreach (Vector2Int pos in tilesToDeactivate)
         {
-            DeactivateTileAt(pos.x, pos.y);
+            DeactivateTileAt(pos);
         }
 
         // Activate new tiles
@@ -101,54 +138,151 @@ public class Map : MonoBehaviour
 
         foreach (Vector2Int pos in tilesToActivate)
         {
-            CreateTileAt(pos.x, pos.y);
+            CreateTileAt(pos);
         }
 
         activeTiles = newActiveTiles;
     }
 
-    void CreateTileAt(int x, int z)
+    void CreateTileAt(Vector2Int pos)
     {
-        if (!IsValidGridPosition(new Vector2Int(x, z)) || tileGrid[x, z] != null)
+        if (!IsValidGridPosition(pos) || tileGrid[pos.x, pos.y] != null)
             return;
+
+        TileInfo tileInfo = mapGenerator.CreateTile(pos);
+        tileInfoMap.Set(pos, tileInfo);
+
+        GameObject selectedPrefab = GetPrefabForTileInfo(tileInfo);
+        if (selectedPrefab == null)
+        {
+            selectedPrefab = tilePrefab;
+        }
 
         // Calculate world position (adjusted for centering)
         Vector3 position = new Vector3(
-            (x - maxGridSize / 2) * tileSize,
+            (pos.x - maxGridSize / 2) * tileSize,
             0,
-            (z - maxGridSize / 2) * tileSize
+            (pos.y - maxGridSize / 2) * tileSize
         );
+
+        Quaternion rotation = Quaternion.Euler(0, GetTileRotation(tileInfo.tileType), 0);
 
         GameObject tile;
 
-        if (tilePrefab != null)
+        if (selectedPrefab != null)
         {
-            tile = Instantiate(tilePrefab, position, Quaternion.identity);
+            tile = Instantiate(selectedPrefab, position, rotation);
         }
         else
         {
-            throw new System.Exception("Tile prefab is not assigned in the Map script!");
+            throw new System.Exception("No tile prefab resolved. Assign either tilePrefab or tileDataList prefabs in the Map script.");
         }
 
         tile.transform.parent = gridParent.transform;
-        tile.name = $"Tile_{x - maxGridSize / 2}_{z - maxGridSize / 2}";
+        tile.name = $"Tile_{pos.x - maxGridSize / 2}_{pos.y - maxGridSize / 2}";
 
         TileComponent tileComponent = tile.GetComponent<TileComponent>();
         if (tileComponent != null)
         {
-            tileComponent.gridX = x - maxGridSize / 2;
-            tileComponent.gridZ = z - maxGridSize / 2;
+            tileComponent.gridX = pos.x - maxGridSize / 2;
+            tileComponent.gridZ = pos.y - maxGridSize / 2;
         }
 
-        tileGrid[x, z] = tile;
+        tileGrid[pos.x, pos.y] = tile;
     }
 
-    void DeactivateTileAt(int x, int z)
+    private GameObject GetPrefabForTileInfo(TileInfo tileInfo)
     {
-        if (IsValidGridPosition(new Vector2Int(x, z)) && tileGrid[x, z] != null)
+        if (tileInfo == null || tileDataList == null)
+            return null;
+
+        TilePrefabType prefabType = ToPrefabType(tileInfo.tileType);
+
+        for (int i = 0; i < tileDataList.Length; i++)
         {
-            DestroyImmediate(tileGrid[x, z]);
-            tileGrid[x, z] = null;
+            if (tileDataList[i] != null && tileDataList[i].type == prefabType)
+                return tileDataList[i].prefab;
+        }
+
+        return null;
+    }
+
+    private TilePrefabType ToPrefabType(TileType tileType)
+    {
+        switch (tileType)
+        {
+            case TileType.Ground:
+                return TilePrefabType.Ground;
+            case TileType.Woods:
+                return TilePrefabType.Woods;
+            case TileType.Lake:
+                return TilePrefabType.Lake;
+            case TileType.DoorVertical:
+            case TileType.DoorHorizontal:
+                return TilePrefabType.Door;
+            case TileType.WallVertical:
+            case TileType.WallHorizontal:
+                return TilePrefabType.WallStraight;
+            case TileType.WallNW:
+            case TileType.WallNE:
+            case TileType.WallSE:
+            case TileType.WallSW:
+                return TilePrefabType.WallCorner;
+            case TileType.WallTN:
+            case TileType.WallTE:
+            case TileType.WallTS:
+            case TileType.WallTW:
+                return TilePrefabType.WallT;
+            case TileType.WallCross:
+                return TilePrefabType.WallCross;
+            case TileType.Void:
+            default:
+                return TilePrefabType.Ground;
+        }
+    }
+
+    // Returns the Y-axis rotation in degrees for each TileType.
+    // Each prefab group has a base orientation:
+    //   WallStraight prefab: vertical (│) by default
+    //   WallCorner prefab:   NW (┌) by default
+    //   WallT prefab:        TN (┬) by default
+    //   Door prefab:         vertical (║) by default
+    private float GetTileRotation(TileType tileType)
+    {
+        switch (tileType)
+        {
+            // Straight walls
+            case TileType.WallVertical:     return 0f;
+            case TileType.WallHorizontal:   return 90f;
+
+            // Corners (base: NW ┌)
+            case TileType.WallNW:           return 0f;
+            case TileType.WallNE:           return 90f;
+            case TileType.WallSE:           return 180f;
+            case TileType.WallSW:           return 270f;
+
+            // T-junctions (base: TN ┬)
+            case TileType.WallTN:           return 0f;
+            case TileType.WallTE:           return 90f;
+            case TileType.WallTS:           return 180f;
+            case TileType.WallTW:           return 270f;
+
+            // Doors
+            case TileType.DoorVertical:     return 0f;
+            case TileType.DoorHorizontal:   return 90f;
+
+            // Cross, terrain, void — no rotation
+            default:                        return 0f;
+        }
+    }
+
+    void DeactivateTileAt(Vector2Int pos)
+    {
+        if (IsValidGridPosition(pos) && tileGrid[pos.x, pos.y] != null)
+        {
+            DestroyImmediate(tileGrid[pos.x, pos.y]);
+            tileGrid[pos.x, pos.y] = null;
+            tileInfoMap.Remove(pos);
         }
     }
 
@@ -158,15 +292,14 @@ public class Map : MonoBehaviour
                pos.y >= 0 && pos.y < maxGridSize;
     }
 
-    public GameObject GetTile(int x, int z)
+    public GameObject GetTile(Vector2Int pos)
     {
         // Adjust for grid centering
-        x += maxGridSize / 2;
-        z += maxGridSize / 2;
+        Vector2Int adjusted = new Vector2Int(pos.x + maxGridSize / 2, pos.y + maxGridSize / 2);
 
-        if (x >= 0 && x < maxGridSize && z >= 0 && z < maxGridSize)
+        if (IsValidGridPosition(adjusted))
         {
-            return tileGrid[x, z];
+            return tileGrid[adjusted.x, adjusted.y];
         }
         return null;
     }
