@@ -213,6 +213,40 @@ public class Map : MonoBehaviour
         }
 
         tileGrid[pos.x, pos.y] = tile;
+
+        ApplyTreeRandomRotation(tile, tileInfo);
+    }
+
+    private void ApplyTreeRandomRotation(GameObject tile, TileInfo tileInfo)
+    {
+        if (tileInfo == null || tileInfo.tileType != TileType.Woods || tile == null)
+            return;
+
+        Transform modelTransform = FindChildByNameContains(tile.transform, "tree");
+        if (modelTransform == null)
+            return;
+
+        Vector3 localEuler = modelTransform.localEulerAngles;
+        localEuler.y = Random.Range(0f, 360f);
+        modelTransform.localEulerAngles = localEuler;
+    }
+
+    private Transform FindChildByNameContains(Transform root, string namePartLower)
+    {
+        if (root == null || string.IsNullOrEmpty(namePartLower))
+            return null;
+
+        if (root.name.ToLowerInvariant().Contains(namePartLower))
+            return root;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform found = FindChildByNameContains(root.GetChild(i), namePartLower);
+            if (found != null)
+                return found;
+        }
+
+        return null;
     }
 
     private GameObject GetPrefabForTileInfo(TileInfo tileInfo)
@@ -222,11 +256,15 @@ public class Map : MonoBehaviour
 
         TilePrefabType prefabType = ToPrefabType(tileInfo.tileType);
 
+        List<GameObject> matchingPrefabs = new List<GameObject>();
         for (int i = 0; i < tileDataList.Length; i++)
         {
             if (tileDataList[i] != null && tileDataList[i].type == prefabType)
-                return tileDataList[i].prefab;
+            matchingPrefabs.Add(tileDataList[i].prefab);
         }
+        
+        if (matchingPrefabs.Count > 0)
+            return matchingPrefabs[Random.Range(0, matchingPrefabs.Count)];
 
         return null;
     }

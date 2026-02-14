@@ -173,16 +173,16 @@ MonoBehaviour:
   zoomFOV: 30
   zoomStepTime: 5
   playerCanMove: 1
-  walkSpeed: 5
+  walkSpeed: 3
   maxVelocityChange: 10
   enableSprint: 1
-  unlimitedSprint: 1
-  sprintSpeed: 7
+  unlimitedSprint: 0
+  sprintSpeed: 5
   sprintDuration: 5
   sprintCooldown: 0.5
   sprintFOV: 80
   sprintFOVStepTime: 10
-  useSprintBar: 0
+  useSprintBar: 1
   hideBarWhenFull: 1
   sprintBarBG: {fileID: 4459864851397454648}
   sprintBar: {fileID: 4459864850888339820}
@@ -1006,6 +1006,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4459864851310106429}
     m_Modifications:
+    - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
