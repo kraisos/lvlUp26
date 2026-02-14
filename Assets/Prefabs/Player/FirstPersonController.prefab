@@ -174,13 +174,13 @@ MonoBehaviour:
   zoomFOV: 30
   zoomStepTime: 5
   playerCanMove: 1
-  walkSpeed: 3
+  walkSpeed: 5
   maxVelocityChange: 10
   enableSprint: 1
   unlimitedSprint: 0
-  sprintSpeed: 5
+  sprintSpeed: 7
   sprintDuration: 5
-  sprintCooldown: 0.5
+  sprintCooldown: 3
   sprintFOV: 80
   sprintFOVStepTime: 10
   useSprintBar: 1
@@ -1023,18 +1023,6 @@ PrefabInstance:
       propertyPath: darknessVolumeMesh
       value: 
       objectReference: {fileID: 8643441644013181108}
-    - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 35
-      objectReference: {fileID: 0}
     - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
       propertyPath: m_LocalScale.x
       value: 50

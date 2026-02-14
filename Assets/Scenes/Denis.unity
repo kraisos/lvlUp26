@@ -25,8 +25,8 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 3
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SubtractiveShadowColor: {r: 0, g: 0, b: 0, a: 1}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 30f3c323b36ca8c4ab951b840bf0a129, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -484,6 +484,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameController
   playerPrefab: {fileID: 4459864850019384750, guid: 6bacecc4f3df9584198879c73a6b6c36, type: 3}
   spawnPoint: {fileID: 1801209454}
+  beaconPrefab: {fileID: 0}
+  beaconDistanceTiles: 30
+  resourceCachePrefab: {fileID: 0}
+  resourcesCount: 2
+  resourceMinDistanceTiles: 10
+  resourceMaxDistanceTiles: 20
 --- !u!4 &1214824292
 Transform:
   m_ObjectHideFlags: 0
@@ -533,6 +539,7 @@ MonoBehaviour:
   maxGridSize: 100
   tilePrefab: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
   defaultTileMaterial: {fileID: 2100000, guid: 015072a8d2619a545b31a281bbd3ebf1, type: 2}
+  treePositionJitter: 2.01
   tileDataList:
   - type: 0
     prefab: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
@@ -557,6 +564,15 @@ MonoBehaviour:
     weight: 1
   - type: 4
     prefab: {fileID: 5903024189785162291, guid: f56ecd52eaec64a479b948ee4f63439d, type: 3}
+    weight: 1
+  - type: 1
+    prefab: {fileID: 4339614922478637303, guid: 6ccd5c6abda2c75f2b6d12662d81fdb3, type: 3}
+    weight: 1
+  - type: 1
+    prefab: {fileID: 4339614922478637303, guid: bc3458b11283c08448c7b85912e5eb43, type: 3}
+    weight: 1
+  - type: 1
+    prefab: {fileID: 4339614922478637303, guid: eed1a9794cb89e6968d7195702e04206, type: 3}
     weight: 1
 --- !u!4 &1407019893
 Transform:
@@ -658,8 +674,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 410087041}
-  - {fileID: 1407019893}
   - {fileID: 1214824292}
   - {fileID: 1801209454}
   - {fileID: 633452221}
   - {fileID: 2079573550}
+  - {fileID: 1407019893}

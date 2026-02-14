@@ -35,6 +35,8 @@ public class Map : MonoBehaviour
     [Header("Tile Settings")]
     public GameObject tilePrefab;
     public Material defaultTileMaterial;
+    [Range(0f, 5f)]
+    public float treePositionJitter = 0.2f;
 
     [System.Serializable]
     public class TileData
@@ -225,6 +227,11 @@ public class Map : MonoBehaviour
         Transform modelTransform = FindChildByNameContains(tile.transform, "tree");
         if (modelTransform == null)
             return;
+
+        Vector3 localPosition = modelTransform.localPosition;
+        localPosition.x += Random.Range(-treePositionJitter, treePositionJitter);
+        localPosition.z += Random.Range(-treePositionJitter, treePositionJitter);
+        modelTransform.localPosition = localPosition;
 
         Vector3 localEuler = modelTransform.localEulerAngles;
         localEuler.y = Random.Range(0f, 360f);
