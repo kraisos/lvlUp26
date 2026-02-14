@@ -3,11 +3,22 @@ using UnityEngine;
 
 public class MapGenerator
 {
-    private Dictionary<Vector2Int, TileInfo> tileInfoMap;
+    private TileInfoMap tileInfoMap;
 
-    public MapGenerator(Dictionary<Vector2Int, TileInfo> tileInfoMap)
+    public MapGenerator(TileInfoMap tileInfoMap)
     {
         this.tileInfoMap = tileInfoMap;
+    }
+
+    public TileInfo CreateTile(Vector2Int position)
+    {
+        // Establish tile probabilities based on existing neightboring tiles
+        // Try to create clusters of similar tiles for woods and lakes
+        // Try to create buildings with walls around 
+
+        // First check the neighbors for any open walls
+        return TileInfo.VOID; 
+
     }
 }
 
