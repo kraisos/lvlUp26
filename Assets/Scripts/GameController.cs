@@ -34,6 +34,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private bool restartOnPlayerDeath = true;
     [SerializeField] private string deathSceneName = "GameOverScene";
 
+    [Header("Win")]
+    [SerializeField] private string winSceneName = "WinScene";
+
     void Start()
     {
         map = FindFirstObjectByType<Map>();
@@ -197,7 +200,7 @@ public class GameController : MonoBehaviour
     {
         if (gameOver) return;
         gameOver = true;
-        Debug.Log("=== GAME WON — Streetlight placed near the beacon! ===");
+        SceneManager.LoadScene(winSceneName);
     }
 
     public void OnPlayerCaught(Transform caughtBy = null)
