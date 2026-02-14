@@ -44,13 +44,9 @@ public class PickaxeTool : MonoBehaviour
 
     private void Update()
     {
-        if (IsPrimaryPressedThisFrame())
-        {
-            TryStartSwing();
-        }
-
         if (IsPrimaryHeld())
         {
+            TryStartSwing();
             ContinueMining();
             return;
         }
@@ -133,9 +129,7 @@ public class PickaxeTool : MonoBehaviour
 
         var fillImage = fillObject.GetComponent<Image>();
         fillImage.color = barFillColor;
-        fillImage.type = Image.Type.Filled;
-        fillImage.fillMethod = Image.FillMethod.Horizontal;
-        fillImage.fillOrigin = 0;
+        fillImage.type = Image.Type.Simple;
 
         miningSlider = sliderObject.GetComponent<Slider>();
         miningSlider.minValue = 0f;
