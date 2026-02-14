@@ -34,7 +34,7 @@ public class Map : MonoBehaviour
     [Header("Tile Settings")]
     public GameObject tilePrefab;
     public Material defaultTileMaterial;
-    
+
     [System.Serializable]
     public class TileData
     {
@@ -48,7 +48,7 @@ public class Map : MonoBehaviour
     private GameObject[,] tileGrid;
     private HashSet<Vector2Int> activeTiles = new HashSet<Vector2Int>();
     private TileInfoMap tileInfoMap = new TileInfoMap();
-    private List<LightSource> lightSources = new List<LightSource>();
+    private List<TilesGenerator> lightSources = new List<TilesGenerator>();
     private GameObject gridParent;
     private MapGenerator mapGenerator;
 
@@ -63,7 +63,7 @@ public class Map : MonoBehaviour
         gridParent.transform.parent = transform;
     }
 
-    public void RegisterLightSource(LightSource lightSource)
+    public void RegisterLightSource(TilesGenerator lightSource)
     {
         if (!lightSources.Contains(lightSource))
         {
@@ -73,7 +73,7 @@ public class Map : MonoBehaviour
         }
     }
 
-    public void UnregisterLightSource(LightSource lightSource)
+    public void UnregisterLightSource(TilesGenerator lightSource)
     {
         if (lightSources.Contains(lightSource))
         {
@@ -83,7 +83,7 @@ public class Map : MonoBehaviour
         }
     }
 
-    public void OnLightSourceMoved(LightSource lightSource)
+    public void OnLightSourceMoved(TilesGenerator lightSource)
     {
         UpdateTilesAroundLightSources();
     }
@@ -93,7 +93,7 @@ public class Map : MonoBehaviour
         HashSet<Vector2Int> newActiveTiles = new HashSet<Vector2Int>();
 
         // Calculate which tiles should be active based on light sources
-        foreach (LightSource lightSource in lightSources)
+        foreach (TilesGenerator lightSource in lightSources)
         {
             Vector2Int lightPos = lightSource.GetGridPosition();
             int radius = lightSource.GetLightRadiusInTiles();

@@ -32,7 +32,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 1262345040198058508}
+  - {fileID: 3258420681324776763}
   m_Father: {fileID: 4459864851310106429}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5985843013585451089
@@ -126,6 +128,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaskVolume
   shape: 1
+  tilesGenerator: {fileID: 4796481018582177999}
+  pointLight: {fileID: 5171023283992528044}
   coneTopRadius: 0
 --- !u!1 &4459864850019384750
 GameObject:
@@ -658,8 +662,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4459864851551516607}
-  - {fileID: 3258420681324776763}
-  - {fileID: 5297543351560725184}
   - {fileID: 7000207247049283811}
   m_Father: {fileID: 4459864851508666808}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -985,10 +987,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4459864851310106429}
+  m_Father: {fileID: 7000207247049283811}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &5171023283992528044
 Light:
@@ -1055,13 +1057,13 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!1001 &6588656940476342566
+--- !u!1001 &247692654433272298
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 4459864851310106429}
+    m_TransformParent: {fileID: 7000207247049283811}
     m_Modifications:
     - target: {fileID: 1363248218024133606, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1081,15 +1083,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1363248218024133606, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1363248218024133606, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1363248218024133606, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1363248218024133606, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1103,21 +1105,28 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4755657423824787749, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
-      propertyPath: lightRadius
-      value: 20
-      objectReference: {fileID: 0}
     - target: {fileID: 5396290700943849624, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
       propertyPath: m_Name
-      value: LightSource
+      value: TilesGenerator
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
---- !u!4 &5297543351560725184 stripped
+--- !u!4 &1262345040198058508 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1363248218024133606, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
-  m_PrefabInstance: {fileID: 6588656940476342566}
+  m_PrefabInstance: {fileID: 247692654433272298}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4796481018582177999 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4755657423824787749, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
+  m_PrefabInstance: {fileID: 247692654433272298}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1e4ce3753c5d7043b60b61f3fd55301, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightSource

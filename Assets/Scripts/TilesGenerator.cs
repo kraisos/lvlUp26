@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class LightSource : MonoBehaviour
+public class TilesGenerator : MonoBehaviour
 {
-    [Header("Light Properties")]
-    public float lightRadius = 10.0f;
+    [Header("Tile Generation Properties")]
+    public float radius = 10.0f; // radius in world units
 
     private Map mapReference;
     private Vector2Int gridPosition;
@@ -13,11 +13,6 @@ public class LightSource : MonoBehaviour
     {
         // Find the map reference
         mapReference = FindFirstObjectByType<Map>();
-        if (mapReference == null)
-        {
-            Debug.LogError("LightSource: No Map found in scene!");
-            return;
-        }
 
         // Register with the map
         mapReference.RegisterLightSource(this);
@@ -77,9 +72,9 @@ public class LightSource : MonoBehaviour
     {
         if (mapReference != null)
         {
-            return Mathf.CeilToInt(lightRadius / mapReference.tileSize);
+            return Mathf.CeilToInt(radius / mapReference.tileSize);
         }
-        return Mathf.CeilToInt(lightRadius);
+        return Mathf.CeilToInt(radius);
     }
 
     void OnDestroy()
@@ -95,9 +90,9 @@ public class LightSource : MonoBehaviour
     {
         // Visualize light radius in editor
         Gizmos.color = new Color(1f, 1f, 0f, 0.3f); // Yellow with transparency
-        Gizmos.DrawSphere(transform.position, lightRadius);
+        Gizmos.DrawSphere(transform.position, radius);
 
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, lightRadius);
+        Gizmos.DrawWireSphere(transform.position, radius);
     }
 }

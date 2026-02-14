@@ -12,6 +12,10 @@ public class MaskVolume : MonoBehaviour
 
     public VolumeShape shape = VolumeShape.Box;
 
+    [Header("Tile Generation")]
+    public TilesGenerator tilesGenerator;
+    public Light pointLight;
+
     [Header("Cone Settings")]
     [Range(0f, 1f)]
     public float coneTopRadius = 0f;
@@ -20,7 +24,6 @@ public class MaskVolume : MonoBehaviour
     private static List<MaskVolume> activeVolumes = new List<MaskVolume>();
     private static Matrix4x4[] matricesArray = new Matrix4x4[16];
     private static Vector4[] shapeDataArray = new Vector4[16]; // x = shape, y = coneTopRadius
-
     const int MAX_VOLUMES = 16;
 
     // Initialize shader data on startup
@@ -37,6 +40,17 @@ public class MaskVolume : MonoBehaviour
         Shader.SetGlobalMatrixArray("_MaskMatrices", matricesArray);
         Shader.SetGlobalVectorArray("_MaskShapeData", shapeDataArray);
         Shader.SetGlobalInt("_MaskCount", 0);
+    }
+
+    void Start()
+    {
+        // Get the radius from the sphere mesh (Unity sphere has diameter 1, so base radius is 0.5)
+        // Use the maximum scale component to get the sphere radius
+        float radius = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z) * 0.5f;
+
+        // TODO here don't add "1" but add the tile size
+        tilesGenerator.radius = radius + 1; // Ensure tile generation radius matches the sphere
+        pointLight.range = radius; // Ensure light range matches the sphere
     }
 
     void OnEnable()
