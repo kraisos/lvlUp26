@@ -547,8 +547,12 @@ PrefabInstance:
       value: GameController
       objectReference: {fileID: 0}
     - target: {fileID: 7670508088512926701, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7670508088512926701, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 8952837356039971366, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
       propertyPath: m_LocalPosition.x
