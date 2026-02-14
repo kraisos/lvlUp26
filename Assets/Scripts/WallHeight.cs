@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class WallHeight : MonoBehaviour
 {
-    [Min(1)] private int x = 3;
+    [Min(1)] public int x = 3;
 
     void Start()
     {
@@ -28,18 +28,6 @@ public class WallHeight : MonoBehaviour
 
     float GetStepHeight()
     {
-        Renderer rendererComponent = GetComponent<Renderer>();
-        if (rendererComponent != null)
-        {
-            return rendererComponent.bounds.size.y;
-        }
-
-        Collider colliderComponent = GetComponent<Collider>();
-        if (colliderComponent != null)
-        {
-            return colliderComponent.bounds.size.y;
-        }
-
-        return Mathf.Max(transform.localScale.y, 0.01f);
+        return 3f;
     }
 }

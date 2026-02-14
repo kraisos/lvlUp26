@@ -337,8 +337,8 @@ public class Map : MonoBehaviour
             case TileType.WallTE:           return 270f;
 
             // Doors
-            case TileType.DoorVertical:     return 0f;
-            case TileType.DoorHorizontal:   return 90f;
+            case TileType.DoorHorizontal:   return 0f;
+            case TileType.DoorVertical:     return 90f;
 
             // Cross, terrain, void — no rotation
             default:                        return 0f;
