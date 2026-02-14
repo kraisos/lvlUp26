@@ -177,13 +177,13 @@ MonoBehaviour:
   walkSpeed: 5
   maxVelocityChange: 10
   enableSprint: 1
-  unlimitedSprint: 1
+  unlimitedSprint: 0
   sprintSpeed: 7
   sprintDuration: 5
-  sprintCooldown: 0.5
+  sprintCooldown: 3
   sprintFOV: 80
   sprintFOVStepTime: 10
-  useSprintBar: 0
+  useSprintBar: 1
   hideBarWhenFull: 1
   sprintBarBG: {fileID: 4459864851397454648}
   sprintBar: {fileID: 4459864850888339820}
@@ -883,7 +883,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 34.9, y: 34.9, z: 34.9}
+  m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4459864851508666808}
@@ -1015,17 +1015,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4459864851310106429}
     m_Modifications:
+    - target: {fileID: 3379131065851423873, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
+      propertyPath: sphereMeshFilter
+      value: 
+      objectReference: {fileID: 6775602032128416170}
+    - target: {fileID: 3379131065851423873, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
+      propertyPath: darknessVolumeMesh
+      value: 
+      objectReference: {fileID: 8643441644013181108}
     - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 35
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 35
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
       propertyPath: m_LocalScale.z
-      value: 35
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
       propertyPath: m_LocalPosition.x
