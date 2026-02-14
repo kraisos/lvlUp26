@@ -204,7 +204,7 @@ Shader "Custom/ClippedByVolumeSoftEdge"
                     discard;
                 
                 // Calculate soft alpha based on distance to edge
-                float alpha = saturate(dist / _EdgeSoftness);
+                float alpha = 1.0; //saturate(dist / _EdgeSoftness);
                 
                 float3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
                 float ndotl = max(0.2, dot(normalize(i.worldNormal), lightDir));
