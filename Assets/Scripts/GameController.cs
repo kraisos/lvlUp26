@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
     [Header("Beacon")]
     public GameObject beaconPrefab;
     public int beaconDistanceTiles = 30;
+    public float beaconClearRadius = 5f;
 
     [Header("Resources")]
     public GameObject resourceCachePrefab;
@@ -31,9 +32,17 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
+        map = FindFirstObjectByType<Map>();
+
+        if (map == null)
+        {
+            Debug.LogError("GameController: No Map found in scene. Aborting startup.");
+            enabled = false;
+            return;
+        }
+
         Vector3 originPoint = spawnPoint != null ? spawnPoint.position : Vector3.zero;
         originPosition = new Vector3(originPoint.x, 0f, originPoint.z);
-        map = FindFirstObjectByType<Map>();
 
         SpawnPlayer(spawnPoint.position);
         SpawnBeacon();
@@ -65,7 +74,7 @@ public class GameController : MonoBehaviour
 
     void SpawnBeacon()
     {
-        Vector3 beaconPos = GetRandomTilePosition(originPosition, beaconDistanceTiles);
+        Vector3 beaconPos = map.ReserveClearTile(originPosition, beaconDistanceTiles, beaconClearRadius);
 
         GameObject beaconObj;
         if (beaconPrefab != null)
@@ -93,7 +102,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < resourcesCount; i++)
         {
             int distanceTiles = Random.Range(resourceMinDistanceTiles, resourceMaxDistanceTiles + 1);
-            Vector3 cachePos = GetRandomTilePosition(originPosition, distanceTiles);
+            Vector3 cachePos = map.ReserveClearTile(originPosition, distanceTiles);
 
             GameObject cacheObj;
             if (resourceCachePrefab != null)

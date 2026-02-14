@@ -18,7 +18,6 @@ public class StoryAudioManager : MonoBehaviour
     [Tooltip("Lower music volume while narration plays")]
     [Range(0f, 1f)]
     [SerializeField] private float musicDuckVolume = 0.2f;
-    [SerializeField] private float duckFadeDuration = 0.5f;
 
     public event Action<StoryEntry> OnNarrationStarted;
     public event Action<StoryEntry> OnNarrationFinished;
