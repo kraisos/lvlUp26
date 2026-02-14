@@ -5,12 +5,12 @@ using UnityEngine.UI;
 public class MainMenuController : MonoBehaviour
 {
     [Header("Scene to Load")]
-    [SerializeField] private string gameSceneName = "michael";
+    [SerializeField] private string gameSceneName = "Jean";
 
     [Header("UI References")]
     [SerializeField] private Button playButton;
 
-void Start()
+    void Start()
     {
         // Force cursor visible and unlocked for menu
         Cursor.lockState = CursorLockMode.None;

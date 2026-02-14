@@ -511,4 +511,70 @@ public class Map : MonoBehaviour
         float worldStep = tileSize * tileScale;
         return new Vector3(gridPos.x * worldStep, y, gridPos.y * worldStep);
     }
+
+    /// <summary>
+    /// Reserves and clears a tile behind the given position (opposite to the given
+    /// forward direction) at the specified tile distance, within a half-circle arc.
+    /// The cleared area is a circle of clearRadiusWorld (world units).
+    /// </summary>
+    public Vector3 ReserveClearTileBehind(Vector3 origin, Vector3 forward, int tileDistance, float clearRadiusWorld = -1f)
+    {
+        float worldStep = tileSize * tileScale;
+
+        if (clearRadiusWorld < 0f)
+            clearRadiusWorld = worldStep;
+
+        int clearRadiusTiles = Mathf.CeilToInt(clearRadiusWorld / worldStep);
+
+        Vector2Int originGrid = new Vector2Int(
+            Mathf.RoundToInt(origin.x / worldStep),
+            Mathf.RoundToInt(origin.z / worldStep)
+        );
+
+        // "Behind" = opposite of the forward direction projected on XZ
+        float behindAngle = Mathf.Atan2(-forward.z, -forward.x) * Mathf.Rad2Deg;
+
+        const int maxAttempts = 36;
+        const float halfArc = 90f; // search within a 180° arc behind the player
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            float angle = behindAngle + Random.Range(-halfArc, halfArc);
+            int gx = originGrid.x + Mathf.RoundToInt(Mathf.Cos(angle * Mathf.Deg2Rad) * tileDistance);
+            int gz = originGrid.y + Mathf.RoundToInt(Mathf.Sin(angle * Mathf.Deg2Rad) * tileDistance);
+
+            Vector2Int candidate = new Vector2Int(gx, gz);
+
+            if (IsAreaClear(candidate, clearRadiusTiles))
+            {
+                SeedGroundArea(candidate, clearRadiusTiles);
+                return GridToWorld(candidate, origin.y);
+            }
+        }
+
+        // Fallback: sweep the full behind arc in 5° steps
+        for (float a = -halfArc; a <= halfArc; a += 5f)
+        {
+            float angle = behindAngle + a;
+            int gx = originGrid.x + Mathf.RoundToInt(Mathf.Cos(angle * Mathf.Deg2Rad) * tileDistance);
+            int gz = originGrid.y + Mathf.RoundToInt(Mathf.Sin(angle * Mathf.Deg2Rad) * tileDistance);
+
+            Vector2Int candidate = new Vector2Int(gx, gz);
+
+            if (IsAreaClear(candidate, clearRadiusTiles))
+            {
+                SeedGroundArea(candidate, clearRadiusTiles);
+                return GridToWorld(candidate, origin.y);
+            }
+        }
+
+        // Last resort: force-clear
+        float fallbackAngle = behindAngle + Random.Range(-halfArc, halfArc);
+        int fx = originGrid.x + Mathf.RoundToInt(Mathf.Cos(fallbackAngle * Mathf.Deg2Rad) * tileDistance);
+        int fz = originGrid.y + Mathf.RoundToInt(Mathf.Sin(fallbackAngle * Mathf.Deg2Rad) * tileDistance);
+        Vector2Int fallback = new Vector2Int(fx, fz);
+        SeedGroundArea(fallback, clearRadiusTiles);
+        Debug.LogWarning($"ReserveClearTileBehind: no clear area found, force-cleared at {fallback}");
+        return GridToWorld(fallback, origin.y);
+    }
 }

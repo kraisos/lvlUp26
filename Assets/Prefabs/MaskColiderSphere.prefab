@@ -227,6 +227,7 @@ MonoBehaviour:
   shape: 1
   tilesGenerator: {fileID: 1571907585232157967}
   pointLight: {fileID: 1189836282752770412}
+  darknessVolumeMesh: {fileID: 0}
   coneTopRadius: 0
 --- !u!1001 &6066336208991527978
 PrefabInstance:
