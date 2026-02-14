@@ -61,6 +61,22 @@ public class Inventory : MonoBehaviour
         {
             Debug.Log($"Picked up {item.Quantity} x {item.ItemId}");
             item.Pickup(this);
+            TriggerStoryForItem(item.ItemId);
         }
+    }
+
+    private void TriggerStoryForItem(string itemId)
+    {
+        if (StoryAudioManager.Instance == null) return;
+
+        string id = itemId.ToLowerInvariant();
+        if (id.Contains("note") || id.Contains("audio"))
+            StoryAudioManager.Instance.TriggerStory(StoryTriggerType.PickupNote);
+        else if (id.Contains("energy") || id.Contains("cristal") || id.Contains("noyau"))
+            StoryAudioManager.Instance.TriggerStory(StoryTriggerType.PickupEnergy);
+        else if (id.Contains("gas") || id.Contains("gaz") || id.Contains("combustible"))
+            StoryAudioManager.Instance.TriggerStory(StoryTriggerType.PickupGas);
+        else if (id.Contains("blueprint") || id.Contains("plan") || id.Contains("schema"))
+            StoryAudioManager.Instance.TriggerStory(StoryTriggerType.PickupBlueprint);
     }
 }

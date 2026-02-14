@@ -26,5 +26,8 @@ public class GameController : MonoBehaviour
         GameObject newPlayer = Instantiate(playerPrefab, position, Quaternion.identity);
         newPlayer.transform.localScale = Vector3.one * 0.75f;
         Debug.Log($"Spawned player at {position}");
+
+        if (StoryAudioManager.Instance != null)
+            StoryAudioManager.Instance.TriggerStory(StoryTriggerType.FirstSpawn);
     }
 }
