@@ -11,8 +11,12 @@ public class EscapeMenu : MonoBehaviour
 {
     public static bool IsMenuOpen { get; private set; }
 
+    private static EscapeMenu instance;
+
     private GameObject menuRoot;
     private bool isMenuOpen;
+    private bool useTimeScalePause;
+    private float previousTimeScale = 1f;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureMenuExists()
@@ -28,8 +32,27 @@ public class EscapeMenu : MonoBehaviour
 
     private void Awake()
     {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        useTimeScalePause = ShouldUseTimeScalePause();
         BuildMenuUI();
         SetMenuOpen(false);
+    }
+
+    private static bool ShouldUseTimeScalePause()
+    {
+#if ENABLE_INPUT_SYSTEM
+        return InputSystem.settings.updateMode != InputSettings.UpdateMode.ProcessEventsInFixedUpdate;
+#else
+        return true;
+#endif
     }
 
     private void Update()
@@ -149,24 +172,51 @@ public class EscapeMenu : MonoBehaviour
             menuRoot.SetActive(open);
         }
 
-        Time.timeScale = open ? 0f : 1f;
+        if (useTimeScalePause)
+        {
+            if (open)
+            {
+                previousTimeScale = Time.timeScale;
+                Time.timeScale = 0f;
+            }
+            else
+            {
+                Time.timeScale = previousTimeScale > 0f ? previousTimeScale : 1f;
+            }
+        }
+
         Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = open;
     }
 
     private void RestartCurrentScene()
     {
-        Time.timeScale = 1f;
+        SetMenuOpen(false);
+
+        if (useTimeScalePause)
+        {
+            Time.timeScale = previousTimeScale > 0f ? previousTimeScale : 1f;
+        }
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void OnDestroy()
     {
+        if (instance == this)
+        {
+            instance = null;
+        }
+
         IsMenuOpen = false;
 
         if (isMenuOpen)
         {
-            Time.timeScale = 1f;
+            if (useTimeScalePause)
+            {
+                Time.timeScale = previousTimeScale > 0f ? previousTimeScale : 1f;
+            }
+
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
