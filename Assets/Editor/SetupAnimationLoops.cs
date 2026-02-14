@@ -8,13 +8,22 @@ public class SetupAnimationLoops : MonoBehaviour
     {
         string[] fbxPaths = new string[]
         {
+            // Tank
             "Assets/FBX/tank/idle.fbx",
             "Assets/FBX/tank/idle (2).fbx",
             "Assets/FBX/tank/idle (3).fbx",
             "Assets/FBX/tank/idle (4).fbx",
             "Assets/FBX/tank/idle (5).fbx",
             "Assets/FBX/tank/walking.fbx",
-            "Assets/FBX/tank/running.fbx"
+            "Assets/FBX/tank/running.fbx",
+            // Worker
+            "Assets/FBX/worker/idle.fbx",
+            "Assets/FBX/worker/idle (2).fbx",
+            "Assets/FBX/worker/idle (3).fbx",
+            "Assets/FBX/worker/idle (4).fbx",
+            "Assets/FBX/worker/idle (5).fbx",
+            "Assets/FBX/worker/walking.fbx",
+            "Assets/FBX/worker/running.fbx"
         };
 
         foreach (string path in fbxPaths)
