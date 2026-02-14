@@ -33,7 +33,7 @@ Transform:
   m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 4459864850019384738}
+  m_Father: {fileID: 4459864851310106429}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5985843013585451089
 MeshFilter:
@@ -162,7 +162,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4459864851508666808}
-  - {fileID: 7000207247049283811}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4459864850019384739
@@ -661,6 +660,7 @@ Transform:
   - {fileID: 4459864851551516607}
   - {fileID: 3258420681324776763}
   - {fileID: 5297543351560725184}
+  - {fileID: 7000207247049283811}
   m_Father: {fileID: 4459864851508666808}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &4459864851310106426
@@ -1002,7 +1002,7 @@ Light:
   m_Type: 2
   m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 1}
   m_Intensity: 30
-  m_Range: 9
+  m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
