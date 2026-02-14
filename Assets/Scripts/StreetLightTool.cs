@@ -8,6 +8,7 @@ public class StreetlightTool : MonoBehaviour
     [Header("References")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Map map;
+    [SerializeField] private Inventory inventory;
     [SerializeField] private GameObject streetlightPrefab;
     public GameObject ghostPrefab;
 
@@ -18,6 +19,8 @@ public class StreetlightTool : MonoBehaviour
     [SerializeField] private float minStreetlightSpacing = 0.8f;
     [SerializeField] private float ghostYOffset = 0.02f;
     [SerializeField] private float requiredStreetlightDistance = 10f;
+    [SerializeField] private string requiredItemId = "streetlight";
+    [SerializeField] private int requiredItemAmount = 1;
 
     [Header("Ghost Visual")]
     public Material validGhostMaterial;
@@ -38,6 +41,11 @@ public class StreetlightTool : MonoBehaviour
         if (map == null)
         {
             map = FindFirstObjectByType<Map>();
+        }
+
+        if (inventory == null)
+        {
+            inventory = FindFirstObjectByType<Inventory>();
         }
 
         CreateGhost();
@@ -160,30 +168,12 @@ public class StreetlightTool : MonoBehaviour
         {
             return false;
         }
-/*
-        var checkPosition = position + Vector3.up * 0.5f;
-        var overlaps = Physics.OverlapSphere(checkPosition, placementClearanceRadius, placementBlockingMask, QueryTriggerInteraction.Ignore);
-        for (var i = 0; i < overlaps.Length; i++)
+
+        if (!HasRequiredItem())
         {
-            var col = overlaps[i];
-            if (col == null)
-            {
-                continue;
-            }
-
-            if (col.GetComponentInParent<TileComponent>() != null)
-            {
-                continue;
-            }
-
-            if (ghostInstance != null && col.transform.IsChildOf(ghostInstance.transform))
-            {
-                continue;
-            }
-
             return false;
         }
-*/
+        
         if (IsTooCloseToStreetlight(position))
         {
             return false;
@@ -241,11 +231,36 @@ public class StreetlightTool : MonoBehaviour
             return;
         }
 
+        if (!TryConsumeRequiredItem())
+        {
+            return;
+        }
+
         var instance = Instantiate(streetlightPrefab, position, Quaternion.identity);
         if (instance.GetComponent<Streetlight>() == null)
         {
             instance.AddComponent<Streetlight>();
         }
+    }
+
+    private bool HasRequiredItem()
+    {
+        if (inventory == null)
+        {
+            return false;
+        }
+
+        return inventory.HasItem(requiredItemId, requiredItemAmount);
+    }
+
+    private bool TryConsumeRequiredItem()
+    {
+        if (inventory == null)
+        {
+            return false;
+        }
+
+        return inventory.TryConsumeItem(requiredItemId, requiredItemAmount);
     }
 
     private void ApplyGhostMaterial(Material material)

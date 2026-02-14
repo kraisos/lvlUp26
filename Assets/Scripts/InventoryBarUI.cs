@@ -152,8 +152,8 @@ public class InventoryBarUI : MonoBehaviour
         layout.padding = new RectOffset((int)barPadding.x, (int)barPadding.x, (int)barPadding.y, (int)barPadding.y);
         layout.spacing = slotSpacing;
         layout.childAlignment = TextAnchor.MiddleCenter;
-        layout.childControlHeight = false;
-        layout.childControlWidth = false;
+        layout.childControlHeight = true;
+        layout.childControlWidth = true;
         layout.childForceExpandHeight = false;
         layout.childForceExpandWidth = false;
 
@@ -169,7 +169,7 @@ public class InventoryBarUI : MonoBehaviour
             var slotContainerLayout = slotContainer.GetComponent<VerticalLayoutGroup>();
             slotContainerLayout.childAlignment = TextAnchor.UpperCenter;
             slotContainerLayout.childControlWidth = true;
-            slotContainerLayout.childControlHeight = false;
+            slotContainerLayout.childControlHeight = true;
             slotContainerLayout.childForceExpandWidth = false;
             slotContainerLayout.childForceExpandHeight = false;
             slotContainerLayout.spacing = 2f;
