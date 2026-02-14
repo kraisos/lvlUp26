@@ -267,9 +267,9 @@ public class Map : MonoBehaviour
 
     // Returns the Y-axis rotation in degrees for each TileType.
     // Each prefab group has a base orientation:
-    //   WallStraight prefab: vertical (│) by default
-    //   WallCorner prefab:   NW (┌) by default
-    //   WallT prefab:        TN (┬) by default
+    //   WallStraight prefab: horizontal (─) by default
+    //   WallCorner prefab:   SW (└) by default
+    //   WallT prefab:        TS (┴) by default
     //   Door prefab:         vertical (║) by default
     private float GetTileRotation(TileType tileType)
     {
@@ -292,8 +292,8 @@ public class Map : MonoBehaviour
             case TileType.WallTE:           return 270f;
 
             // Doors
-            case TileType.DoorHorizontal:   return 0f;
-            case TileType.DoorVertical:     return 90f;
+            case TileType.DoorVertical:     return 0f;
+            case TileType.DoorHorizontal:   return 90f;
 
             // Cross, terrain, void — no rotation
             default:                        return 0f;

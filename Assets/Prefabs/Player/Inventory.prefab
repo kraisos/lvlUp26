@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8532724168467826031}
   - component: {fileID: 7877485382996132386}
   - component: {fileID: 6742839921455197996}
+  - component: {fileID: 8921359103266403619}
   m_Layer: 0
   m_Name: Inventory
   m_TagString: Untagged
@@ -68,6 +69,29 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8921359103266403619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3097904742621384726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1ff1f60d68aa2b45b726385db933167, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryBarUI
+  inventory: {fileID: 0}
+  autoFindInventory: 1
+  slotCount: 4
+  slotSize: 64
+  slotSpacing: 10
+  barPadding: {x: 12, y: 12}
+  barOffset: {x: 0, y: 28}
+  barColor: {r: 0, g: 0, b: 0, a: 0.45}
+  slotNormalColor: {r: 1, g: 1, b: 1, a: 0.25}
+  slotSelectedColor: {r: 1, g: 0.85, b: 0.25, a: 1}
+  slotTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &4072733298898021388
 GameObject:
   m_ObjectHideFlags: 0

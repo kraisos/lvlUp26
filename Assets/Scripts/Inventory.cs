@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class Inventory : MonoBehaviour
 {
@@ -10,19 +11,27 @@ public class Inventory : MonoBehaviour
     {
         public string itemId;
         public int quantity;
+        public Sprite sprite;
 
-        public ItemStack(string itemId, int quantity)
+        public ItemStack(string itemId, int quantity, Sprite sprite)
         {
             this.itemId = itemId;
             this.quantity = quantity;
+            this.sprite = sprite;
         }
     }
 
     [SerializeField] private List<ItemStack> items = new List<ItemStack>();
+    public event Action Changed;
 
     public IReadOnlyList<ItemStack> Items => items;
 
-    public void AddItem(string itemId, int quantity = 1)
+    public void ForceNotifyChanged()
+    {
+        Changed?.Invoke();
+    }
+
+    public void AddItem(string itemId, int quantity = 1, Sprite sprite = null)
     {
         if (string.IsNullOrWhiteSpace(itemId) || quantity <= 0)
         {
@@ -33,10 +42,16 @@ public class Inventory : MonoBehaviour
         if (existing != null)
         {
             existing.quantity += quantity;
+            if (existing.sprite == null && sprite != null)
+            {
+                existing.sprite = sprite;
+            }
+            Changed?.Invoke();
             return;
         }
 
-        items.Add(new ItemStack(itemId, quantity));
+        items.Add(new ItemStack(itemId, quantity, sprite));
+        Changed?.Invoke();
     }
 
     private void OnTriggerEnter(Collider other)
