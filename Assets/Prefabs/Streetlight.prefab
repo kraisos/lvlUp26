@@ -82,6 +82,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4186789594268967832}
   - component: {fileID: 131032952949618239}
+  - component: {fileID: 8062095012161458392}
   m_Layer: 0
   m_Name: Streetlight
   m_TagString: Untagged
@@ -119,6 +120,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d35b247e6bf70fb499a89f7fb609085f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Streetlight
+--- !u!114 &8062095012161458392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7203416797246555107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db083de95d89646449628002f3412696, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CableAnchor
+  anchorHeight: 0.05
+  anchorOffset: 0.15
 --- !u!1001 &5581745968539444148
 PrefabInstance:
   m_ObjectHideFlags: 0
