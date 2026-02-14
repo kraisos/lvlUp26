@@ -7,19 +7,22 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/Jean.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    guid: 82b6cd468d4a99a4ea829d2bee566d04
   - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
+    path: Assets/Scenes/menus/MainMenu.unity
     guid: caf1221553dcbb944862fa443b737e7e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/michael.unity
     guid: 05c2a4ddbd9cd714b82c9ad4d81af764
   - enabled: 1
     path: Assets/Scenes/GameScene.unity
     guid: 1e91fff17f1b3a44bb5a82c2f47963a4
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Caco.unity
     guid: 2472798466fea2c4cbe4b5368d2e6098
+  - enabled: 1
+    path: Assets/Scenes/menus/GameOverScene.unity
+    guid: 21c0191ff09a95c40851eaa1bfc8ffc2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

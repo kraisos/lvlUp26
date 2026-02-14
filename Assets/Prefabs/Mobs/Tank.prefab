@@ -369,9 +369,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TankAI
   detectionRange: 5
   fieldOfViewAngle: 360
-  moveSpeed: 5
+  moveSpeed: 4
   rotationSpeed: 5
-  stoppingDistance: 1.5
+  stoppingDistance: 0.9
   groundCheckDistance: 2
   groundLayer:
     serializedVersion: 2

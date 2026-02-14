@@ -27,7 +27,7 @@ public class GameController : MonoBehaviour
 
     [Header("Death")]
     [SerializeField] private bool restartOnPlayerDeath = true;
-    [SerializeField] private float restartDelay = 1.5f;
+    [SerializeField] private string deathSceneName = "GameOverScene";
 
     void Start()
     {
@@ -35,11 +35,7 @@ public class GameController : MonoBehaviour
         originPosition = new Vector3(originPoint.x, 0f, originPoint.z);
         map = FindFirstObjectByType<Map>();
 
-        if (playerPrefab != null && spawnPoint != null)
-        {
-            SpawnPlayer(spawnPoint.position);
-        }
-
+        SpawnPlayer(spawnPoint.position);
         SpawnBeacon();
         SpawnResources();
     }
@@ -163,15 +159,13 @@ public class GameController : MonoBehaviour
 
         if (restartOnPlayerDeath)
         {
-            StartCoroutine(RestartSceneAfterDelay());
+            ShowGameOverScene();
         }
     }
 
-    IEnumerator RestartSceneAfterDelay()
+    void ShowGameOverScene()
     {
-        float delay = Mathf.Max(0f, restartDelay);
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(deathSceneName);
     }
 
     // ─── Placeholder visuals (used when no prefab is assigned) ───

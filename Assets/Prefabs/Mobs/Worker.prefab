@@ -438,7 +438,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -465,9 +465,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TankAI
   detectionRange: 5
   fieldOfViewAngle: 360
-  moveSpeed: 5
+  moveSpeed: 4
   rotationSpeed: 5
-  stoppingDistance: 1.5
+  stoppingDistance: 0.9
   groundCheckDistance: 2
   groundLayer:
     serializedVersion: 2

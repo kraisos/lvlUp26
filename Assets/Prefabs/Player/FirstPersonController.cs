@@ -598,12 +598,8 @@ public class FirstPersonController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (collision == null) return;
+        Debug.Log($"Collided with: {collision.collider.name}");
         TryHandleMobContact(collision.collider);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        TryHandleMobContact(other);
     }
 
     private void TryHandleMobContact(Collider other)

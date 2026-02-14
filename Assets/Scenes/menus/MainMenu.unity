@@ -751,7 +751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c7afbd5c6846740ae6695cd6e1b2ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
-  gameSceneName: GameScene
+  gameSceneName: Jean
   playButton: {fileID: 2077021887}
 --- !u!4 &2093422322
 Transform:
