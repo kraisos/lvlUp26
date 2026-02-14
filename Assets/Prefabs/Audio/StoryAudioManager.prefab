@@ -47,6 +47,10 @@ MonoBehaviour:
   narrationSource: {fileID: 0}
   storyEntries:
   - {fileID: 11400000, guid: 875b87a56de09db49b2a149d4ed29a1b, type: 2}
+  - {fileID: 11400000, guid: 330a4c4e735db5c42ae268b07da11eca, type: 2}
+  - {fileID: 11400000, guid: 0e40efdb68083564dacd9c6213c9d267, type: 2}
+  - {fileID: 11400000, guid: 310defaae24367f48877823882f8f077, type: 2}
+  - {fileID: 11400000, guid: 5b08da67a14ef3b48a0a4de667b79922, type: 2}
   narrationVolume: 1
   musicDuckVolume: 0.2
   duckFadeDuration: 0.5
