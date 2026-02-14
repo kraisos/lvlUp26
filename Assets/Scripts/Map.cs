@@ -29,6 +29,7 @@ public class Map : MonoBehaviour
 {
     [Header("Grid Settings")]
     public float tileSize = 1.0f;
+    public float tileScale = 3f;
     public int maxGridSize = 50; // Maximum grid size for dynamic expansion
 
     [Header("Tile Settings")]
@@ -68,6 +69,24 @@ public class Map : MonoBehaviour
         if (!lightSources.Contains(lightSource))
         {
             lightSources.Add(lightSource);
+
+            // Pre-seed the 3x3 tiles around the light source as Ground
+            Vector2Int lightPos = lightSource.GetGridPosition();
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dz = -1; dz <= 1; dz++)
+                {
+                    Vector2Int adjustedPos = new Vector2Int(
+                        lightPos.x + dx + maxGridSize / 2,
+                        lightPos.y + dz + maxGridSize / 2
+                    );
+                    if (IsValidGridPosition(adjustedPos) && tileInfoMap.Get(adjustedPos).IsVoid)
+                    {
+                        tileInfoMap.Set(adjustedPos, new TileInfo(TileType.Ground));
+                    }
+                }
+            }
+
             UpdateTilesAroundLightSources();
             Debug.Log($"Light source registered. Total: {lightSources.Count}");
         }
@@ -149,7 +168,12 @@ public class Map : MonoBehaviour
         if (!IsValidGridPosition(pos) || tileGrid[pos.x, pos.y] != null)
             return;
 
-        TileInfo tileInfo = mapGenerator.CreateTile(pos);
+        // Use pre-seeded tile info if available, otherwise generate
+        TileInfo tileInfo = tileInfoMap.Get(pos);
+        if (tileInfo.IsVoid)
+        {
+            tileInfo = mapGenerator.CreateTile(pos);
+        }
         tileInfoMap.Set(pos, tileInfo);
 
         GameObject selectedPrefab = GetPrefabForTileInfo(tileInfo);
@@ -158,11 +182,11 @@ public class Map : MonoBehaviour
             selectedPrefab = tilePrefab;
         }
 
-        // Calculate world position (adjusted for centering)
+        // Calculate world position (adjusted for centering and scale)
         Vector3 position = new Vector3(
-            (pos.x - maxGridSize / 2) * tileSize,
+            (pos.x - maxGridSize / 2) * tileSize * tileScale,
             0,
-            (pos.y - maxGridSize / 2) * tileSize
+            (pos.y - maxGridSize / 2) * tileSize * tileScale
         );
 
         Quaternion rotation = Quaternion.Euler(0, GetTileRotation(tileInfo.tileType), 0);
@@ -243,29 +267,29 @@ public class Map : MonoBehaviour
 
     // Returns the Y-axis rotation in degrees for each TileType.
     // Each prefab group has a base orientation:
-    //   WallStraight prefab: vertical (│) by default
-    //   WallCorner prefab:   NW (┌) by default
-    //   WallT prefab:        TN (┬) by default
+    //   WallStraight prefab: horizontal (─) by default
+    //   WallCorner prefab:   SW (└) by default
+    //   WallT prefab:        TS (┴) by default
     //   Door prefab:         vertical (║) by default
     private float GetTileRotation(TileType tileType)
     {
         switch (tileType)
         {
             // Straight walls
-            case TileType.WallVertical:     return 0f;
-            case TileType.WallHorizontal:   return 90f;
+            case TileType.WallHorizontal:   return 0f;
+            case TileType.WallVertical:     return 90f;
 
             // Corners (base: NW ┌)
-            case TileType.WallNW:           return 0f;
-            case TileType.WallNE:           return 90f;
-            case TileType.WallSE:           return 180f;
-            case TileType.WallSW:           return 270f;
+            case TileType.WallSW:           return 0f;
+            case TileType.WallNW:           return 90f;
+            case TileType.WallNE:           return 180f;
+            case TileType.WallSE:           return 270f;
 
             // T-junctions (base: TN ┬)
-            case TileType.WallTN:           return 0f;
-            case TileType.WallTE:           return 90f;
-            case TileType.WallTS:           return 180f;
-            case TileType.WallTW:           return 270f;
+            case TileType.WallTS:           return 0f;
+            case TileType.WallTW:           return 90f;
+            case TileType.WallTN:           return 180f;
+            case TileType.WallTE:           return 270f;
 
             // Doors
             case TileType.DoorVertical:     return 0f;

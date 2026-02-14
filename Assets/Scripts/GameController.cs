@@ -24,6 +24,7 @@ public class GameController : MonoBehaviour
     public void SpawnPlayer(Vector3 position)
     {
         GameObject newPlayer = Instantiate(playerPrefab, position, Quaternion.identity);
+        newPlayer.transform.localScale = Vector3.one * 0.75f;
         Debug.Log($"Spawned player at {position}");
     }
 }

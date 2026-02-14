@@ -5,6 +5,7 @@ using UnityEngine;
 public class MapGenerator
 {
     private TileInfoMap tileInfoMap;
+    private float wallSpawnChance = 0.02f;
 
     public MapGenerator(TileInfoMap tileInfoMap)
     {
@@ -39,6 +40,26 @@ public class MapGenerator
                 (!w.wallEast || needsWallEast || eastTile.IsVoid) &&
                 (!w.wallSouth || needsWallSouth || southTile.IsVoid) &&
                 (!w.wallWest || needsWallWest || westTile.IsVoid)
+            ).Select(w => w.tileType).ToList();
+
+            if (validTypes.Count > 0)
+            {
+                TileType chosen = validTypes[Random.Range(0, validTypes.Count)];
+                return new TileInfo(chosen);
+            }
+        }
+
+        // Check if at least one neighbor is void — walls can only start where they have room to expand
+        bool hasVoidNeighbor = northTile.IsVoid || eastTile.IsVoid || southTile.IsVoid || westTile.IsVoid;
+
+        if (hasVoidNeighbor && Random.value < wallSpawnChance)
+        {
+            // Try to place a new wall that only extends into void neighbors
+            List<TileType> validTypes = TileTypeInfo.wallTypes.Where(w =>
+                (!w.wallNorth || northTile.IsVoid) &&
+                (!w.wallEast || eastTile.IsVoid) &&
+                (!w.wallSouth || southTile.IsVoid) &&
+                (!w.wallWest || westTile.IsVoid)
             ).Select(w => w.tileType).ToList();
 
             if (validTypes.Count > 0)
