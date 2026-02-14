@@ -21,6 +21,10 @@ public class EscapeMenu : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureMenuExists()
     {
+        // Don't create escape menu in the main menu scene
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+            return;
+
         if (FindFirstObjectByType<EscapeMenu>() != null)
         {
             return;
