@@ -29,11 +29,13 @@ public class PickaxeTool : MonoBehaviour
     private MineableObject activeMineable;
     private float activeMineProgress;
     private bool isSwinging;
+    private bool requireReleaseBeforeMining;
 
     private Canvas miningCanvas;
     private Slider miningSlider;
     private Transform visualTransform;
     private Quaternion visualBaseRotation;
+    private Coroutine swingCoroutine;
 
     private void Awake()
     {
@@ -44,13 +46,38 @@ public class PickaxeTool : MonoBehaviour
 
     private void Update()
     {
+        var primaryPressedThisFrame = IsPrimaryPressedThisFrame();
+
         if (IsPrimaryHeld())
         {
-            TryStartSwing();
-            ContinueMining();
+            if (requireReleaseBeforeMining)
+            {
+                CancelMining();
+                return;
+            }
+
+            if (TryGetMineableUnderMouse(out var mineable, out var hit))
+            {
+                TryStartSwing();
+                ContinueMining(mineable, hit);
+                return;
+            }
+
+            if (activeMineable != null)
+            {
+                InterruptMiningUntilRelease();
+                return;
+            }
+
+            CancelMining();
+            if (primaryPressedThisFrame)
+            {
+                TryStartSwing();
+            }
             return;
         }
 
+        requireReleaseBeforeMining = false;
         CancelMining();
     }
 
@@ -142,14 +169,8 @@ public class PickaxeTool : MonoBehaviour
         miningSlider.direction = Slider.Direction.LeftToRight;
     }
 
-    private void ContinueMining()
+    private void ContinueMining(MineableObject mineable, RaycastHit hit)
     {
-        if (!TryGetMineableUnderMouse(out var mineable, out var hit))
-        {
-            CancelMining();
-            return;
-        }
-
         if (activeMineable != mineable)
         {
             activeMineable = mineable;
@@ -216,7 +237,7 @@ public class PickaxeTool : MonoBehaviour
             return;
         }
 
-        StartCoroutine(SwingRoutine());
+        swingCoroutine = StartCoroutine(SwingRoutine());
     }
 
     private System.Collections.IEnumerator SwingRoutine()
@@ -235,6 +256,29 @@ public class PickaxeTool : MonoBehaviour
 
         visualTransform.localRotation = visualBaseRotation;
         isSwinging = false;
+        swingCoroutine = null;
+    }
+
+    private void InterruptMiningUntilRelease()
+    {
+        requireReleaseBeforeMining = true;
+        CancelMining();
+        StopSwing();
+    }
+
+    private void StopSwing()
+    {
+        if (swingCoroutine != null)
+        {
+            StopCoroutine(swingCoroutine);
+            swingCoroutine = null;
+        }
+
+        isSwinging = false;
+        if (visualTransform != null)
+        {
+            visualTransform.localRotation = visualBaseRotation;
+        }
     }
 
     private void CancelMining()
