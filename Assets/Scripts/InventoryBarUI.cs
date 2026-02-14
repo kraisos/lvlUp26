@@ -63,6 +63,11 @@ public class InventoryBarUI : MonoBehaviour
             TryBindInventory();
         }
 
+        if (EscapeMenu.IsMenuOpen)
+        {
+            return;
+        }
+
         if (IsSlotKeyPressed(1))
         {
             SetSelected(0);
