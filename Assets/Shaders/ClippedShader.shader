@@ -13,7 +13,7 @@ Shader "Custom/ClippedByVolumeSoftEdge"
     
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" }
         LOD 200
         
         CGINCLUDE
@@ -119,7 +119,7 @@ Shader "Custom/ClippedByVolumeSoftEdge"
         // Pass 2: Render front faces (Outside)
         Cull Back
         CGPROGRAM
-        #pragma surface surf Standard fullforwardshadows alpha:fade
+        #pragma surface surf Standard fullforwardshadows
         #pragma target 3.0
         ENDCG
     }
