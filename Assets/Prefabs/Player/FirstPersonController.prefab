@@ -35,7 +35,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4459864851508666808}
-  - {fileID: 7000207247049283811}
   - {fileID: 817315953384364252}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -956,14 +955,3 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8532724168467826031, guid: 0ab38d1f860011c459fca8ed2aefc521, type: 3}
   m_PrefabInstance: {fileID: 9024619827806231987}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4796481018582177999 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4755657423824787749, guid: 0a964e971967e874cb572d4785828fbb, type: 3}
-  m_PrefabInstance: {fileID: 247692654433272298}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1e4ce3753c5d7043b60b61f3fd55301, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightSource
