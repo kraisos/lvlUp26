@@ -281,6 +281,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6388024002887163579, guid: 56cca98d86b9c8c4cbea37d5df65478a, type: 3}
+      propertyPath: radius
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6770455780146184920, guid: 56cca98d86b9c8c4cbea37d5df65478a, type: 3}
+      propertyPath: m_Range
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 7203416797246555107, guid: 56cca98d86b9c8c4cbea37d5df65478a, type: 3}
       propertyPath: m_Name
       value: Streetlight

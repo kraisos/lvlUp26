@@ -56,12 +56,6 @@ public class GameController : MonoBehaviour
     void Update()
     {
         if (gameOver) return;
-
-        // Check win condition: player reached the beacon
-        if (beacon != null && beacon.IsReached)
-        {
-            OnGameWon();
-        }
     }
 
     // ─── Spawning ───
@@ -203,7 +197,7 @@ public class GameController : MonoBehaviour
     {
         if (gameOver) return;
         gameOver = true;
-        Debug.Log("=== GAME WON — You reached the beacon! ===");
+        Debug.Log("=== GAME WON — Streetlight placed near the beacon! ===");
     }
 
     public void OnPlayerCaught(Transform caughtBy = null)

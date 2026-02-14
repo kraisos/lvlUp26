@@ -50,7 +50,5 @@ MonoBehaviour:
   spawnInterval: 2
   firstSpawnDelay: 1
   maxAliveMobs: 10
-  minDistanceFromPlayer: 30
+  minDistanceFromPlayer: 40
   maxDistanceFromPlayer: 50
-  mobsParent: {fileID: 0}
-  playerTransform: {fileID: 0}
