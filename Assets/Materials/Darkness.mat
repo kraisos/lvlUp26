@@ -82,6 +82,9 @@ Material:
     - _InnerRadius: 1
     - _Metallic: 0
     - _Mode: 0
+    - _NoiseScale: 0.25
+    - _NoiseSpeed: 0.35
+    - _NoiseStrength: 0.35
     - _OcclusionStrength: 1
     - _OuterRadius: 40
     - _Parallax: 0.02
