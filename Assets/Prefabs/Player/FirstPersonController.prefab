@@ -893,8 +893,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3919737972299365667, guid: 45c5b20a1c0efc843a1850cf9d6df4d7, type: 3}
   m_PrefabInstance: {fileID: 6287042173812581824}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< HEAD
-=======
 --- !u!1001 &9024619827806231987
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -969,4 +967,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1e4ce3753c5d7043b60b61f3fd55301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightSource
->>>>>>> 853606c0c4e29ea83d93f7bac1a7470777276bcf
