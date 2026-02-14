@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
@@ -13,8 +14,8 @@ public class GameController : MonoBehaviour
     public int beaconDistanceTiles = 30;
     public float beaconClearRadius = 5f;
 
-    [Header("Resources")]
-    public GameObject resourceCachePrefab;
+    [FormerlySerializedAs("resourceCachePrefab")] [Header("Resources")]
+    public GameObject resourcePrefab;
     public int resourcesCount = 2;
     public int resourceMinDistanceTiles = 10;
     public int resourceMaxDistanceTiles = 20;
@@ -25,6 +26,9 @@ public class GameController : MonoBehaviour
     private Map map;
     private bool gameOver = false;
     private Vector3 originPosition;
+    private Inventory playerInventory;
+    private int lastStreetlightCount = 0;
+    private int coppermineSpawnCount = 0;
 
     [Header("Death")]
     [SerializeField] private bool restartOnPlayerDeath = true;
@@ -68,6 +72,14 @@ public class GameController : MonoBehaviour
         player.transform.localScale = Vector3.one * 0.75f;
         Debug.Log($"Spawned player at {position}");
 
+        // Track streetlight pickups via inventory
+        playerInventory = player.GetComponentInChildren<Inventory>();
+        if (playerInventory != null)
+        {
+            lastStreetlightCount = 0;
+            playerInventory.Changed += OnInventoryChanged;
+        }
+
         if (StoryAudioManager.Instance != null)
             StoryAudioManager.Instance.TriggerStory(StoryTriggerType.FirstSpawn);
     }
@@ -104,17 +116,16 @@ public class GameController : MonoBehaviour
             int distanceTiles = Random.Range(resourceMinDistanceTiles, resourceMaxDistanceTiles + 1);
             Vector3 cachePos = map.ReserveClearTile(originPosition, distanceTiles);
 
-            GameObject cacheObj;
-            if (resourceCachePrefab != null)
+            if (resourcePrefab != null)
             {
-                cacheObj = Instantiate(resourceCachePrefab, cachePos, Quaternion.identity);
+                Instantiate(resourcePrefab, cachePos, Quaternion.identity);
+                Debug.Log($"Resource cache {i + 1} spawned at {cachePos} ({distanceTiles} tiles from player)");
             }
             else
             {
-                cacheObj = CreatePlaceholderCache(cachePos);
+                Debug.LogWarning("No resource prefab found");
             }
 
-            Debug.Log($"Resource cache {i + 1} spawned at {cachePos} ({distanceTiles} tiles from player)");
         }
     }
 
@@ -142,6 +153,51 @@ public class GameController : MonoBehaviour
     }
 
     // ─── Events ───
+
+    void OnInventoryChanged()
+    {
+        if (playerInventory == null || player == null) return;
+
+        // Count current streetlight items
+        int currentCount = 0;
+        foreach (var stack in playerInventory.Items)
+        {
+            if (stack.itemId == "streetlight")
+            {
+                currentCount = stack.quantity;
+                break;
+            }
+        }
+
+        // If the player gained streetlights, spawn a coppermine for each new one
+        if (currentCount > lastStreetlightCount)
+        {
+            int gained = currentCount - lastStreetlightCount;
+            for (int i = 0; i < gained; i++)
+            {
+                SpawnCopperBehindPlayer();
+            }
+        }
+
+        lastStreetlightCount = currentCount;
+    }
+
+    void SpawnCopperBehindPlayer()
+    {
+        coppermineSpawnCount++;
+        int distance = Random.Range(resourceMinDistanceTiles + coppermineSpawnCount, resourceMaxDistanceTiles + coppermineSpawnCount + 1);
+
+
+        Vector3 playerPos = new Vector3(player.transform.position.x, 0f, player.transform.position.z);
+        Vector3 pos = map.ReserveClearTileBehind(playerPos, player.transform.forward, distance);
+
+        if (resourcePrefab != null)
+        {
+            Instantiate(resourcePrefab, pos, Quaternion.identity);
+        }
+
+        Debug.Log($"Coppermine #{coppermineSpawnCount} spawned at {pos} ({distance} tiles behind player)");
+    }
 
     void OnGameWon()
     {
