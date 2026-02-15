@@ -21,6 +21,7 @@ public class FirstPersonController : MonoBehaviour
 {
     private Rigidbody rb;
     private bool isDead;
+    private bool hasWon;
 
     #region Camera Movement Variables
 
@@ -681,6 +682,66 @@ private void Awake()
 
         GameController gameController = FindFirstObjectByType<GameController>();
         gameController.OnPlayerCaught(mobTransform);
+    }
+
+    public void HandlePlayerVictory()
+    {
+        if (hasWon || isDead) return;
+
+        hasWon = true;
+        isWalking = false;
+        isSprinting = false;
+        playerCanMove = false;
+        cameraCanMove = false;
+
+        var audioController = GetComponent<PlayerAudioController>();
+        if (audioController != null)
+        {
+            audioController.StopAllSounds();
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+
+        StartCoroutine(VictoryCameraRise());
+    }
+
+    private IEnumerator VictoryCameraRise()
+    {
+        Transform cam = playerCamera.transform;
+        Vector3 startLocalPos = cam.localPosition;
+        Quaternion startRot = cam.localRotation;
+
+        // Target: raise camera up and look toward the sky
+        float skyY = startLocalPos.y + 2f;
+        Vector3 endLocalPos = new Vector3(startLocalPos.x, skyY, startLocalPos.z - 0.3f);
+        Quaternion endRot = Quaternion.Euler(-70f, cam.localEulerAngles.y, 0f);
+
+        float duration = 2f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            // Ease-out curve: fast start, decelerating rise
+            float eased = 1f - (1f - t) * (1f - t);
+
+            cam.localPosition = Vector3.Lerp(startLocalPos, endLocalPos, eased);
+            cam.localRotation = Quaternion.Slerp(startRot, endRot, eased);
+
+            yield return null;
+        }
+
+        cam.localPosition = endLocalPos;
+        cam.localRotation = endRot;
+
+        GameController gameController = FindFirstObjectByType<GameController>();
+        gameController.ShowVictoryOverlay();
     }
 }
 

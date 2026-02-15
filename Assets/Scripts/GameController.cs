@@ -232,7 +232,12 @@ public class GameController : MonoBehaviour
     {
         if (gameOver) return;
         gameOver = true;
-        SceneManager.LoadScene(winSceneName);
+
+        var fpc = player.GetComponent<FirstPersonController>();
+        if (fpc != null)
+        {
+            fpc.HandlePlayerVictory();
+        }
     }
 
     public void OnPlayerCaught(Transform caughtBy = null)
@@ -321,6 +326,98 @@ public class GameController : MonoBehaviour
         label.fontSize = 32f;
         label.alignment = TextAlignmentOptions.Center;
         label.color = new Color(0.85f, 0.75f, 0.9f, 1f);
+
+        var button = buttonObj.GetComponent<Button>();
+        button.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().name));
+    }
+
+    private static readonly string[] victoryMessages = new string[]
+    {
+        "Post tenebras lux!",
+        "La lumière est revenue... l'espoir renaît.",
+        "Le courant est rétabli, les ténèbres reculent !",
+        "L'énergie circule à nouveau, la vie reprend ses droits.",
+        "Un phare dans la nuit — l'humanité persévère.",
+        "La flamme de l'espoir ne s'éteint jamais.",
+        "Le monde s'illumine, un pas vers demain.",
+        "Là où il y a de la lumière, il y a de l'espoir.",
+        "Les ombres se dissipent, place à la lumière !",
+        "Le pouvoir de la lumière triomphe des ténèbres.",
+        "Une étincelle suffit à rallumer l'espoir.",
+        "La nuit est finie, l'aube se lève enfin.",
+        "Brille encore, petite lumière, le monde a besoin de toi.",
+    };
+
+    public void ShowVictoryOverlay()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Full-screen canvas
+        var canvasObj = new GameObject("VictoryOverlayCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        var canvas = canvasObj.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
+
+        var scaler = canvasObj.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        // Dark vignette overlay
+        var overlayObj = new GameObject("DarkOverlay", typeof(RectTransform), typeof(Image));
+        overlayObj.transform.SetParent(canvasObj.transform, false);
+        var overlayRect = overlayObj.GetComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        var overlayImage = overlayObj.GetComponent<Image>();
+        overlayImage.color = new Color(0f, 0f, 0f, 0.5f);
+
+        // Victory message
+        var titleObj = new GameObject("VictoryTitle", typeof(RectTransform), typeof(TextMeshProUGUI));
+        titleObj.transform.SetParent(canvasObj.transform, false);
+        var titleRect = titleObj.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.5f, 0.5f);
+        titleRect.anchorMax = new Vector2(0.5f, 0.5f);
+        titleRect.pivot = new Vector2(0.5f, 0.5f);
+        titleRect.anchoredPosition = Vector2.zero;
+        titleRect.sizeDelta = new Vector2(1200f, 200f);
+
+        var title = titleObj.GetComponent<TextMeshProUGUI>();
+        title.text = victoryMessages[Random.Range(0, victoryMessages.Length)];
+        title.fontSize = 52f;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = new Color(0.9f, 0.85f, 0.6f, 1f);
+
+        // Restart button
+        var buttonObj = new GameObject("RestartButton", typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonObj.transform.SetParent(canvasObj.transform, false);
+        var btnRect = buttonObj.GetComponent<RectTransform>();
+        btnRect.anchorMin = new Vector2(0.5f, 0.3f);
+        btnRect.anchorMax = new Vector2(0.5f, 0.3f);
+        btnRect.pivot = new Vector2(0.5f, 0.5f);
+        btnRect.anchoredPosition = Vector2.zero;
+        btnRect.sizeDelta = new Vector2(300f, 70f);
+
+        var btnImage = buttonObj.GetComponent<Image>();
+        btnImage.color = new Color(0.1f, 0.15f, 0.05f, 0.85f);
+
+        // Button label
+        var labelObj = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        labelObj.transform.SetParent(buttonObj.transform, false);
+        var labelRect = labelObj.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+
+        var label = labelObj.GetComponent<TextMeshProUGUI>();
+        label.text = "REJOUER";
+        label.fontSize = 32f;
+        label.alignment = TextAlignmentOptions.Center;
+        label.color = new Color(0.9f, 0.85f, 0.6f, 1f);
 
         var button = buttonObj.GetComponent<Button>();
         button.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().name));
