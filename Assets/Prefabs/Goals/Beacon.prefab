@@ -161,8 +161,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   visualChildName: Visual
   breathingSpeed: 0.5
-  breathingAmount: 0.2
-  minLightMultiplier: 0.5
+  breathingAmount: 0.8
+  minLightMultiplier: 0
   maxLightMultiplier: 1
   minHaloMultiplier: 0.35
   maxHaloMultiplier: 1
