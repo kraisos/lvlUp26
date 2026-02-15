@@ -57,11 +57,13 @@ public class GameController : MonoBehaviour
         }
 
         // Wait for the map to be ready before spawning
-        map.OnMapReady += OnMapReady;
+        if (map.IsReady) OnMapReady();
+        else map.OnMapReady += OnMapReady;
     }
 
     void OnMapReady()
     {
+        Debug.Log("GameController: OnMapReady");
         Vector3 originPoint = spawnPoint != null ? spawnPoint.position : Vector3.zero;
         originPosition = new Vector3(originPoint.x, 0f, originPoint.z);
 

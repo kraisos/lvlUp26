@@ -58,6 +58,7 @@ public class Map : MonoBehaviour
     private MapGenerator mapGenerator;
 
     public event Action OnMapReady;
+    public bool IsReady { get; private set; } = false;
 
     void Awake()
     {
@@ -74,6 +75,7 @@ public class Map : MonoBehaviour
         gridParent.transform.parent = transform;
         
         // Notify that the map is ready
+        IsReady = true;
         OnMapReady?.Invoke();
     }
 
