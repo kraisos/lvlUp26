@@ -351,12 +351,12 @@ public class StreetlightTool : MonoBehaviour
     private bool IsPlacementValid(Vector3 position)
     {
         var step = Mathf.Max(0.001f, map.tileSize * map.tileScale);
-        var gridPos = new Vector2Int(
+        Vector2Int gridPos = new Vector2Int(
             Mathf.RoundToInt((position.x - map.transform.position.x) / step),
             Mathf.RoundToInt((position.z - map.transform.position.z) / step)
         );
 
-        if (map.GetTile(gridPos) == null)
+        if (map.GetTile(gridPos).IsVoid)
         {
             return false;
         }

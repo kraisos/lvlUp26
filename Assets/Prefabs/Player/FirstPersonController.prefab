@@ -178,7 +178,7 @@ MonoBehaviour:
   maxVelocityChange: 10
   enableSprint: 1
   unlimitedSprint: 0
-  sprintSpeed: 5
+  sprintSpeed: 4
   sprintDuration: 5
   sprintCooldown: 3
   sprintFOV: 90

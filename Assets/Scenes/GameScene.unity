@@ -540,11 +540,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 526809687916950642, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
       propertyPath: resourceMaxDistanceTiles
-      value: 10
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 526809687916950642, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
       propertyPath: resourceMinDistanceTiles
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4603596504415875293, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
       propertyPath: m_Name
