@@ -16,7 +16,7 @@ public class TileInfoMap
         {
             return info;
         }
-        return TileInfo.VOID; // Default to VOID if not set
+        return TileInfo.Void; // Default to VOID if not set
     }
 
     public void Remove(Vector2Int pos)

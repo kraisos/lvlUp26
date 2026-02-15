@@ -42,7 +42,7 @@ public class MapGenerator
                 (!w.LinkWest || needsWallWest || westTile.IsVoid)
             ).ToList();
 
-            if (validTypes.Count > 0) return PickWeighted(validTypes);
+            if (validTypes.Count > 0) return new TileInfo(validTypes.PickWeighted().tileType);
         }
 
         // Check if at least one neighbor is void — walls can only start where they have room to expand
@@ -60,7 +60,7 @@ public class MapGenerator
 
             if (validTypes.Count > 0)
             {
-                return PickWeighted(validTypes);
+                return new TileInfo(validTypes.PickWeighted().tileType);
             }
         }
 
@@ -69,21 +69,6 @@ public class MapGenerator
         return new TileInfo(terrainType);
     }
 
-    private static TileInfo PickWeighted(List<TileTypeInfo> validTypes)
-    {
-        float totalWeight = validTypes.Sum(w => w.weight);
-        float roll = Random.value * totalWeight;
-        float cumulative = 0f;
-        foreach (var typeInfo in validTypes)
-        {
-            cumulative += typeInfo.weight;
-            if (roll <= cumulative)
-            {
-                return new TileInfo(typeInfo.tileType);
-            }
-        }
-        return new TileInfo(validTypes.Last().tileType);
-    }
 
     private TileType ChooseTerrainType(TileInfo north, TileInfo east, TileInfo south, TileInfo west)
     {

@@ -34,11 +34,12 @@ public enum TileFlags
 	IsDoor     = 1 << 5,
 }
 
-public class TileTypeInfo
+public class TileTypeInfo : IWeighted
 {
 	public readonly TileType tileType;
 	public readonly TileFlags flags;
-	public readonly float weight;
+
+	public float Weight { get; }
 
 	public bool LinkNorth => (flags & TileFlags.LinkNorth) != 0;
 	public bool LinkEast  => (flags & TileFlags.LinkEast)  != 0;
@@ -51,7 +52,7 @@ public class TileTypeInfo
 	{
 		tileType = type;
 		this.flags = flags;
-		this.weight = weight;
+		this.Weight = weight;
 	}
 
 	public static readonly Dictionary<TileType, TileTypeInfo> WallTypes = new Dictionary<TileType, TileTypeInfo> {
@@ -92,7 +93,7 @@ public class TileInfo
         tileType = type;
     }
 
-	public static readonly TileInfo VOID = new(TileType.Void);
+	public static readonly TileInfo Void = new(TileType.Void);
 
 	public bool IsLinkNorth => GetFlags().HasFlag(TileFlags.LinkNorth);
 	public bool IsLinkEast  => GetFlags().HasFlag(TileFlags.LinkEast);
