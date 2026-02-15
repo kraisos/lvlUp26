@@ -252,26 +252,6 @@ public class Map : MonoBehaviour
         ApplyTreeRandomRotation(tile, tileInfo);
     }
 
-    /// <summary>
-    /// Set the Ground layer only on objects that won't cause "mesh does not allow read access"
-    /// warnings. Skips children that have a MeshCollider (e.g. bushes, decorations with
-    /// non-readable meshes). The NavMesh only needs the ground plane and box/capsule colliders.
-    /// </summary>
-    private static void SetLayerRecursively(GameObject obj, int layer)
-    {
-        // Only assign the layer if this object has no MeshCollider
-        Collider col = obj.GetComponent<Collider>();
-        if (col == null || col is not MeshCollider)
-        {
-            obj.layer = layer;
-        }
-
-        foreach (Transform child in obj.transform)
-        {
-            SetLayerRecursively(child.gameObject, layer);
-        }
-    }
-
     private void ApplyTreeRandomRotation(GameObject tile, TileInfo tileInfo)
     {
         if (tileInfo == null || tileInfo.tileType != TileType.Woods || tile == null)

@@ -367,6 +367,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FogMachine
       objectReference: {fileID: 0}
+    - target: {fileID: 5706989804320424923, guid: ca1c93a6b8eb3df328aeca47c9f08ae8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8510810960740144366, guid: ca1c93a6b8eb3df328aeca47c9f08ae8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -463,6 +467,10 @@ PrefabInstance:
     - target: {fileID: 2971795865648471488, guid: e3be6b853ad387e469398d25619b3764, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4852532470544701490, guid: e3be6b853ad387e469398d25619b3764, type: 3}
+      propertyPath: logRebakes
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
