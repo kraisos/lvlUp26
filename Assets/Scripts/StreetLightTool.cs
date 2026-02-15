@@ -194,6 +194,37 @@ public class StreetlightTool : MonoBehaviour
             activeGhostPipeCount++;
         }
 
+        // Also show ghost pipes to nearby beacons (using beacon's activationRadius)
+        var existingBeacons = FindObjectsByType<Beacon>(FindObjectsSortMode.None);
+        for (var i = 0; i < existingBeacons.Length; i++)
+        {
+            var beacon = existingBeacons[i];
+            if (beacon == null) continue;
+
+            var distance = Vector3.Distance(ghostPosition, beacon.transform.position);
+            if (distance > beacon.activationRadius || distance < minStreetlightSpacing) continue;
+
+            var dir = beacon.transform.position - ghostPosition;
+            dir.y = 0f;
+            var start = ghostBase + GetCardinalOffset(dir) * GhostPipeAnchorOffset;
+
+            var anchorComp = beacon.GetComponent<CableAnchor>();
+            Vector3 end;
+            if (anchorComp != null)
+            {
+                end = anchorComp.GetAnchorToward(ghostPosition).position;
+            }
+            else
+            {
+                end = beacon.transform.position + Vector3.up * GhostPipeAnchorY;
+            }
+
+            var lr = GetOrCreateGhostPipe(activeGhostPipeCount);
+            SetGhostPipeCurve(lr, start, end, ghostMaterial);
+            lr.gameObject.SetActive(true);
+            activeGhostPipeCount++;
+        }
+
         // Hide unused ghost pipes
         for (var i = activeGhostPipeCount; i < ghostPipePool.Count; i++)
         {
