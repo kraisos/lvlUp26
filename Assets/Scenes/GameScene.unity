@@ -535,6 +535,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 526809687916950642, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
+      propertyPath: airshipPrefab
+      value: 
+      objectReference: {fileID: 4201727846208258260, guid: af4cf85115a78444e8e2c8f22f32348a, type: 3}
+    - target: {fileID: 526809687916950642, guid: 26c4a28bfb5a6fd4186943a637435120, type: 3}
       propertyPath: beaconDistanceTiles
       value: 15
       objectReference: {fileID: 0}
