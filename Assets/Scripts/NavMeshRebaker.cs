@@ -56,7 +56,7 @@ public class NavMeshRebaker : MonoBehaviour
     void Start()
     {
         // Schedule the initial bake after a short delay so the first batch of tiles exists
-        // StartCoroutine(InitialBakeCoroutine());
+        StartCoroutine(InitialBakeCoroutine());
     }
 
     void Update()
@@ -89,18 +89,33 @@ public class NavMeshRebaker : MonoBehaviour
 
         if (surface == null) yield break;
 
-        // Build initial NavMeshData (synchronous but on a small initial set of tiles)
-        // We need this once to create the NavMeshData asset that UpdateNavMesh can work with
-        RebakeAsync();
+        // Create an empty NavMeshData so UpdateNavMesh has something to work with
+        surface.navMeshData = new UnityEngine.AI.NavMeshData();
+
+        isBaking = true;
+        AsyncOperation op = surface.UpdateNavMesh(surface.navMeshData);
+        op.completed += (AsyncOperation o) =>
+        {
+            isBaking = false;
+            if (logRebakes)
+            {
+                Debug.Log("[NavMeshRebaker] Initial async NavMesh bake completed.");
+            }
+        };
+
         if (logRebakes)
         {
-            Debug.Log("[NavMeshRebaker] Initial NavMesh bake completed.");
+            Debug.Log("[NavMeshRebaker] Initial async NavMesh bake started...");
         }
     }
 
     private void RebakeAsync()
     {
-        if (surface == null || surface.navMeshData == null) return;
+        if (surface.navMeshData == null)
+        {
+            Debug.Log("[NavMeshRebaker] Cannot rebake NavMesh: navMeshData is null. Make sure to perform an initial bake first.");
+            return;
+        }
 
         isBaking = true;
         rebakeRequested = false;
