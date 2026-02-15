@@ -186,10 +186,6 @@ MonoBehaviour:
   sprintFOVStepTime: 10
   useSprintBar: 1
   hideBarWhenFull: 1
-  sprintBarBG: {fileID: 4459864851397454648}
-  sprintBar: {fileID: 4459864850888339820}
-  sprintBarWidthPercent: 0.3
-  sprintBarHeightPercent: 0.02
   enableJump: 1
   jumpPower: 5
   enableCrouch: 0
@@ -329,6 +325,7 @@ MonoBehaviour:
   maxSanity: 100
   lightDrainRate: 5
   darkRiseRate: 0.667
+  sprintRiseRate: 3
   mobDetectionRadius: 15
   barWidth: 600
   barHeight: 48
@@ -550,6 +547,7 @@ GameObject:
   - component: {fileID: 4459864851310106427}
   - component: {fileID: 5132216616069239669}
   - component: {fileID: 1084405019230348929}
+  - component: {fileID: 7042756176092374119}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: MainCamera
@@ -685,6 +683,20 @@ Skybox:
   m_GameObject: {fileID: 4459864851310106424}
   m_Enabled: 0
   m_CustomSkybox: {fileID: 2100000, guid: 2d056ac30ecc9e542b26e06133f23602, type: 2}
+--- !u!114 &7042756176092374119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4459864851310106424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7239392704bf5d89990cedfc8e7b6dbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SanityDistortionEffect
+  sanityThreshold: 0.4
+  maxIntensity: 1
 --- !u!1 &4459864851397454630
 GameObject:
   m_ObjectHideFlags: 0

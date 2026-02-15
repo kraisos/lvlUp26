@@ -330,11 +330,21 @@ public class FirstPersonController : MonoBehaviour
                 if (sprintCooldown <= 0)
                 {
                     isSprintCooldown = false;
+                    if (sanitySystem != null) sanitySystem.SetSprintBarCooldown(false);
+                }
+                else
+                {
+                    if (sanitySystem != null) sanitySystem.SetSprintBarCooldown(true);
                 }
             }
             else
             {
                 sprintCooldown = sprintCooldownReset;
+            }
+
+            if (sanitySystem != null)
+            {
+                sanitySystem.SetSprinting(isSprinting);
             }
 
             // Handles sprintBar

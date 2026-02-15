@@ -9,6 +9,7 @@ public class SanitySystem : MonoBehaviour
     [SerializeField] private float maxSanity = 100f;
     [SerializeField] private float lightDrainRate = 5f;
     [SerializeField] private float darkRiseRate = 0.667f;
+    [SerializeField] private float sprintRiseRate = 1.5f;
     [SerializeField] private float mobDetectionRadius = 15f;
 
     [Header("UI")]
@@ -22,6 +23,7 @@ public class SanitySystem : MonoBehaviour
 
     private float currentSanity;
     private bool maxReached;
+    private bool isSprinting;
     private readonly Collider[] mobCheckBuffer = new Collider[20];
     private readonly HashSet<MobAI> nearbyMobsSet = new HashSet<MobAI>();
 
@@ -34,10 +36,15 @@ public class SanitySystem : MonoBehaviour
     // Sprint bar
     private Image sprintBarFill;
     private CanvasGroup sprintBarCanvasGroup;
+    private bool sprintCooldownBreathing;
+    private static readonly Color sprintBarBaseColor = new Color(0.25f, 0.3f, 0.35f, 1f);
+    private static readonly Color sprintBarCooldownColor = new Color(0.6f, 0.15f, 0.1f, 1f);
 
     public float CurrentSanity => currentSanity;
     public float MaxSanity => maxSanity;
     public float SanityNormalized => currentSanity / maxSanity;
+
+    public void SetSprinting(bool sprinting) => isSprinting = sprinting;
 
     private void Start()
     {
@@ -58,6 +65,11 @@ public class SanitySystem : MonoBehaviour
         }
 
         rate += GetNearbyMobsProximityRate();
+
+        if (isSprinting)
+        {
+            rate += sprintRiseRate;
+        }
 
         currentSanity += rate * Time.deltaTime;
         currentSanity = Mathf.Clamp(currentSanity, 0f, maxSanity);
@@ -135,6 +147,15 @@ public class SanitySystem : MonoBehaviour
         return sprintBarCanvasGroup != null ? sprintBarCanvasGroup.alpha : 0f;
     }
 
+    public void SetSprintBarCooldown(bool cooling)
+    {
+        sprintCooldownBreathing = cooling;
+        if (!cooling && sprintBarFill != null)
+        {
+            sprintBarFill.color = sprintBarBaseColor;
+        }
+    }
+
     private void UpdateUI()
     {
         if (barFill == null)
@@ -183,6 +204,13 @@ public class SanitySystem : MonoBehaviour
         else if (iconRect != null)
         {
             iconRect.localRotation = Quaternion.identity;
+        }
+
+        // Sprint bar cooldown breathing
+        if (sprintCooldownBreathing && sprintBarFill != null)
+        {
+            float pulse = Mathf.Sin(Time.time * 4f) * 0.5f + 0.5f;
+            sprintBarFill.color = Color.Lerp(sprintBarBaseColor, sprintBarCooldownColor, pulse);
         }
 
         // More aggressive pulsing
