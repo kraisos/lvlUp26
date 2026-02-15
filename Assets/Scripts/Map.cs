@@ -163,6 +163,12 @@ public class Map : MonoBehaviour
         }
 
         activeTiles = newActiveTiles;
+
+        // Request a NavMesh rebake if tiles changed
+        if (tilesToDeactivate.Count > 0 || tilesToActivate.Count > 0)
+        {
+            NavMeshRebaker.RequestRebake();
+        }
     }
 
     void CreateTileAt(Vector2Int pos)
@@ -207,6 +213,9 @@ public class Map : MonoBehaviour
         tile.transform.parent = gridParent.transform;
         tile.name = $"Tile_{pos.x - maxGridSize / 2}_{pos.y - maxGridSize / 2}";
 
+        // Assign the Ground layer so the NavMeshSurface only scans these objects
+        SetLayerRecursively(tile, LayerMask.NameToLayer("Ground"));
+
         TileComponent tileComponent = tile.GetComponent<TileComponent>();
         if (tileComponent != null)
         {
@@ -217,6 +226,26 @@ public class Map : MonoBehaviour
         tileGrid[pos.x, pos.y] = tile;
 
         ApplyTreeRandomRotation(tile, tileInfo);
+    }
+
+    /// <summary>
+    /// Set the Ground layer only on objects that won't cause "mesh does not allow read access"
+    /// warnings. Skips children that have a MeshCollider (e.g. bushes, decorations with
+    /// non-readable meshes). The NavMesh only needs the ground plane and box/capsule colliders.
+    /// </summary>
+    private static void SetLayerRecursively(GameObject obj, int layer)
+    {
+        // Only assign the layer if this object has no MeshCollider
+        Collider col = obj.GetComponent<Collider>();
+        if (col == null || col is not MeshCollider)
+        {
+            obj.layer = layer;
+        }
+
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
     }
 
     private void ApplyTreeRandomRotation(GameObject tile, TileInfo tileInfo)
@@ -267,9 +296,9 @@ public class Map : MonoBehaviour
         for (int i = 0; i < tileDataList.Length; i++)
         {
             if (tileDataList[i] != null && tileDataList[i].type == prefabType)
-            matchingPrefabs.Add(tileDataList[i].prefab);
+                matchingPrefabs.Add(tileDataList[i].prefab);
         }
-        
+
         if (matchingPrefabs.Count > 0)
             return matchingPrefabs[Random.Range(0, matchingPrefabs.Count)];
 
@@ -321,27 +350,27 @@ public class Map : MonoBehaviour
         switch (tileType)
         {
             // Straight walls
-            case TileType.WallHorizontal:   return 0f;
-            case TileType.WallVertical:     return 90f;
+            case TileType.WallHorizontal: return 0f;
+            case TileType.WallVertical: return 90f;
 
             // Corners (base: NW ┌)
-            case TileType.WallSW:           return 0f;
-            case TileType.WallNW:           return 90f;
-            case TileType.WallNE:           return 180f;
-            case TileType.WallSE:           return 270f;
+            case TileType.WallSW: return 0f;
+            case TileType.WallNW: return 90f;
+            case TileType.WallNE: return 180f;
+            case TileType.WallSE: return 270f;
 
             // T-junctions (base: TN ┬)
-            case TileType.WallTS:           return 0f;
-            case TileType.WallTW:           return 90f;
-            case TileType.WallTN:           return 180f;
-            case TileType.WallTE:           return 270f;
+            case TileType.WallTS: return 0f;
+            case TileType.WallTW: return 90f;
+            case TileType.WallTN: return 180f;
+            case TileType.WallTE: return 270f;
 
             // Doors
-            case TileType.DoorHorizontal:   return 0f;
-            case TileType.DoorVertical:     return 90f;
+            case TileType.DoorHorizontal: return 0f;
+            case TileType.DoorVertical: return 90f;
 
             // Cross, terrain, void — no rotation
-            default:                        return 0f;
+            default: return 0f;
         }
     }
 

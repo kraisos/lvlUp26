@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MobSpawner : MonoBehaviour
 {
@@ -59,15 +60,31 @@ public class MobSpawner : MonoBehaviour
     {
         Transform player = GetPlayerTransform();
 
-        Vector2 direction2D = Random.insideUnitCircle.normalized;
-        if (direction2D == Vector2.zero)
+        // Try several random directions to find a point on the NavMesh
+        for (int attempt = 0; attempt < 10; attempt++)
         {
-            direction2D = Vector2.right;
+            Vector2 direction2D = Random.insideUnitCircle.normalized;
+            if (direction2D == Vector2.zero)
+            {
+                direction2D = Vector2.right;
+            }
+
+            float distance = Random.Range(minDistanceFromPlayer, maxDistanceFromPlayer);
+            Vector3 offset = new Vector3(direction2D.x, 0f, direction2D.y) * distance;
+            Vector3 candidate = new Vector3(player.position.x, transform.position.y, player.position.z) + offset;
+
+            // Snap to the closest point on the NavMesh
+            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+            {
+                return hit.position;
+            }
         }
 
-        float distance = Random.Range(minDistanceFromPlayer, maxDistanceFromPlayer);
-        Vector3 offset = new Vector3(direction2D.x, 0f, direction2D.y) * distance;
-        return new Vector3(player.position.x, transform.position.y, player.position.z) + offset;
+        // Fallback: return raw position (MobAI will try to warp on its own)
+        Vector2 fallbackDir = Random.insideUnitCircle.normalized;
+        float fallbackDist = Random.Range(minDistanceFromPlayer, maxDistanceFromPlayer);
+        Vector3 fallbackOffset = new Vector3(fallbackDir.x, 0f, fallbackDir.y) * fallbackDist;
+        return new Vector3(player.position.x, transform.position.y, player.position.z) + fallbackOffset;
     }
 
     private MobAI GetRandomMobPrefab()
