@@ -29,6 +29,8 @@ public class MobAI : MonoBehaviour
     public string speedAnimParam = "Speed";
     [Tooltip("moveSpeed at which the animator transitions from walk to run (Speed param crosses 0.6)")]
     public float runMoveSpeed = 3f;
+    [Tooltip("Multiplier applied to animator Speed parameter. 0.5 = 50% slower animation")]
+    public float animationSpeedMultiplier = 0.5f;
 
     [Header("Debug")]
     public bool showDebugGizmos = true;
@@ -221,7 +223,7 @@ public class MobAI : MonoBehaviour
         {
             // Map moveSpeed to animator Speed param:
             // 0 -> 0 (idle), moveSpeed -> 0.5 (walk), runMoveSpeed -> 1.0 (run)
-            float animSpeed = moving ? Mathf.Clamp01(moveSpeed / runMoveSpeed) : 0f;
+            float animSpeed = moving ? Mathf.Clamp01(moveSpeed / runMoveSpeed) * animationSpeedMultiplier : 0f;
             animator.SetFloat(speedAnimParam, animSpeed);
         }
     }
