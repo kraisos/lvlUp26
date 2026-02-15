@@ -54,11 +54,16 @@ MonoBehaviour:
   dropOffset: {x: 0, y: 0.4, z: 0}
   dropForce: 1.8
   swingAngle: 35
-  swingDuration: 0.16
+  swingDuration: 0.5
   barSize: {x: 240, y: 18}
   barOffset: {x: 0, y: -130}
   barBackgroundColor: {r: 0, g: 0, b: 0, a: 0.65}
   barFillColor: {r: 0.2, g: 0.85, b: 0.3, a: 1}
+  cameraOffset: {x: 0.35, y: -0.3, z: 0.5}
+  swingSound: {fileID: 8300000, guid: bfd3e6423edf4fa4eb0a7056a96a61dc, type: 3}
+  miningCompleteSound: {fileID: 8300000, guid: 02fa8f017b5ca4948acb2487f1178a87, type: 3}
+  swingSoundVolume: 1
+  completeVolume: 1
 --- !u!1 &6238679362980814333
 GameObject:
   m_ObjectHideFlags: 0
