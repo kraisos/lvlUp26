@@ -71,7 +71,7 @@ public class Map : MonoBehaviour
         if (!lightSources.Contains(lightSource))
         {
             lightSources.Add(lightSource);
-            
+
             SeedGroundArea(lightSource.GetGridPosition(), 2);
 
             UpdateTilesAroundLightSources();
@@ -217,7 +217,7 @@ public class Map : MonoBehaviour
         tile.name = $"Tile_{pos.x - maxGridSize / 2}_{pos.y - maxGridSize / 2}";
 
         // Assign the Ground layer so the NavMeshSurface only scans these objects
-        SetLayerRecursively(tile, LayerMask.NameToLayer("Ground"));
+        // SetLayerRecursively(tile, LayerMask.NameToLayer("Ground"));
 
         TileComponent tileComponent = tile.GetComponent<TileComponent>();
         if (tileComponent != null)
