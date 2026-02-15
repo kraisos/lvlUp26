@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
+using Random = UnityEngine.Random;
 
 public class TileInfoMap
 {
@@ -48,22 +50,26 @@ public class Map : MonoBehaviour
     }
     public TileData[] tileDataList;
 
-    private GameObject[,] tileGrid;
+    private Dictionary<Vector2Int, GameObject> tileGrid = new Dictionary<Vector2Int, GameObject>();
     private HashSet<Vector2Int> activeTiles = new HashSet<Vector2Int>();
     private TileInfoMap tileInfoMap = new TileInfoMap();
     private List<TilesGenerator> lightSources = new List<TilesGenerator>();
     private GameObject gridParent;
     private MapGenerator mapGenerator;
 
+    public event Action OnMapReady;
+
     void Start()
     {
-        // Initialize grid for dynamic generation
-        tileGrid = new GameObject[maxGridSize, maxGridSize];
+        // Initialize map generator
         mapGenerator = new MapGenerator(this.tileInfoMap);
 
         // Create parent object for organization
         gridParent = new GameObject("TileGrid");
         gridParent.transform.parent = transform;
+
+        // Notify that the map is ready
+        OnMapReady?.Invoke();
     }
 
     public void RegisterLightSource(TilesGenerator lightSource)
@@ -168,7 +174,7 @@ public class Map : MonoBehaviour
         activeTiles.Add(adjustedPos);
 
         // Create the tile if it doesn't exist yet
-        if (tileGrid[adjustedPos.x, adjustedPos.y] == null)
+        if (!tileGrid.ContainsKey(adjustedPos) || tileGrid[adjustedPos] == null)
         {
             CreateTileAt(adjustedPos);
         }
@@ -176,7 +182,7 @@ public class Map : MonoBehaviour
 
     void CreateTileAt(Vector2Int pos)
     {
-        if (!IsValidGridPosition(pos) || tileGrid[pos.x, pos.y] != null)
+        if (!IsValidGridPosition(pos) || (tileGrid.ContainsKey(pos) && tileGrid[pos] != null))
             return;
 
         // Use pre-seeded tile info if available, otherwise generate
@@ -226,7 +232,7 @@ public class Map : MonoBehaviour
             tileComponent.gridZ = pos.y - maxGridSize / 2;
         }
 
-        tileGrid[pos.x, pos.y] = tile;
+        tileGrid[pos] = tile;
 
         ApplyTreeRandomRotation(tile, tileInfo);
     }
@@ -379,10 +385,10 @@ public class Map : MonoBehaviour
 
     void DeactivateTileAt(Vector2Int pos)
     {
-        if (IsValidGridPosition(pos) && tileGrid[pos.x, pos.y] != null)
+        if (IsValidGridPosition(pos) && tileGrid.ContainsKey(pos) && tileGrid[pos] != null)
         {
-            DestroyImmediate(tileGrid[pos.x, pos.y]);
-            tileGrid[pos.x, pos.y] = null;
+            DestroyImmediate(tileGrid[pos]);
+            tileGrid.Remove(pos);
             tileInfoMap.Remove(pos);
         }
     }

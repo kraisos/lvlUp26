@@ -51,6 +51,12 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        // Wait for the map to be ready before spawning
+        map.OnMapReady += OnMapReady;
+    }
+
+    void OnMapReady()
+    {
         Vector3 originPoint = spawnPoint != null ? spawnPoint.position : Vector3.zero;
         originPosition = new Vector3(originPoint.x, 0f, originPoint.z);
 
@@ -63,6 +69,19 @@ public class GameController : MonoBehaviour
     void Update()
     {
         if (gameOver) return;
+    }
+
+    void OnDestroy()
+    {
+        if (map != null)
+        {
+            map.OnMapReady -= OnMapReady;
+        }
+
+        if (playerInventory != null)
+        {
+            playerInventory.Changed -= OnInventoryChanged;
+        }
     }
 
     // ─── Spawning ───
