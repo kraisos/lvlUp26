@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   playerCamera: {fileID: 0}
   visual: {fileID: 2365220181125316055}
-  maxMineDistance: 6
+  maxMineDistance: 2
   mineableLayers:
     serializedVersion: 2
     m_Bits: 4294967295
