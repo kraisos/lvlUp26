@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8952837356039971366}
   - component: {fileID: 526809687916950642}
+  - component: {fileID: 4175706975893943601}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -60,6 +61,18 @@ MonoBehaviour:
   restartOnPlayerDeath: 1
   deathSceneName: GameOverScene
   winSceneName: WinScene
+--- !u!114 &4175706975893943601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4603596504415875293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cdb1143cf4131e47864e18425a61a8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EscapeMenu
 --- !u!1 &8780627913162487199
 GameObject:
   m_ObjectHideFlags: 0
