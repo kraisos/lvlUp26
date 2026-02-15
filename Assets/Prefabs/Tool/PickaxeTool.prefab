@@ -62,8 +62,8 @@ MonoBehaviour:
   cameraOffset: {x: 0.35, y: -0.3, z: 0.5}
   swingSound: {fileID: 8300000, guid: bfd3e6423edf4fa4eb0a7056a96a61dc, type: 3}
   miningCompleteSound: {fileID: 8300000, guid: 02fa8f017b5ca4948acb2487f1178a87, type: 3}
-  swingSoundVolume: 1
-  completeVolume: 1
+  swingSoundVolume: 0.6
+  completeVolume: 0.6
 --- !u!1 &6238679362980814333
 GameObject:
   m_ObjectHideFlags: 0
