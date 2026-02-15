@@ -39,6 +39,6 @@ public class AirshipLightZone : MonoBehaviour
             StoryAudioManager.Instance.TriggerStory(StoryTriggerType.CreatureKilledByLight);
         }
 
-        Destroy(mob.gameObject);
+        mob.FadeOutAndDestroy();
     }
 }
