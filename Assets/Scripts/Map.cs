@@ -59,6 +59,11 @@ public class Map : MonoBehaviour
 
     public event Action OnMapReady;
 
+    void Awake()
+    {
+        
+    }
+
     void Start()
     {
         // Initialize map generator
@@ -67,7 +72,7 @@ public class Map : MonoBehaviour
         // Create parent object for organization
         gridParent = new GameObject("TileGrid");
         gridParent.transform.parent = transform;
-
+        
         // Notify that the map is ready
         OnMapReady?.Invoke();
     }
@@ -219,6 +224,16 @@ public class Map : MonoBehaviour
             throw new System.Exception("No tile prefab resolved. Assign either tilePrefab or tileDataList prefabs in the Map script.");
         }
 
+        if(tile == null)
+        {
+            throw new System.Exception("Failed to instantiate tile prefab. Check if the prefab references in Map are set correctly.");
+        }
+
+        if(gridParent == null)
+        {
+            throw new System.Exception("Grid parent object is missing. Ensure that the Map script initializes the grid parent correctly.");
+        }
+
         tile.transform.parent = gridParent.transform;
         tile.name = $"Tile_{pos.x - maxGridSize / 2}_{pos.y - maxGridSize / 2}";
 
@@ -322,8 +337,8 @@ public class Map : MonoBehaviour
                 return TilePrefabType.Ground;
             case TileType.Woods:
                 return TilePrefabType.Woods;
-            case TileType.Lake:
-                return TilePrefabType.Lake;
+            case TileType.TallGrass:
+                return TilePrefabType.TallGrass;
             case TileType.DoorVertical:
             case TileType.DoorHorizontal:
                 return TilePrefabType.Door;

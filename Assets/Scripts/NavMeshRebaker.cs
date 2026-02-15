@@ -56,7 +56,7 @@ public class NavMeshRebaker : MonoBehaviour
     void Start()
     {
         // Schedule the initial bake after a short delay so the first batch of tiles exists
-        // StartCoroutine(InitialBakeCoroutine());
+        StartCoroutine(InitialBakeCoroutine());
     }
 
     void Update()

@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class MobSpawner : MonoBehaviour
 {
     [Header("What To Spawn")]
-    [SerializeField] private List<MobAI> mobPrefabs = new List<MobAI>();
+    [SerializeField] private List<GameObject> mobPrefabs = new List<GameObject>();
 
     [Header("Timing")]
     [SerializeField] private float spawnInterval = 3f;
@@ -58,7 +58,13 @@ public class MobSpawner : MonoBehaviour
 
     private Vector3 GetSpawnPosition()
     {
-        Transform player = GetPlayerTransform();
+        GameObject taggedPlayer = GameObject.FindWithTag("Player");
+        if(taggedPlayer == null)
+        {
+            return transform.position; // Fallback to spawner's position if player not found
+        }
+
+        Transform player = taggedPlayer.transform;
 
         // Try several random directions to find a point on the NavMesh
         for (int attempt = 0; attempt < 10; attempt++)
@@ -99,7 +105,7 @@ public class MobSpawner : MonoBehaviour
         {
             if (mobPrefabs[i] != null)
             {
-                validPrefabs.Add(mobPrefabs[i]);
+                validPrefabs.Add(mobPrefabs[i].GetComponent<MobAI>());
             }
         }
 
@@ -110,12 +116,6 @@ public class MobSpawner : MonoBehaviour
 
         int index = Random.Range(0, validPrefabs.Count);
         return validPrefabs[index];
-    }
-
-    private Transform GetPlayerTransform()
-    {
-        GameObject taggedPlayer = GameObject.FindWithTag("Player");
-        return taggedPlayer.transform;
     }
 
     private void CleanupDeadReferences()

@@ -6,7 +6,7 @@ public enum TileType
 	Void,
     Ground,
 	Woods,
-	Lake,
+	TallGrass,
 	WallNW,  // ┌
 	WallNE,  // ┐
 	WallSE,  // ┘
@@ -75,7 +75,7 @@ public class TileTypeInfo : IWeighted
 public enum TilePrefabType {
 	Ground,
 	Woods,
-	Lake,
+	TallGrass,
 	WallStraight,
 	Door,
 	WallCorner,
