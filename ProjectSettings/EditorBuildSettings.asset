@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Jean.unity
     guid: 82b6cd468d4a99a4ea829d2bee566d04
   - enabled: 1

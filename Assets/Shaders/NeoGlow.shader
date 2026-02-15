@@ -12,7 +12,7 @@ Shader "Custom/NeoGlow"
 
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent+10" "RenderPipeline"="UniversalPipeline" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent+10"}
         LOD 100
 
         Pass
