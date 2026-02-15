@@ -369,7 +369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TankAI
   detectionRange: 50
   fieldOfViewAngle: 360
-  moveSpeed: 3
+  moveSpeed: 1.5
   rotationSpeed: 5
   stoppingDistance: 0.9
   separationRadius: 2
@@ -378,8 +378,12 @@ MonoBehaviour:
   speedAnimParam: Speed
   runMoveSpeed: 3
   animationSpeedMultiplier: 0.5
-  sanityDamage: 10
-  sanityProximityRate: 3
+  sanityDamage: 30
+  sanityProximityRate: 0.5
+  ambientSound: {fileID: 8300000, guid: dbf5a1e06135047398520d488d816b9d, type: 3}
+  ambientVolume: 0.8
+  audioMinDistance: 3
+  audioMaxDistance: 25
   showDebugGizmos: 1
   fadeDuration: 0.8
 --- !u!1 &2154372401102825673

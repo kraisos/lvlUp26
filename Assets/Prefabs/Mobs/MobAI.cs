@@ -36,6 +36,16 @@ public class MobAI : MonoBehaviour
     public float sanityDamage = 25f;
     public float sanityProximityRate = 3f;
 
+    [Header("Audio")]
+    [Tooltip("Sound clip to play while the mob is alive (looped, 3D spatialized)")]
+    public AudioClip ambientSound;
+    [Tooltip("Volume of the ambient sound")]
+    [Range(0f, 1f)] public float ambientVolume = 0.8f;
+    [Tooltip("Distance at which the sound starts to fade")]
+    public float audioMinDistance = 3f;
+    [Tooltip("Distance at which the sound is no longer audible")]
+    public float audioMaxDistance = 25f;
+
     [Header("Debug")]
     public bool showDebugGizmos = true;
 
@@ -45,6 +55,7 @@ public class MobAI : MonoBehaviour
     private Transform currentTarget;
     private Animator animator;
     private NavMeshAgent agent;
+    private AudioSource audioSource;
     private bool isWalking;
     private Vector3 desiredMoveDirection;
     private bool shouldMove;
@@ -69,6 +80,35 @@ public class MobAI : MonoBehaviour
         agent.angularSpeed = rotationSpeed * 100f;
         agent.stoppingDistance = stoppingDistance;
         agent.autoBraking = true;
+
+        // Setup 3D spatialized audio
+        SetupAudio();
+    }
+
+    void SetupAudio()
+    {
+        if (ambientSound == null) return;
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        audioSource.clip = ambientSound;
+        audioSource.volume = ambientVolume;
+        audioSource.loop = true;
+        audioSource.playOnAwake = false;
+
+        // Full 3D spatialization for directional audio
+        audioSource.spatialBlend = 1f;
+        audioSource.rolloffMode = AudioRolloffMode.Linear;
+        audioSource.minDistance = audioMinDistance;
+        audioSource.maxDistance = audioMaxDistance;
+        audioSource.spread = 60f;
+        audioSource.dopplerLevel = 0f;
+
+        audioSource.Play();
     }
 
     void OnEnable()
@@ -334,6 +374,12 @@ public class MobAI : MonoBehaviour
                     Color c = mat.color;
                     mat.color = new Color(c.r, c.g, c.b, fade);
                 }
+            }
+
+            // Fade audio out together with visuals
+            if (audioSource != null)
+            {
+                audioSource.volume = ambientVolume * fade;
             }
 
             yield return null;
