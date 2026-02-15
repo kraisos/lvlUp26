@@ -477,7 +477,11 @@ MonoBehaviour:
     m_Bits: 0
   speedAnimParam: Speed
   runMoveSpeed: 3
+  animationSpeedMultiplier: 0.5
+  sanityDamage: 40
+  sanityProximityRate: 3
   showDebugGizmos: 1
+  fadeDuration: 0.8
 --- !u!1 &3242690008654619821
 GameObject:
   m_ObjectHideFlags: 0

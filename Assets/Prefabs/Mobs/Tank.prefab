@@ -369,7 +369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TankAI
   detectionRange: 50
   fieldOfViewAngle: 360
-  moveSpeed: 1.9
+  moveSpeed: 3
   rotationSpeed: 5
   stoppingDistance: 0.9
   autoConfigureRigidbody: 1
@@ -381,7 +381,11 @@ MonoBehaviour:
     m_Bits: 0
   speedAnimParam: Speed
   runMoveSpeed: 3
+  animationSpeedMultiplier: 0.5
+  sanityDamage: 10
+  sanityProximityRate: 3
   showDebugGizmos: 1
+  fadeDuration: 0.8
 --- !u!1 &2154372401102825673
 GameObject:
   m_ObjectHideFlags: 0

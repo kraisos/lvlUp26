@@ -11,6 +11,7 @@ Shader "Custom/GhostSpectral"
         _PulseAmount ("Pulse Amount", Range(0, 0.5)) = 0.1
         _DistortionStrength ("Distortion Strength", Range(0, 0.1)) = 0.02
         _DistortionSpeed ("Distortion Speed", Range(0, 5)) = 1.0
+        _FadeOut ("Fade Out", Range(0, 1)) = 1.0
     }
     
     SubShader
@@ -40,6 +41,7 @@ Shader "Custom/GhostSpectral"
         half _PulseAmount;
         half _DistortionStrength;
         half _DistortionSpeed;
+        half _FadeOut;
 
         struct Input
         {
@@ -73,8 +75,8 @@ Shader "Custom/GhostSpectral"
             o.Albedo = finalColor;
             o.Metallic = 0;
             o.Smoothness = 0;
-            o.Emission = finalColor * fresnel * 0.15;
-            o.Alpha = alpha;
+            o.Emission = finalColor * fresnel * 0.15 * _FadeOut;
+            o.Alpha = alpha * _FadeOut;
         }
         ENDCG
     }
