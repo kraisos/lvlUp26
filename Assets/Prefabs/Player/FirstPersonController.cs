@@ -139,7 +139,7 @@ public class FirstPersonController : MonoBehaviour
 
     #endregion
 
-    private void Awake()
+private void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
@@ -409,6 +409,14 @@ public class FirstPersonController : MonoBehaviour
         {
             isWalking = false;
             isSprinting = false;
+            
+            // Stop walking sound when menu is open
+            var audioController = GetComponent<PlayerAudioController>();
+            if (audioController != null)
+            {
+                audioController.StopAllSounds();
+            }
+            
             return;
         }
 
@@ -429,6 +437,13 @@ public class FirstPersonController : MonoBehaviour
             else
             {
                 isWalking = false;
+            }
+
+            // Update audio controller
+            var audioController = GetComponent<PlayerAudioController>();
+            if (audioController != null)
+            {
+                audioController.UpdateMovementState(isWalking, isSprinting, isGrounded);
             }
 
             // All movement calculations while sprint is active
@@ -602,6 +617,7 @@ public class FirstPersonController : MonoBehaviour
         mobAI.FadeOutAndDestroy();
     }
 
+
     public void HandlePlayerDeath(Transform mobTransform)
     {
         if (isDead)
@@ -614,6 +630,13 @@ public class FirstPersonController : MonoBehaviour
         isSprinting = false;
         playerCanMove = false;
         cameraCanMove = false;
+
+        // Stop walking sound
+        var audioController = GetComponent<PlayerAudioController>();
+        if (audioController != null)
+        {
+            audioController.StopAllSounds();
+        }
 
         if (rb != null)
         {
@@ -720,6 +743,9 @@ public class FirstPersonControllerEditor : Editor
 
         EditorGUILayout.Space();
 
+        #endregion
+
+
         #region Sprint
 
         GUILayout.Label("Sprint", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, fontStyle = FontStyle.Bold, fontSize = 13 }, GUILayout.ExpandWidth(true));
@@ -782,8 +808,6 @@ public class FirstPersonControllerEditor : Editor
         fpc.crouchHeight = EditorGUILayout.Slider(new GUIContent("Crouch Height", "Determines the y scale of the player object when crouched."), fpc.crouchHeight, .1f, 1);
         fpc.speedReduction = EditorGUILayout.Slider(new GUIContent("Speed Reduction", "Determines the percent 'Walk Speed' is reduced by. 1 being no reduction, and .5 being half."), fpc.speedReduction, .1f, 1);
         GUI.enabled = true;
-
-        #endregion
 
         #endregion
 

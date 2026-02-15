@@ -101,7 +101,7 @@ public class LightedZone : MonoBehaviour
                 continue;
             }
 
-            Destroy(mobs[i].gameObject);
+            mobs[i].FadeOutAndDestroy();
             killedCount++;
         }
 
