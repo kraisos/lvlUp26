@@ -188,6 +188,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: MobSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 7180600347536486762, guid: 100f9977e840f5843af9571f2a320cbe, type: 3}
+      propertyPath: maxAliveMobs
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7180600347536486762, guid: 100f9977e840f5843af9571f2a320cbe, type: 3}
+      propertyPath: spawnInterval
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7180600347536486762, guid: 100f9977e840f5843af9571f2a320cbe, type: 3}
+      propertyPath: firstSpawnDelay
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7983357611345846354, guid: 100f9977e840f5843af9571f2a320cbe, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
