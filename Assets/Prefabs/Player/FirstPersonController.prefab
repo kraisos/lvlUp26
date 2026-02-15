@@ -327,7 +327,7 @@ MonoBehaviour:
   lightDrainRate: 5
   darkRiseRate: 0.667
   sprintRiseRate: 3
-  mobDetectionRadius: 15
+  mobDetectionRadius: 10
   barWidth: 600
   barHeight: 48
   iconSize: 80
