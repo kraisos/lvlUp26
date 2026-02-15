@@ -118,7 +118,14 @@ public class SanitySystem : MonoBehaviour
         }
 
         float t = SanityNormalized;
-        barFill.rectTransform.localScale = new Vector3(t, 1f, 1f);
+
+        // Wiggle effect: the fill bar squirms like it's alive
+        float wiggle = t * t; // intensity scales with sanity squared
+        float wiggleRotation = Mathf.Sin(Time.time * 6f) * 1.5f * wiggle;
+        float wiggleScaleY = 1f + Mathf.Sin(Time.time * 9f) * 0.06f * wiggle;
+        float wiggleScaleX = t + Mathf.Sin(Time.time * 7.3f) * 0.015f * wiggle;
+        barFill.rectTransform.localScale = new Vector3(wiggleScaleX, wiggleScaleY, 1f);
+        barFill.rectTransform.localRotation = Quaternion.Euler(0f, 0f, wiggleRotation);
 
         // Horror color gradient: dark teal -> bruised purple -> deep crimson
         Color calmColor = new Color(0.1f, 0.35f, 0.3f, 1f);

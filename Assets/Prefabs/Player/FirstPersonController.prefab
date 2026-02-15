@@ -334,7 +334,7 @@ MonoBehaviour:
   barHeight: 48
   iconSize: 80
   barOffset: {x: 40, y: -20}
-  sanityIcon: {fileID: 21300000, guid: b4dfe49d7d3865d02aa4f63292ce3efe, type: 3}
+  sanityIcon: {fileID: 21300000, guid: 642c394cdcc90627e83431bcb1caaf45, type: 3}
   breathingSpeed: 2
   breathingThreshold: 0.4
 --- !u!1 &4459864850190357393
