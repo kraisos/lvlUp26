@@ -45,7 +45,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnRessource
   ressources:
-  - {fileID: 7205956220071298368, guid: 358815f2497d5744c8f95bb705050d40, type: 3}
   - {fileID: 6111545624027348834, guid: a0ea2f5a5e542e04183271df556b051a, type: 3}
   - {fileID: 446166986396398220, guid: 6bc245c1cb5c73a40ae3333ee7ac8573, type: 3}
   - {fileID: 1817602056439904535, guid: 785e461620397a9438ebf62f24d5820b, type: 3}
