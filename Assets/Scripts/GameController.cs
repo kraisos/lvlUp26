@@ -17,8 +17,8 @@ public class GameController : MonoBehaviour
     [FormerlySerializedAs("resourceCachePrefab")] [Header("Resources")]
     public GameObject resourcePrefab;
     public int resourcesCount = 2;
-    public int resourceMinDistanceTiles = 10;
-    public int resourceMaxDistanceTiles = 20;
+    public int resourceMinDistanceTiles = 2;
+    public int resourceMaxDistanceTiles = 4;
 
     // Runtime references
     private GameObject player;

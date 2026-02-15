@@ -71,23 +71,8 @@ public class Map : MonoBehaviour
         if (!lightSources.Contains(lightSource))
         {
             lightSources.Add(lightSource);
-
-            // Pre-seed the 3x3 tiles around the light source as Ground
-            Vector2Int lightPos = lightSource.GetGridPosition();
-            for (int dx = -1; dx <= 1; dx++)
-            {
-                for (int dz = -1; dz <= 1; dz++)
-                {
-                    Vector2Int adjustedPos = new Vector2Int(
-                        lightPos.x + dx + maxGridSize / 2,
-                        lightPos.y + dz + maxGridSize / 2
-                    );
-                    if (IsValidGridPosition(adjustedPos) && tileInfoMap.Get(adjustedPos).IsVoid)
-                    {
-                        tileInfoMap.Set(adjustedPos, new TileInfo(TileType.Ground));
-                    }
-                }
-            }
+            
+            SeedGroundArea(lightSource.GetGridPosition(), 2);
 
             UpdateTilesAroundLightSources();
             Debug.Log($"Light source registered. Total: {lightSources.Count}");
@@ -159,10 +144,28 @@ public class Map : MonoBehaviour
 
         foreach (Vector2Int pos in tilesToActivate)
         {
-            CreateTileAt(pos);
+            ActivateTile(pos);
         }
 
         activeTiles = newActiveTiles;
+    }
+
+    /// <summary>
+    /// Activates a tile at the given adjusted grid position, creating it if necessary.
+    /// </summary>
+    void ActivateTile(Vector2Int adjustedPos)
+    {
+        if (!IsValidGridPosition(adjustedPos))
+            return;
+
+        // Add to active tiles
+        activeTiles.Add(adjustedPos);
+
+        // Create the tile if it doesn't exist yet
+        if (tileGrid[adjustedPos.x, adjustedPos.y] == null)
+        {
+            CreateTileAt(adjustedPos);
+        }
     }
 
     void CreateTileAt(Vector2Int pos)
@@ -175,8 +178,8 @@ public class Map : MonoBehaviour
         if (tileInfo.IsVoid)
         {
             tileInfo = mapGenerator.CreateTile(pos);
+            tileInfoMap.Set(pos, tileInfo);
         }
-        tileInfoMap.Set(pos, tileInfo);
 
         GameObject selectedPrefab = GetPrefabForTileInfo(tileInfo);
         if (selectedPrefab == null)
@@ -361,16 +364,12 @@ public class Map : MonoBehaviour
                pos.y >= 0 && pos.y < maxGridSize;
     }
 
-    public GameObject GetTile(Vector2Int pos)
+    public TileInfo GetTile(Vector2Int pos)
     {
         // Adjust for grid centering
         Vector2Int adjusted = new Vector2Int(pos.x + maxGridSize / 2, pos.y + maxGridSize / 2);
 
-        if (IsValidGridPosition(adjusted))
-        {
-            return tileGrid[adjusted.x, adjusted.y];
-        }
-        return null;
+        return tileInfoMap.Get(adjusted);
     }
 
     public Vector2Int? GetTileCoordinates(GameObject tile)
@@ -479,7 +478,7 @@ public class Map : MonoBehaviour
 
     /// <summary>
     /// Seeds all tiles within the given tile radius (circular) of gridPos
-    /// with Ground tiles in the tile info map.
+    /// with Ground tiles in the tile info map, and activates them (creates GameObjects).
     /// </summary>
     private void SeedGroundArea(Vector2Int gridPos, int radiusTiles)
     {
@@ -497,7 +496,10 @@ public class Map : MonoBehaviour
 
                 if (IsValidGridPosition(adjusted))
                 {
+                    // Seed the ground tile info
                     tileInfoMap.Set(adjusted, new TileInfo(TileType.Ground));
+                    // Activate the tile (creates it if needed)
+                    ActivateTile(adjusted);
                 }
             }
         }
