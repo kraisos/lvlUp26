@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,7 +30,10 @@ public class SanitySystem : MonoBehaviour
     private RectTransform barBgRect;
     private RectTransform iconRect;
     private Vector2 barBgBasePos;
-    private Vector2 iconBasePos;
+
+    // Sprint bar
+    private Image sprintBarFill;
+    private CanvasGroup sprintBarCanvasGroup;
 
     public float CurrentSanity => currentSanity;
     public float MaxSanity => maxSanity;
@@ -108,6 +112,27 @@ public class SanitySystem : MonoBehaviour
     {
         currentSanity = Mathf.Min(currentSanity + damage, maxSanity);
         Debug.Log($"[SanitySystem] Mob contact! Sanity: {currentSanity:F1}/{maxSanity}");
+    }
+
+    public void SetSprintBar(float normalizedValue)
+    {
+        if (sprintBarFill != null)
+        {
+            sprintBarFill.rectTransform.localScale = new Vector3(normalizedValue, 1f, 1f);
+        }
+    }
+
+    public void SetSprintBarAlpha(float alpha)
+    {
+        if (sprintBarCanvasGroup != null)
+        {
+            sprintBarCanvasGroup.alpha = alpha;
+        }
+    }
+
+    public float GetSprintBarAlpha()
+    {
+        return sprintBarCanvasGroup != null ? sprintBarCanvasGroup.alpha : 0f;
     }
 
     private void UpdateUI()
@@ -198,7 +223,6 @@ public class SanitySystem : MonoBehaviour
         iconRect.pivot = new Vector2(0f, 1f);
         iconRect.anchoredPosition = barOffset;
         iconRect.sizeDelta = new Vector2(iconSize, iconSize);
-        iconBasePos = barOffset;
 
         var iconImage = iconObj.GetComponent<Image>();
         if (sanityIcon != null)
@@ -255,5 +279,66 @@ public class SanitySystem : MonoBehaviour
         barFill = fillObj.GetComponent<Image>();
         barFill.color = new Color(0.1f, 0.35f, 0.3f, 1f);
         barFill.rectTransform.localScale = new Vector3(0f, 1f, 1f);
+
+        // "Madness level" label inside the bar
+        var textObj = new GameObject("SanityBarLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textObj.transform.SetParent(innerObj.transform, false);
+
+        var textRect = textObj.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+
+        var label = textObj.GetComponent<TextMeshProUGUI>();
+        label.text = "Madness level";
+        label.fontSize = barHeight * 0.45f;
+        label.alignment = TextAlignmentOptions.Center;
+        label.color = new Color(0.85f, 0.75f, 0.9f, 0.9f);
+
+        // Sprint bar (below the madness bar)
+        float sprintBarHeight = barHeight * 0.5f;
+        float sprintBarY = barBgBasePos.y - barHeight * 0.5f - 6f - sprintBarHeight * 0.5f;
+
+        var sprintBgObj = new GameObject("SprintBarBG", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+        sprintBgObj.transform.SetParent(canvasObj.transform, false);
+        sprintBarCanvasGroup = sprintBgObj.GetComponent<CanvasGroup>();
+        sprintBarCanvasGroup.alpha = 0f;
+
+        var sprintBgRect = sprintBgObj.GetComponent<RectTransform>();
+        sprintBgRect.anchorMin = new Vector2(0f, 1f);
+        sprintBgRect.anchorMax = new Vector2(0f, 1f);
+        sprintBgRect.pivot = new Vector2(0f, 0.5f);
+        sprintBgRect.anchoredPosition = new Vector2(barBgBasePos.x, sprintBarY);
+        sprintBgRect.sizeDelta = new Vector2(barWidth, sprintBarHeight);
+
+        var sprintBgImage = sprintBgObj.GetComponent<Image>();
+        sprintBgImage.color = new Color(0.08f, 0.06f, 0.1f, 0.7f);
+
+        var sprintInnerObj = new GameObject("SprintBarInner", typeof(RectTransform), typeof(Image));
+        sprintInnerObj.transform.SetParent(sprintBgObj.transform, false);
+
+        var sprintInnerRect = sprintInnerObj.GetComponent<RectTransform>();
+        sprintInnerRect.anchorMin = Vector2.zero;
+        sprintInnerRect.anchorMax = Vector2.one;
+        sprintInnerRect.offsetMin = new Vector2(2f, 2f);
+        sprintInnerRect.offsetMax = new Vector2(-2f, -2f);
+
+        var sprintInnerImage = sprintInnerObj.GetComponent<Image>();
+        sprintInnerImage.color = new Color(0.03f, 0.02f, 0.04f, 0.85f);
+
+        var sprintFillObj = new GameObject("SprintBarFill", typeof(RectTransform), typeof(Image));
+        sprintFillObj.transform.SetParent(sprintInnerObj.transform, false);
+
+        var sprintFillRect = sprintFillObj.GetComponent<RectTransform>();
+        sprintFillRect.anchorMin = Vector2.zero;
+        sprintFillRect.anchorMax = Vector2.one;
+        sprintFillRect.offsetMin = Vector2.zero;
+        sprintFillRect.offsetMax = Vector2.zero;
+        sprintFillRect.pivot = new Vector2(0f, 0.5f);
+
+        sprintBarFill = sprintFillObj.GetComponent<Image>();
+        sprintBarFill.color = new Color(0.25f, 0.3f, 0.35f, 1f);
+        sprintBarFill.rectTransform.localScale = new Vector3(1f, 1f, 1f);
     }
 }
