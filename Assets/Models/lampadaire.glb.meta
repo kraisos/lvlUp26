@@ -2,7 +2,12 @@ fileFormatVersion: 2
 guid: e6953b1e061c69d4d9418e7056887b25
 ScriptedImporter:
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PBRGraph
+    second: {fileID: 2100000, guid: 48d1791b1b94ef3439cb6afdcf40e357, type: 2}
   serializedVersion: 2
   userData: 
   assetBundleName: 
@@ -52,9 +57,9 @@ ScriptedImporter:
 '
   optimizeGameObjects: 0
   materials:
-  - {instanceID: 0}
+  - {fileID: 4758309174586462558, guid: e6953b1e061c69d4d9418e7056887b25, type: 3}
   textures:
-  - {instanceID: 0}
+  - {fileID: 6983701643236107813, guid: e6953b1e061c69d4d9418e7056887b25, type: 3}
   hasSceneData: 1
   hasAnimationData: 0
   hasMaterialData: 1
@@ -62,7 +67,7 @@ ScriptedImporter:
   animations: []
   _extensions: []
   _textures:
-  - texture: {instanceID: 0}
+  - texture: {fileID: 6983701643236107813, guid: e6953b1e061c69d4d9418e7056887b25, type: 3}
     shouldBeLinear: 0
     shouldBeNormalMap: 0
   _mainAssetIdentifier: scenes/Scene
