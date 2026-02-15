@@ -904,7 +904,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851afb9ef5383e84a8bcd52fc6f75240, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverMenuController
-  gameSceneName: Jean
+  gameSceneName: GameScene
   playButton: {fileID: 2077021887}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

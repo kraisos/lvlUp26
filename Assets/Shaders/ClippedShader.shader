@@ -10,6 +10,14 @@ Shader "Custom/ClippedByVolumeSoftEdge"
         _CutColor ("Cut Color", Color) = (0,0,0,1)
         _EdgeSoftness ("Edge Softness", Range(0.001, 0.5)) = 0.05
 
+        [Header(Neo Glow)]
+        [Toggle] _EnableGlow ("Enable Glow", Float) = 0
+        [HDR] _GlowColor ("Glow Color", Color) = (0, 0.85, 1, 1)
+        _GlowIntensity ("Glow Intensity", Range(0, 10)) = 2.5
+        _GlowPower ("Glow Edge Width", Range(0.5, 8)) = 2.5
+        _GlowPulseSpeed ("Pulse Speed", Range(0, 5)) = 1.0
+        _GlowPulseMin ("Pulse Min Brightness", Range(0, 1)) = 0.6
+
         [Toggle] _SceneViewDebug ("Scene View Debug", Float) = 0
         _DebugColor ("Debug Color", Color) = (0,1,0,0.5)
     }
@@ -33,6 +41,12 @@ Shader "Custom/ClippedByVolumeSoftEdge"
             half _Metallic;
             fixed4 _Color;
             float _EdgeSoftness;
+            float _EnableGlow;
+            fixed4 _GlowColor;
+            float _GlowIntensity;
+            float _GlowPower;
+            float _GlowPulseSpeed;
+            float _GlowPulseMin;
             float _SceneViewDebug;
             fixed4 _DebugColor;
             
@@ -128,6 +142,18 @@ Shader "Custom/ClippedByVolumeSoftEdge"
                 o.Metallic = _Metallic;
                 o.Smoothness = _Glossiness;
                 o.Alpha = c.a * alphaFactor;
+
+                // Neo Glow - Fresnel edge emission
+                if (_EnableGlow > 0.5)
+                {
+                    float3 worldViewDir = normalize(UnityWorldSpaceViewDir(IN.worldPos));
+                    float rim = 1.0 - saturate(dot(worldViewDir, normalize(IN.worldNormal)));
+                    rim = pow(rim, _GlowPower);
+
+                    float pulse = lerp(_GlowPulseMin, 1.0, sin(_Time.y * _GlowPulseSpeed * 3.14159) * 0.5 + 0.5);
+
+                    o.Emission = _GlowColor.rgb * _GlowIntensity * rim * pulse;
+                }
             }
         ENDCG
 

@@ -8,10 +8,13 @@ public class LightedZone : MonoBehaviour
     [SerializeField] private bool requireCapsuleCollider = true;
     [SerializeField] private bool ignoreTriggerColliders = true;
 
-    [Header("Behavior")]
-    [SerializeField] private bool triggerStoryLine = true;
-
+    [Header("Related mask sphere (optional)")]
     [SerializeField] private GameObject maskSphere;
+
+    private static int playerCountInLightZones;
+    private bool playerInsideThisZone;
+
+    public static bool IsPlayerInAnyLightZone => playerCountInLightZones > 0;
 
 
     private void Start()
@@ -22,32 +25,43 @@ public class LightedZone : MonoBehaviour
         }
     }
 
-    private void Reset()
-    {
-        Collider col = GetComponent<Collider>();
-        if (col != null)
-        {
-            col.isTrigger = true;
-        }
-    }
 
     private void OnTriggerEnter(Collider other)
     {
-
-        Debug.Log($"LightedZone: Triggered by {other.name}");
         if (!IsPlayer(other))
         {
             return;
         }
 
-        int killedCount = KillAllMobs();
-
-        if (triggerStoryLine && killedCount > 0 && StoryAudioManager.Instance != null)
+        if (!playerInsideThisZone)
         {
-            StoryAudioManager.Instance.TriggerStory(StoryTriggerType.CreatureKilledByLight);
+            playerInsideThisZone = true;
+            playerCountInLightZones++;
         }
 
-        Debug.Log($"LightedZone triggered by {other.name}. Killed {killedCount} mob(s).");
+        KillAllMobs();
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!IsPlayer(other) || !playerInsideThisZone)
+        {
+            return;
+        }
+
+        playerInsideThisZone = false;
+        playerCountInLightZones = Mathf.Max(0, playerCountInLightZones - 1);
+    }
+
+    private void OnDisable()
+    {
+        if (!playerInsideThisZone)
+        {
+            return;
+        }
+
+        playerInsideThisZone = false;
+        playerCountInLightZones = Mathf.Max(0, playerCountInLightZones - 1);
     }
 
     private bool IsPlayer(Collider other)

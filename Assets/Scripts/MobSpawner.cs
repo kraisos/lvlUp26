@@ -36,8 +36,14 @@ public class MobSpawner : MonoBehaviour
         {
             CleanupDeadReferences();
 
+            if (LightedZone.IsPlayerInAnyLightZone)
+            {
+                yield return new WaitForSeconds(spawnInterval);
+                continue;
+            }
+
             MobAI prefabToSpawn = GetRandomMobPrefab();
-            if (aliveMobs.Count < maxAliveMobs)
+            if (prefabToSpawn != null && aliveMobs.Count < maxAliveMobs)
             {
                 Vector3 spawnPosition = GetSpawnPosition();
                 MobAI spawnedMob = Instantiate(prefabToSpawn, spawnPosition, Quaternion.identity);

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2451737441561414505}
   - component: {fileID: 4934696331155165106}
   - component: {fileID: 1507081876541864780}
+  - component: {fileID: 2578010763661095178}
   m_Layer: 0
   m_Name: CopperMine
   m_TagString: Untagged
@@ -70,6 +71,23 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2578010763661095178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817602056439904535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c84093b80f00a741bd8e699947174a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NeoGlowEffect
+  glowMaterial: {fileID: 0}
+  overrideColor: 0
+  glowColor: {r: 0, g: 0.85, b: 1, a: 1}
+  overrideIntensity: 0
+  glowIntensity: 1
 --- !u!1001 &3795850899994473183
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -78,6 +96,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2451737441561414505}
     m_Modifications:
+    - target: {fileID: -5045373824169208073, guid: 08110b170d7a7824c8d1cfb83af955ad, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6d0bb2ffeb33ac443a4830abd43587ea, type: 2}
     - target: {fileID: -3910990755373119420, guid: 08110b170d7a7824c8d1cfb83af955ad, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -140,6 +162,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2451737441561414505}
     m_Modifications:
+    - target: {fileID: -5045373824169208073, guid: 08110b170d7a7824c8d1cfb83af955ad, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6d0bb2ffeb33ac443a4830abd43587ea, type: 2}
     - target: {fileID: -3910990755373119420, guid: 08110b170d7a7824c8d1cfb83af955ad, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.13

@@ -13,7 +13,15 @@ public class GasPipeNetwork : MonoBehaviour
     private const float ParticleSpawnInterval = 0.8f;
     private const float ParticleSpeed = 0.5f;
 
+    // All connectable nodes (streetlights + beacons) identified by instance ID
     private readonly HashSet<Streetlight> streetlights = new HashSet<Streetlight>();
+    private readonly HashSet<Beacon> beacons = new HashSet<Beacon>();
+
+    // Unified node list: every connectable Transform (streetlights and beacons)
+    private readonly Dictionary<int, Transform> allNodes = new Dictionary<int, Transform>();
+    private readonly Dictionary<int, CableAnchor> allAnchors = new Dictionary<int, CableAnchor>();
+    private readonly HashSet<int> beaconIds = new HashSet<int>();
+
     private readonly Dictionary<long, PipeConnection> activePipes = new Dictionary<long, PipeConnection>();
     private Streetlight energySource;
     private bool isDirty;
@@ -22,8 +30,8 @@ public class GasPipeNetwork : MonoBehaviour
     private struct PipeConnection
     {
         public GasPipeRenderer renderer;
-        public Streetlight lightA;
-        public Streetlight lightB;
+        public int nodeIdA;
+        public int nodeIdB;
     }
 
     private void Awake()
@@ -54,15 +62,18 @@ public class GasPipeNetwork : MonoBehaviour
         }
     }
 
+    // ─── Streetlight registration ───
+
     public void Register(Streetlight streetlight)
     {
-        if (streetlight == null)
-        {
-            return;
-        }
+        if (streetlight == null) return;
 
         if (streetlights.Add(streetlight))
         {
+            int id = streetlight.GetInstanceID();
+            allNodes[id] = streetlight.transform;
+            allAnchors[id] = streetlight.GetComponent<CableAnchor>();
+
             // First streetlight registered becomes the energy source
             if (energySource == null)
             {
@@ -76,17 +87,17 @@ public class GasPipeNetwork : MonoBehaviour
 
     public void Unregister(Streetlight streetlight)
     {
-        if (streetlight == null)
-        {
-            return;
-        }
+        if (streetlight == null) return;
 
         if (streetlights.Remove(streetlight))
         {
+            int id = streetlight.GetInstanceID();
+            allNodes.Remove(id);
+            allAnchors.Remove(id);
+
             if (energySource == streetlight)
             {
                 energySource = null;
-                // Promote the next one if any
                 foreach (var sl in streetlights)
                 {
                     if (sl != null)
@@ -101,6 +112,38 @@ public class GasPipeNetwork : MonoBehaviour
             isDirty = true;
         }
     }
+
+    // ─── Beacon registration ───
+
+    public void RegisterBeacon(Beacon beacon)
+    {
+        if (beacon == null) return;
+
+        if (beacons.Add(beacon))
+        {
+            int id = beacon.GetInstanceID();
+            allNodes[id] = beacon.transform;
+            allAnchors[id] = beacon.GetComponent<CableAnchor>();
+            beaconIds.Add(id);
+            isDirty = true;
+        }
+    }
+
+    public void UnregisterBeacon(Beacon beacon)
+    {
+        if (beacon == null) return;
+
+        if (beacons.Remove(beacon))
+        {
+            int id = beacon.GetInstanceID();
+            allNodes.Remove(id);
+            allAnchors.Remove(id);
+            beaconIds.Remove(id);
+            isDirty = true;
+        }
+    }
+
+    // ─── Update loop ───
 
     private void LateUpdate()
     {
@@ -118,67 +161,71 @@ public class GasPipeNetwork : MonoBehaviour
         isDirty = true;
     }
 
+    // ─── Particle spawning via BFS from energy source ───
+
     private void UpdateParticles()
     {
-        if (energySource == null || activePipes.Count == 0)
-        {
-            return;
-        }
+        if (energySource == null || activePipes.Count == 0) return;
 
         particleTimer += Time.deltaTime;
-        if (particleTimer < ParticleSpawnInterval)
-        {
-            return;
-        }
-
+        if (particleTimer < ParticleSpawnInterval) return;
         particleTimer = 0f;
 
         // BFS from energy source along connected pipes
         var visited = new HashSet<int>();
-        var queue = new Queue<Streetlight>();
-        visited.Add(energySource.GetInstanceID());
-        queue.Enqueue(energySource);
+        var queue = new Queue<int>();
+        int sourceId = energySource.GetInstanceID();
+        visited.Add(sourceId);
+        queue.Enqueue(sourceId);
 
         while (queue.Count > 0)
         {
-            var current = queue.Dequeue();
+            int currentId = queue.Dequeue();
 
             foreach (var kvp in activePipes)
             {
                 var conn = kvp.Value;
-                if (conn.renderer == null)
+                if (conn.renderer == null) continue;
+
+                int neighborId = -1;
+                bool fromA = false;
+
+                if (conn.nodeIdA == currentId && !visited.Contains(conn.nodeIdB))
                 {
-                    continue;
+                    neighborId = conn.nodeIdB;
+                    fromA = true;
+                }
+                else if (conn.nodeIdB == currentId && !visited.Contains(conn.nodeIdA))
+                {
+                    neighborId = conn.nodeIdA;
+                    fromA = false;
                 }
 
-                Streetlight neighbor = null;
-                bool isA = false;
+                if (neighborId == -1) continue;
 
-                if (conn.lightA == current && !visited.Contains(conn.lightB.GetInstanceID()))
-                {
-                    neighbor = conn.lightB;
-                    isA = true;
-                }
-                else if (conn.lightB == current && !visited.Contains(conn.lightA.GetInstanceID()))
-                {
-                    neighbor = conn.lightA;
-                    isA = false;
-                }
-
-                if (neighbor == null)
-                {
-                    continue;
-                }
-
-                visited.Add(neighbor.GetInstanceID());
-                queue.Enqueue(neighbor);
+                visited.Add(neighborId);
+                queue.Enqueue(neighborId);
 
                 // Spawn particle along this pipe (from current toward neighbor)
-                var path = isA ? conn.renderer.GetPath() : conn.renderer.GetReversedPath();
+                var path = fromA ? conn.renderer.GetPath() : conn.renderer.GetReversedPath();
                 if (path != null && path.Length > 1)
                 {
                     SpawnParticle(path);
                 }
+
+                // Check if this neighbor is a beacon — notify energy arrived
+                NotifyBeaconIfReached(neighborId);
+            }
+        }
+    }
+
+    private void NotifyBeaconIfReached(int nodeId)
+    {
+        foreach (var beacon in beacons)
+        {
+            if (beacon != null && beacon.GetInstanceID() == nodeId && !beacon.IsReached)
+            {
+                beacon.NotifyEnergyArrived();
             }
         }
     }
@@ -190,30 +237,38 @@ public class GasPipeNetwork : MonoBehaviour
         particle.Init(path, ParticleSpeed, new Color(1f, 0.7f, 0.2f, 1f), 0.25f);
     }
 
+    // ─── Rebuild pipe connections between all nodes ───
+
     private void RebuildConnections()
     {
-        var validLights = new List<Streetlight>();
-        foreach (var sl in streetlights)
+        // Collect all valid node IDs and their positions
+        var nodeIds = new List<int>();
+        foreach (var kvp in allNodes)
         {
-            if (sl != null)
+            if (kvp.Value != null)
             {
-                validLights.Add(sl);
+                nodeIds.Add(kvp.Key);
             }
         }
 
         var desiredPairs = new HashSet<long>();
 
-        for (var i = 0; i < validLights.Count; i++)
+        for (var i = 0; i < nodeIds.Count; i++)
         {
-            for (var j = i + 1; j < validLights.Count; j++)
+            for (var j = i + 1; j < nodeIds.Count; j++)
             {
-                var a = validLights[i];
-                var b = validLights[j];
-                var distance = Vector3.Distance(a.transform.position, b.transform.position);
+                int idA = nodeIds[i];
+                int idB = nodeIds[j];
+                var posA = allNodes[idA].position;
+                var posB = allNodes[idB].position;
+                var distance = Vector3.Distance(posA, posB);
 
-                if (distance <= maxConnectionDistance)
+                // Use the beacon's activationRadius when one node is a beacon
+                float maxDist = GetConnectionDistance(idA, idB);
+
+                if (distance <= maxDist)
                 {
-                    var key = MakePairKey(a.GetInstanceID(), b.GetInstanceID());
+                    var key = MakePairKey(idA, idB);
                     desiredPairs.Add(key);
                 }
             }
@@ -239,63 +294,86 @@ public class GasPipeNetwork : MonoBehaviour
         }
 
         // Create missing pipes
-        for (var i = 0; i < validLights.Count; i++)
+        for (var i = 0; i < nodeIds.Count; i++)
         {
-            for (var j = i + 1; j < validLights.Count; j++)
+            for (var j = i + 1; j < nodeIds.Count; j++)
             {
-                var a = validLights[i];
-                var b = validLights[j];
-                var key = MakePairKey(a.GetInstanceID(), b.GetInstanceID());
+                int idA = nodeIds[i];
+                int idB = nodeIds[j];
+                var key = MakePairKey(idA, idB);
 
-                if (!desiredPairs.Contains(key))
-                {
-                    continue;
-                }
+                if (!desiredPairs.Contains(key)) continue;
 
                 if (activePipes.ContainsKey(key))
                 {
                     var existing = activePipes[key];
-                    UpdatePipeEndpoints(existing.renderer, a, b);
+                    UpdatePipeEndpoints(existing.renderer, idA, idB);
                     continue;
                 }
 
-                var pipeGO = new GameObject($"GasPipe_{a.GetInstanceID()}_{b.GetInstanceID()}");
+                var pipeGO = new GameObject($"GasPipe_{idA}_{idB}");
                 pipeGO.transform.SetParent(transform, false);
 
                 var pipe = pipeGO.AddComponent<GasPipeRenderer>();
                 pipe.Init(copperMaterial);
-                UpdatePipeEndpoints(pipe, a, b);
+                UpdatePipeEndpoints(pipe, idA, idB);
 
                 activePipes[key] = new PipeConnection
                 {
                     renderer = pipe,
-                    lightA = a,
-                    lightB = b
+                    nodeIdA = idA,
+                    nodeIdB = idB
                 };
             }
         }
     }
 
-    private void UpdatePipeEndpoints(GasPipeRenderer pipe, Streetlight a, Streetlight b)
+    private void UpdatePipeEndpoints(GasPipeRenderer pipe, int idA, int idB)
     {
-        var anchorA = a.GetComponent<CableAnchor>();
-        var anchorB = b.GetComponent<CableAnchor>();
+        var transformA = allNodes.ContainsKey(idA) ? allNodes[idA] : null;
+        var transformB = allNodes.ContainsKey(idB) ? allNodes[idB] : null;
+
+        if (transformA == null || transformB == null) return;
+
+        var anchorA = allAnchors.ContainsKey(idA) ? allAnchors[idA] : null;
+        var anchorB = allAnchors.ContainsKey(idB) ? allAnchors[idB] : null;
 
         Vector3 start;
         Vector3 end;
 
         if (anchorA != null && anchorB != null)
         {
-            start = anchorA.GetAnchorToward(b.transform.position).position;
-            end = anchorB.GetAnchorToward(a.transform.position).position;
+            start = anchorA.GetAnchorToward(transformB.position).position;
+            end = anchorB.GetAnchorToward(transformA.position).position;
         }
         else
         {
-            start = a.transform.position + Vector3.up * 0.05f;
-            end = b.transform.position + Vector3.up * 0.05f;
+            start = transformA.position + Vector3.up * 0.05f;
+            end = transformB.position + Vector3.up * 0.05f;
         }
 
         pipe.SetEndpoints(start, end);
+    }
+
+    /// <summary>
+    /// Returns the max connection distance for a pair of nodes.
+    /// If one of the nodes is a Beacon, uses the beacon's activationRadius.
+    /// Otherwise uses the default maxConnectionDistance.
+    /// </summary>
+    private float GetConnectionDistance(int idA, int idB)
+    {
+        // Check if either node is a beacon and use its larger activation radius
+        foreach (var beacon in beacons)
+        {
+            if (beacon == null) continue;
+            int bId = beacon.GetInstanceID();
+            if (bId == idA || bId == idB)
+            {
+                return beacon.activationRadius;
+            }
+        }
+
+        return maxConnectionDistance;
     }
 
     private static long MakePairKey(int idA, int idB)
