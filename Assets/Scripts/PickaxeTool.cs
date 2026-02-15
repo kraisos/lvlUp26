@@ -26,6 +26,9 @@ public class PickaxeTool : MonoBehaviour
     [SerializeField] private Color barBackgroundColor = new Color(0f, 0f, 0f, 0.65f);
     [SerializeField] private Color barFillColor = new Color(0.2f, 0.85f, 0.3f, 1f);
 
+    [Header("View Model")]
+    [SerializeField] private Vector3 cameraOffset = new Vector3(0.35f, -0.3f, 0.5f);
+
     private MineableObject activeMineable;
     private float activeMineProgress;
     private bool isSwinging;
@@ -42,6 +45,19 @@ public class PickaxeTool : MonoBehaviour
         ResolveReferences();
         BuildMiningUI();
         HideMiningUI();
+    }
+
+    private void LateUpdate()
+    {
+        if (playerCamera != null)
+        {
+            Transform cam = playerCamera.transform;
+            transform.position = cam.position
+                + cam.right   * cameraOffset.x
+                + cam.up      * cameraOffset.y
+                + cam.forward * cameraOffset.z;
+            transform.rotation = cam.rotation;
+        }
     }
 
     private void Update()
