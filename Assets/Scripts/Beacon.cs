@@ -1,8 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// End-goal beacon. The player wins by placing a streetlight close enough to it.
+/// End-goal beacon. The player wins when energy from the pipe network reaches this node.
+/// The Beacon acts as a connectable node in the GasPipeNetwork (like a Streetlight).
 /// </summary>
+[RequireComponent(typeof(CableAnchor))]
 public class Beacon : MonoBehaviour
 {
     [Header("Detection")]
@@ -19,7 +21,7 @@ public class Beacon : MonoBehaviour
     public bool IsReached => reached;
 
     /// <summary>
-    /// Fired when a streetlight is placed close enough to the beacon.
+    /// Fired when energy reaches the beacon through the pipe network.
     /// </summary>
     public event System.Action OnBeaconReached;
 
@@ -38,6 +40,18 @@ public class Beacon : MonoBehaviour
             beaconLight.intensity = lightIntensity;
             beaconLight.range = 20f;
         }
+
+        // Register with the pipe network as a connectable endpoint
+        EnsureNetwork();
+        GasPipeNetwork.Instance.RegisterBeacon(this);
+    }
+
+    private void OnDisable()
+    {
+        if (GasPipeNetwork.Instance != null)
+        {
+            GasPipeNetwork.Instance.UnregisterBeacon(this);
+        }
     }
 
     void Update()
@@ -53,16 +67,37 @@ public class Beacon : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by a Streetlight when it's placed close enough to this beacon.
+    /// Called by GasPipeNetwork when BFS energy reaches this beacon.
     /// </summary>
-    public void NotifyReached(Streetlight streetlight)
+    public void NotifyEnergyArrived()
     {
         if (reached) return;
 
-        float dist = Vector3.Distance(transform.position, streetlight.transform.position);
         reached = true;
-        Debug.Log($"Beacon activated! Streetlight placed at distance {dist:F1}m (radius {activationRadius}m).");
+        Debug.Log("Beacon activated! Energy has reached the beacon through the pipe network.");
         OnBeaconReached?.Invoke();
+    }
+
+    /// <summary>
+    /// Legacy method kept for compatibility — now redirects to energy-based activation.
+    /// </summary>
+    public void NotifyReached(Streetlight streetlight)
+    {
+        // No longer triggers win by proximity alone.
+        // Win is triggered only when energy flows through pipes to the beacon.
+        float dist = Vector3.Distance(transform.position, streetlight.transform.position);
+        Debug.Log($"Streetlight placed at distance {dist:F1}m from beacon — waiting for energy connection.");
+    }
+
+    private static void EnsureNetwork()
+    {
+        if (GasPipeNetwork.Instance != null)
+        {
+            return;
+        }
+
+        var go = new GameObject("GasPipeNetwork");
+        go.AddComponent<GasPipeNetwork>();
     }
 
     void OnDrawGizmos()
