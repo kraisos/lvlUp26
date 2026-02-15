@@ -199,14 +199,14 @@ public class GameController : MonoBehaviour
         }
 
         // If the player gained streetlights, spawn a coppermine for each new one
-        if (currentCount > lastStreetlightCount)
-        {
-            int gained = currentCount - lastStreetlightCount;
-            for (int i = 0; i < gained; i++)
-            {
-                SpawnCopperBehindPlayer();
-            }
-        }
+        // if (currentCount > lastStreetlightCount)
+        // {
+        //     int gained = currentCount - lastStreetlightCount;
+        //     for (int i = 0; i < gained; i++)
+        //     {
+        //         SpawnCopperBehindPlayer();
+        //     }
+        // }
 
         lastStreetlightCount = currentCount;
     }
