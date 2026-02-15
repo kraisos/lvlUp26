@@ -21,32 +21,28 @@ public class MapGenerator
         TileInfo southTile = tileInfoMap.Get(neighbors.south);
         TileInfo westTile = tileInfoMap.Get(neighbors.west);
 
-        bool needsWallNorth = northTile.IsOpenWallSouth;
-        bool needsWallEast = eastTile.IsOpenWallWest;
-        bool needsWallSouth = southTile.IsOpenWallNorth;
-        bool needsWallWest = westTile.IsOpenWallEast;
+        bool needsWallNorth = northTile.IsLinkSouth;
+        bool needsWallEast = eastTile.IsLinkWest;
+        bool needsWallSouth = southTile.IsLinkNorth;
+        bool needsWallWest = westTile.IsLinkEast;
 
         if (needsWallNorth || needsWallEast || needsWallSouth || needsWallWest)
         {
             // Need to place a wall tile that connects to existing walls
-            List<TileType> validTypes = TileTypeInfo.wallTypes.Where(w =>
+            List<TileTypeInfo> validTypes = TileTypeInfo.WallTypes.Values.Where(w =>
                 // Must have walls where neighbors require them
-                (!needsWallNorth || w.wallNorth) &&
-                (!needsWallEast || w.wallEast) &&
-                (!needsWallSouth || w.wallSouth) &&
-                (!needsWallWest || w.wallWest) &&
+                (!needsWallNorth || w.LinkNorth) &&
+                (!needsWallEast || w.LinkEast) &&
+                (!needsWallSouth || w.LinkSouth) &&
+                (!needsWallWest || w.LinkWest) &&
                 // Walls can only extend into void tiles
-                (!w.wallNorth || needsWallNorth || northTile.IsVoid) &&
-                (!w.wallEast || needsWallEast || eastTile.IsVoid) &&
-                (!w.wallSouth || needsWallSouth || southTile.IsVoid) &&
-                (!w.wallWest || needsWallWest || westTile.IsVoid)
-            ).Select(w => w.tileType).ToList();
+                (!w.LinkNorth || needsWallNorth || northTile.IsVoid) &&
+                (!w.LinkEast || needsWallEast || eastTile.IsVoid) &&
+                (!w.LinkSouth || needsWallSouth || southTile.IsVoid) &&
+                (!w.LinkWest || needsWallWest || westTile.IsVoid)
+            ).ToList();
 
-            if (validTypes.Count > 0)
-            {
-                TileType chosen = validTypes[Random.Range(0, validTypes.Count)];
-                return new TileInfo(chosen);
-            }
+            if (validTypes.Count > 0) return PickWeighted(validTypes);
         }
 
         // Check if at least one neighbor is void — walls can only start where they have room to expand
@@ -55,23 +51,38 @@ public class MapGenerator
         if (hasVoidNeighbor && Random.value < wallSpawnChance)
         {
             // Try to place a new wall that only extends into void neighbors
-            List<TileType> validTypes = TileTypeInfo.wallTypes.Where(w =>
-                (!w.wallNorth || northTile.IsVoid) &&
-                (!w.wallEast || eastTile.IsVoid) &&
-                (!w.wallSouth || southTile.IsVoid) &&
-                (!w.wallWest || westTile.IsVoid)
-            ).Select(w => w.tileType).ToList();
+            List<TileTypeInfo> validTypes = TileTypeInfo.WallTypes.Values.Where(w =>
+                (!w.LinkNorth || northTile.IsVoid) &&
+                (!w.LinkEast || eastTile.IsVoid) &&
+                (!w.LinkSouth || southTile.IsVoid) &&
+                (!w.LinkWest || westTile.IsVoid)
+            ).ToList();
 
             if (validTypes.Count > 0)
             {
-                TileType chosen = validTypes[Random.Range(0, validTypes.Count)];
-                return new TileInfo(chosen);
+                return PickWeighted(validTypes);
             }
         }
 
         // No wall constraints - generate terrain with clustering
         TileType terrainType = ChooseTerrainType(northTile, eastTile, southTile, westTile);
         return new TileInfo(terrainType);
+    }
+
+    private static TileInfo PickWeighted(List<TileTypeInfo> validTypes)
+    {
+        float totalWeight = validTypes.Sum(w => w.weight);
+        float roll = Random.value * totalWeight;
+        float cumulative = 0f;
+        foreach (var typeInfo in validTypes)
+        {
+            cumulative += typeInfo.weight;
+            if (roll <= cumulative)
+            {
+                return new TileInfo(typeInfo.tileType);
+            }
+        }
+        return new TileInfo(validTypes.Last().tileType);
     }
 
     private TileType ChooseTerrainType(TileInfo north, TileInfo east, TileInfo south, TileInfo west)

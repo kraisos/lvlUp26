@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 public enum TileType
 {
@@ -21,41 +22,52 @@ public enum TileType
 	DoorHorizontal  // ═
 }
 
+[Flags]
+public enum TileFlags
+{
+	None       = 0,
+	LinkNorth  = 1 << 0,
+	LinkEast   = 1 << 1,
+	LinkSouth  = 1 << 2,
+	LinkWest   = 1 << 3,
+	IsWall     = 1 << 4,
+	IsDoor     = 1 << 5,
+}
+
 public class TileTypeInfo
 {
 	public readonly TileType tileType;
-	public readonly bool wallNorth;
-	public readonly bool wallEast;
-	public readonly bool wallSouth;
-	public readonly bool wallWest;
-	public readonly bool isWall;
-	public readonly bool isDoor;
+	public readonly TileFlags flags;
+	public readonly float weight;
 
-	public TileTypeInfo(TileType type, bool north, bool east, bool south, bool west, bool wall, bool door)
+	public bool LinkNorth => (flags & TileFlags.LinkNorth) != 0;
+	public bool LinkEast  => (flags & TileFlags.LinkEast)  != 0;
+	public bool LinkSouth => (flags & TileFlags.LinkSouth) != 0;
+	public bool LinkWest  => (flags & TileFlags.LinkWest)  != 0;
+	public bool IsWall    => (flags & TileFlags.IsWall)    != 0;
+	public bool IsDoor    => (flags & TileFlags.IsDoor)    != 0;
+
+	public TileTypeInfo(TileType type, TileFlags flags, float weight = 1f)
 	{
 		tileType = type;
-		wallNorth = north;
-		wallEast = east;
-		wallSouth = south;
-		wallWest = west;
-		isWall = wall;
-		isDoor = door;
+		this.flags = flags;
+		this.weight = weight;
 	}
 
-	public static readonly TileTypeInfo[] wallTypes = new TileTypeInfo[] {
-		new TileTypeInfo(TileType.WallNW, false, true, true, false, true, false),
-		new TileTypeInfo(TileType.WallNE, false, false, true, true, true, false),
-		new TileTypeInfo(TileType.WallSE, true, false, false, true, true, false),
-		new TileTypeInfo(TileType.WallSW, true, true, false, false, true, false),
-		new TileTypeInfo(TileType.WallVertical, true, false, true, false, true, false),
-		new TileTypeInfo(TileType.WallHorizontal, false, true, false, true, true, false),
-		new TileTypeInfo(TileType.WallTN, false, true, true, true, true, false),
-		new TileTypeInfo(TileType.WallTE, true, false, true, true, true, false),
-		new TileTypeInfo(TileType.WallTS, true, true, false, true, true, false),
-		new TileTypeInfo(TileType.WallTW, true, true, true, false, true, false),
-		new TileTypeInfo(TileType.WallCross, true, true, true, true, true, false),
-		new TileTypeInfo(TileType.DoorVertical, true, false, true, false, true, true),
-		new TileTypeInfo(TileType.DoorHorizontal, false, true, false, true, true, true)
+	public static readonly Dictionary<TileType, TileTypeInfo> WallTypes = new Dictionary<TileType, TileTypeInfo> {
+		{ TileType.WallNW,         new TileTypeInfo(TileType.WallNW,         TileFlags.LinkEast  | TileFlags.LinkSouth | TileFlags.IsWall) },
+		{ TileType.WallNE,         new TileTypeInfo(TileType.WallNE,         TileFlags.LinkSouth | TileFlags.LinkWest  | TileFlags.IsWall) },
+		{ TileType.WallSE,         new TileTypeInfo(TileType.WallSE,         TileFlags.LinkNorth | TileFlags.LinkWest  | TileFlags.IsWall) },
+		{ TileType.WallSW,         new TileTypeInfo(TileType.WallSW,         TileFlags.LinkNorth | TileFlags.LinkEast  | TileFlags.IsWall) },
+		{ TileType.WallVertical,   new TileTypeInfo(TileType.WallVertical,   TileFlags.LinkNorth | TileFlags.LinkSouth | TileFlags.IsWall, .8f) },
+		{ TileType.WallHorizontal, new TileTypeInfo(TileType.WallHorizontal, TileFlags.LinkEast  | TileFlags.LinkWest  | TileFlags.IsWall, .8f) },
+		{ TileType.WallTN,         new TileTypeInfo(TileType.WallTN,         TileFlags.LinkEast  | TileFlags.LinkSouth | TileFlags.LinkWest | TileFlags.IsWall, .5f) },
+		{ TileType.WallTE,         new TileTypeInfo(TileType.WallTE,         TileFlags.LinkNorth | TileFlags.LinkSouth | TileFlags.LinkWest | TileFlags.IsWall, .5f) },
+		{ TileType.WallTS,         new TileTypeInfo(TileType.WallTS,         TileFlags.LinkNorth | TileFlags.LinkEast  | TileFlags.LinkWest | TileFlags.IsWall, .5f) },
+		{ TileType.WallTW,         new TileTypeInfo(TileType.WallTW,         TileFlags.LinkNorth | TileFlags.LinkEast  | TileFlags.LinkSouth | TileFlags.IsWall, .5f) },
+		{ TileType.WallCross,      new TileTypeInfo(TileType.WallCross,      TileFlags.LinkNorth | TileFlags.LinkEast  | TileFlags.LinkSouth | TileFlags.LinkWest | TileFlags.IsWall, .5f) },
+		{ TileType.DoorVertical,   new TileTypeInfo(TileType.DoorVertical,   TileFlags.LinkNorth | TileFlags.LinkSouth | TileFlags.IsWall | TileFlags.IsDoor) },
+		{ TileType.DoorHorizontal, new TileTypeInfo(TileType.DoorHorizontal, TileFlags.LinkEast  | TileFlags.LinkWest  | TileFlags.IsWall | TileFlags.IsDoor) },
 	};
 }
 
@@ -80,47 +92,23 @@ public class TileInfo
         tileType = type;
     }
 
-	public static TileInfo VOID = new(TileType.Void);
+	public static readonly TileInfo VOID = new(TileType.Void);
 
-	public bool IsOpenWallNorth {
-		get { return Array.Exists(OpenNorth, t => t == tileType); }
-	}
-	public bool IsOpenWallEast {
-		get { return Array.Exists(OpenEast, t => t == tileType); }
-	}
-	public bool IsOpenWallSouth {
-		get { return Array.Exists(OpenSouth, t => t == tileType); }
-	}
-	public bool IsOpenWallWest {
-		get { return Array.Exists(OpenWest, t => t == tileType); }
-	}
+	public bool IsLinkNorth => GetFlags().HasFlag(TileFlags.LinkNorth);
+	public bool IsLinkEast  => GetFlags().HasFlag(TileFlags.LinkEast);
+	public bool IsLinkSouth => GetFlags().HasFlag(TileFlags.LinkSouth);
+	public bool IsLinkWest  => GetFlags().HasFlag(TileFlags.LinkWest);
 
 	public bool IsVoid {
 		get { return tileType == TileType.Void; }
 	}
 
-	// Tiles with an opening in each direction
-	public static readonly TileType[] OpenNorth = {
-		TileType.WallSE, TileType.WallSW, TileType.WallVertical,
-		TileType.WallTE, TileType.WallTS, TileType.WallTW,
-		TileType.WallCross, TileType.DoorVertical
-	};
-
-	public static readonly TileType[] OpenEast = {
-		TileType.WallNW, TileType.WallSW, TileType.WallHorizontal,
-		TileType.WallTN, TileType.WallTS, TileType.WallTW,
-		TileType.WallCross, TileType.DoorHorizontal
-	};
-
-	public static readonly TileType[] OpenSouth = {
-		TileType.WallNW, TileType.WallNE, TileType.WallVertical,
-		TileType.WallTN, TileType.WallTE, TileType.WallTW,
-		TileType.WallCross, TileType.DoorVertical
-	};
-
-	public static readonly TileType[] OpenWest = {
-		TileType.WallNE, TileType.WallSE, TileType.WallHorizontal,
-		TileType.WallTN, TileType.WallTE, TileType.WallTS,
-		TileType.WallCross, TileType.DoorHorizontal
-	};
+	private TileFlags GetFlags()
+	{
+		if (TileTypeInfo.WallTypes.TryGetValue(tileType, out TileTypeInfo info))
+		{
+			return info.flags;
+		}
+		return TileFlags.None;
+	}
 }
