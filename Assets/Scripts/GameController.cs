@@ -13,6 +13,9 @@ public class GameController : MonoBehaviour
     public int beaconDistanceTiles = 30;
     public float beaconClearRadius = 5f;
 
+    [Header("Streetlights")]
+    public GameObject streetlightPrefab;
+
     [Header("Airship")]
     public GameObject airshipPrefab;
     public int airshipDistanceTiles = 15;
@@ -61,6 +64,7 @@ public class GameController : MonoBehaviour
         originPosition = new Vector3(originPoint.x, 0f, originPoint.z);
 
         SpawnPlayer(spawnPoint.position);
+        SpwanInitialStreetlight();
         SpawnBeacon();
         SpawnResources();
         SpawnAirship();
@@ -126,6 +130,20 @@ public class GameController : MonoBehaviour
         beacon.OnBeaconReached += () => OnGameWon();
 
         Debug.Log($"Beacon spawned at {beaconPos} ({beaconDistanceTiles} tiles from player)");
+    }
+
+    void SpwanInitialStreetlight()
+    {
+        Vector3 streetlightPos = map.ReserveClearTile(originPosition, 2);
+        if(streetlightPrefab != null)
+        {
+            Instantiate(streetlightPrefab, streetlightPos, Quaternion.identity);
+            Debug.Log($"Initial streetlight spawned at {streetlightPos}");
+        }
+        else
+        {
+            Debug.LogWarning("No streetlight prefab found for initial spawn");
+        }
     }
 
     void SpawnAirship()

@@ -72,7 +72,7 @@ public class MapGenerator
     private TileType ChooseTerrainType(TileInfo north, TileInfo east, TileInfo south, TileInfo west)
     {
         // Count neighboring terrain types for clustering
-        int groundCount = 0, woodsCount = 0, lakeCount = 0;
+        int groundCount = 0, woodsCount = 0, tallGrassCount = 0;
 
         foreach (TileInfo neighbor in new[] { north, east, south, west })
         {
@@ -80,22 +80,22 @@ public class MapGenerator
             {
                 case TileType.Ground: groundCount++; break;
                 case TileType.Woods: woodsCount++; break;
-                case TileType.Lake: lakeCount++; break;
+                case TileType.TallGrass: tallGrassCount++; break;
             }
         }
 
         // Base weights
         float groundWeight = 0.6f;
         float woodsWeight = 0.25f;
-        float lakeWeight = 0.0f;
+        float tallGrassWeight = 0.15f;
 
         // Apply clustering boost (neighbors of same type increase weight)
         float clusterBoost = 2.0f;
         groundWeight += groundCount * clusterBoost;
         woodsWeight += woodsCount * clusterBoost;
-        lakeWeight += lakeCount * clusterBoost;
+        tallGrassWeight += tallGrassCount * clusterBoost;
 
-        float totalWeight = groundWeight + woodsWeight + lakeWeight;
+        float totalWeight = groundWeight + woodsWeight + tallGrassWeight;
         float roll = Random.value * totalWeight;
 
         if (roll < groundWeight)
@@ -103,7 +103,7 @@ public class MapGenerator
         else if (roll < groundWeight + woodsWeight)
             return TileType.Woods;
         else
-            return TileType.Lake;
+            return TileType.TallGrass;
     }
 
     private class Neighbors

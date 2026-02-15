@@ -60,7 +60,7 @@ MonoBehaviour:
     prefab: {fileID: 4339614922478637303, guid: 4df95d6f228075648a18b16cfd743e5f, type: 3}
     weight: 1
   - type: 2
-    prefab: {fileID: 4339614922478637303, guid: a26e2549ef24e8844af7c025590a0a22, type: 3}
+    prefab: {fileID: 2142606043467432258, guid: 3cb41b3115a20fa479cd0c9b8cdd9e2a, type: 3}
     weight: 1
   - type: 3
     prefab: {fileID: 5903024189785162291, guid: 1d8b70bdcfa912c4dbb696067d6e836c, type: 3}
@@ -210,7 +210,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.11666667
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
