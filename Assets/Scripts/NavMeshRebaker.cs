@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.AI;
 using Unity.AI.Navigation;
+using System.Collections.Generic;
 
 /// <summary>
 /// Manages runtime NavMesh baking for dynamically generated environments.
@@ -18,8 +20,8 @@ public class NavMeshRebaker : MonoBehaviour
     [Tooltip("Minimum time (seconds) between NavMesh rebakes to avoid rebuilding every frame")]
     public float rebakeDebounceTime = 0.5f;
 
-    [Tooltip("Perform an initial bake after this many seconds (gives tiles time to spawn)")]
-    public float initialBakeDelay = 1f;
+    [Tooltip("Extra padding (world units) around the tile bounds when collecting sources")]
+    public float boundsPadding = 5f;
 
     [Header("Debug")]
     public bool logRebakes = false;
@@ -30,9 +32,11 @@ public class NavMeshRebaker : MonoBehaviour
     public static NavMeshRebaker Instance { get; private set; }
 
     private NavMeshSurface surface;
+    private NavMeshDataInstance navMeshDataInstance;
     private float timeSinceLastBake;
     private bool rebakeRequested;
     private bool isBaking;
+    private bool initialized;
 
     void Awake()
     {
@@ -45,18 +49,6 @@ public class NavMeshRebaker : MonoBehaviour
         Instance = this;
 
         surface = GetComponent<NavMeshSurface>();
-
-        // Force Physics Colliders mode to avoid "mesh does not allow read access" errors
-        if (surface != null)
-        {
-            surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
-        }
-    }
-
-    void Start()
-    {
-        // Schedule the initial bake after a short delay so the first batch of tiles exists
-        StartCoroutine(InitialBakeCoroutine());
     }
 
     void Update()
@@ -82,52 +74,93 @@ public class NavMeshRebaker : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator InitialBakeCoroutine()
+    /// <summary>
+    /// Lazily creates the NavMeshData and registers it with the navigation system.
+    /// </summary>
+    private void EnsureInitialized()
     {
-        // Wait for tiles to spawn
-        yield return new WaitForSeconds(initialBakeDelay);
+        if (initialized) return;
+        initialized = true;
 
-        if (surface == null) yield break;
-
-        // Create an empty NavMeshData so UpdateNavMesh has something to work with
-        surface.navMeshData = new UnityEngine.AI.NavMeshData();
-
-        isBaking = true;
-        AsyncOperation op = surface.UpdateNavMesh(surface.navMeshData);
-        op.completed += (AsyncOperation o) =>
-        {
-            isBaking = false;
-            if (logRebakes)
-            {
-                Debug.Log("[NavMeshRebaker] Initial async NavMesh bake completed.");
-            }
-        };
+        surface.navMeshData = new NavMeshData(surface.agentTypeID);
+        navMeshDataInstance = NavMesh.AddNavMeshData(surface.navMeshData);
 
         if (logRebakes)
+            Debug.Log("[NavMeshRebaker] NavMeshData created and registered.");
+    }
+
+    /// <summary>
+    /// Computes a tight world-space bounding box around the NavMeshSurface's
+    /// collected source objects so we only scan the area that actually has tiles.
+    /// </summary>
+    private Bounds CalculateSourceBounds(List<NavMeshBuildSource> sources)
+    {
+        if (sources.Count == 0)
+            return new Bounds(transform.position, Vector3.one * 10f);
+
+        // Start from the first source's position
+        Vector3 min = sources[0].transform.GetColumn(3);
+        Vector3 max = min;
+
+        for (int i = 0; i < sources.Count; i++)
         {
-            Debug.Log("[NavMeshRebaker] Initial async NavMesh bake started...");
+            Vector3 pos = sources[i].transform.GetColumn(3);
+            Vector3 halfSize = sources[i].size * 0.5f;
+
+            min = Vector3.Min(min, pos - halfSize);
+            max = Vector3.Max(max, pos + halfSize);
         }
+
+        // Add padding
+        min -= Vector3.one * boundsPadding;
+        max += Vector3.one * boundsPadding;
+
+        Bounds bounds = new Bounds();
+        bounds.SetMinMax(min, max);
+        return bounds;
     }
 
     private void RebakeAsync()
     {
-        if (surface.navMeshData == null)
-        {
-            Debug.Log("[NavMeshRebaker] Cannot rebake NavMesh: navMeshData is null. Make sure to perform an initial bake first.");
-            return;
-        }
+        EnsureInitialized();
 
         isBaking = true;
         rebakeRequested = false;
         timeSinceLastBake = 0f;
 
-        // UpdateNavMesh runs the heavy bake on a background thread — does NOT freeze the game
-        AsyncOperation op = surface.UpdateNavMesh(surface.navMeshData);
+        // Collect sources with a tight bounds (much cheaper than letting
+        // NavMeshSurface.UpdateNavMesh scan everything in the scene)
+        var sources = new List<NavMeshBuildSource>();
+        var markups = new List<NavMeshBuildMarkup>();
+        NavMeshBuildSettings buildSettings = surface.GetBuildSettings();
+
+        // Collect only from the surface's configured layers & geometry mode
+        // Use a large initial bounds for collection, then tighten it
+        Bounds collectBounds = new Bounds(transform.position, Vector3.one * 10000f);
+        NavMeshBuilder.CollectSources(
+            collectBounds,
+            surface.layerMask,
+            surface.useGeometry,
+            surface.defaultArea,
+            markups,
+            sources
+        );
+
+        // Now compute the actual tight bounds from the collected sources
+        Bounds bakeBounds = CalculateSourceBounds(sources);
+
+        // Kick off the truly async bake — only the triangulation runs on the main thread briefly
+        AsyncOperation op = NavMeshBuilder.UpdateNavMeshDataAsync(
+            surface.navMeshData,
+            buildSettings,
+            sources,
+            bakeBounds
+        );
         op.completed += OnBakeCompleted;
 
         if (logRebakes)
         {
-            Debug.Log("[NavMeshRebaker] Async NavMesh rebake started...");
+            Debug.Log($"[NavMeshRebaker] Async rebake started — {sources.Count} sources, bounds: {bakeBounds}");
         }
     }
 
@@ -149,9 +182,10 @@ public class NavMeshRebaker : MonoBehaviour
 
     void OnDestroy()
     {
+        if (navMeshDataInstance.valid)
+            navMeshDataInstance.Remove();
+
         if (Instance == this)
-        {
             Instance = null;
-        }
     }
 }
