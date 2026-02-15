@@ -11,96 +11,74 @@ Shader "Custom/GhostSpectral"
         _PulseAmount ("Pulse Amount", Range(0, 0.5)) = 0.1
         _DistortionStrength ("Distortion Strength", Range(0, 0.1)) = 0.02
         _DistortionSpeed ("Distortion Speed", Range(0, 5)) = 1.0
+        _FadeOut ("Fade Out", Range(0, 1)) = 1.0
     }
     
     SubShader
     {
-        Tags 
-        { 
-            "RenderType" = "Transparent" 
+        Tags
+        {
+            "RenderType" = "Transparent"
             "Queue" = "Transparent"
             "IgnoreProjector" = "True"
         }
-        
-        Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        LOD 200
         Cull Back
-        
-        Pass
+        ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
+
+        CGPROGRAM
+        #pragma surface surf Standard alpha:fade vertex:vert nofog
+        #pragma target 3.0
+
+        sampler2D _MainTex;
+
+        fixed4 _GhostColor;
+        half _FresnelPower;
+        half _FresnelIntensity;
+        half _AlphaBase;
+        half _PulseSpeed;
+        half _PulseAmount;
+        half _DistortionStrength;
+        half _DistortionSpeed;
+        half _FadeOut;
+
+        struct Input
         {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #include "UnityCG.cginc"
+            float2 uv_MainTex;
+            float3 viewDir;
+            float3 worldNormal;
+            INTERNAL_DATA
+        };
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-                float3 normal : NORMAL;
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-                float3 worldNormal : TEXCOORD1;
-                float3 worldViewDir : TEXCOORD2;
-                float3 worldPos : TEXCOORD3;
-            };
-
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            float4 _GhostColor;
-            float _FresnelPower;
-            float _FresnelIntensity;
-            float _AlphaBase;
-            float _PulseSpeed;
-            float _PulseAmount;
-            float _DistortionStrength;
-            float _DistortionSpeed;
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-                
-                // Vertex displacement for wavering effect
-                float wave = sin(_Time.y * _DistortionSpeed + v.vertex.y * 3.0) * _DistortionStrength;
-                float3 displaced = v.vertex.xyz + v.normal * wave;
-                
-                o.vertex = UnityObjectToClipPos(float4(displaced, 1.0));
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.worldNormal = UnityObjectToWorldNormal(v.normal);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                o.worldViewDir = normalize(WorldSpaceViewDir(v.vertex));
-                
-                return o;
-            }
-
-            fixed4 frag (v2f i) : SV_Target
-            {
-                // Sample base texture
-                fixed4 texCol = tex2D(_MainTex, i.uv);
-                
-                // Fresnel (rim lighting)
-                float3 normal = normalize(i.worldNormal);
-                float3 viewDir = normalize(i.worldViewDir);
-                float fresnel = pow(1.0 - saturate(dot(normal, viewDir)), _FresnelPower);
-                fresnel *= _FresnelIntensity;
-                
-                // Pulsing alpha
-                float pulse = sin(_Time.y * _PulseSpeed) * _PulseAmount;
-                float alpha = _AlphaBase + pulse + fresnel * _GhostColor.a;
-                alpha = saturate(alpha);
-                
-                // Final color: blend texture with ghost color, boost edges
-                float3 finalColor = lerp(texCol.rgb * _GhostColor.rgb, _GhostColor.rgb, fresnel);
-                finalColor += _GhostColor.rgb * fresnel * 0.5; // Extra glow on edges
-                
-                return fixed4(finalColor, alpha);
-            }
-            ENDCG
+        void vert(inout appdata_full v)
+        {
+            float wave = sin(_Time.y * _DistortionSpeed + v.vertex.y * 3.0) * _DistortionStrength;
+            v.vertex.xyz += normalize(v.normal) * wave;
         }
+
+        void surf(Input IN, inout SurfaceOutputStandard o)
+        {
+            fixed4 texCol = tex2D(_MainTex, IN.uv_MainTex);
+
+            float3 n = normalize(IN.worldNormal);
+            float3 v = normalize(IN.viewDir);
+            half fresnel = pow(1.0h - saturate(dot(n, v)), max(_FresnelPower, 0.001h)) * _FresnelIntensity;
+
+            half pulse = sin(_Time.y * _PulseSpeed) * _PulseAmount;
+            half alpha = saturate(_AlphaBase + pulse + fresnel * _GhostColor.a);
+
+            fixed3 baseGhost = texCol.rgb * _GhostColor.rgb;
+            fixed3 finalColor = lerp(baseGhost, _GhostColor.rgb, fresnel);
+            finalColor += _GhostColor.rgb * fresnel * 0.5;
+
+            o.Albedo = finalColor;
+            o.Metallic = 0;
+            o.Smoothness = 0;
+            o.Emission = finalColor * fresnel * 0.15 * _FadeOut;
+            o.Alpha = alpha * _FadeOut;
+        }
+        ENDCG
     }
     FallBack "Transparent/Diffuse"
 }

@@ -614,10 +614,16 @@ public class FirstPersonController : MonoBehaviour
             return;
         }
 
-        HandlePlayerDeath(mobAI.transform);
+        var sanity = GetComponent<SanitySystem>();
+        if (sanity != null)
+        {
+            sanity.OnMobContact(mobAI.sanityDamage);
+        }
+
+        mobAI.FadeOutAndDestroy();
     }
 
-    private void HandlePlayerDeath(Transform mobTransform)
+    public void HandlePlayerDeath(Transform mobTransform)
     {
         if (isDead)
         {

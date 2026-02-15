@@ -347,7 +347,7 @@ public class Map : MonoBehaviour
     //   WallStraight prefab: horizontal (─) by default
     //   WallCorner prefab:   SW (└) by default
     //   WallT prefab:        TS (┴) by default
-    //   Door prefab:         vertical (║) by default
+    //   Door prefab:         horizontal (═) by default
     private float GetTileRotation(TileType tileType)
     {
         switch (tileType)

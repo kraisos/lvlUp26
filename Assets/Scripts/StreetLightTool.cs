@@ -132,22 +132,21 @@ public class StreetlightTool : MonoBehaviour
             return;
         }
 
-        var snappedPosition = SnapToMapGrid(hitPoint);
-        lastSnappedPosition = snappedPosition;
+        lastSnappedPosition = hitPoint;
 
-        hasValidPlacement = IsPlacementValid(snappedPosition);
+        hasValidPlacement = IsPlacementValid(hitPoint);
 
         if (!ghostInstance.activeSelf)
         {
             ghostInstance.SetActive(true);
         }
 
-        ghostInstance.transform.position = snappedPosition + new Vector3(0f, ghostYOffset, 0f);
+        ghostInstance.transform.position = lastSnappedPosition + new Vector3(0f, ghostYOffset, 0f);
         ghostInstance.transform.rotation = Quaternion.identity;
 
         var ghostMat = hasValidPlacement ? validGhostMaterial : invalidGhostMaterial;
         ApplyGhostMaterial(ghostMat);
-        UpdateGhostPipes(snappedPosition, ghostMat);
+        UpdateGhostPipes(lastSnappedPosition, ghostMat);
     }
 
     private void UpdateGhostPipes(Vector3 ghostPosition, Material ghostMaterial)
@@ -334,33 +333,19 @@ public class StreetlightTool : MonoBehaviour
             return false;
         }
 
-        point = hit.point;
-        return true;
-    }
-
-    private Vector3 SnapToMapGrid(Vector3 worldPosition)
-    {
-        var step = Mathf.Max(0.001f, map.tileSize * map.tileScale);
-        var local = worldPosition - map.transform.position;
-        var gridX = Mathf.RoundToInt(local.x / step);
-        var gridZ = Mathf.RoundToInt(local.z / step);
-
-        return map.transform.position + new Vector3(gridX * step, map.transform.position.y, gridZ * step);
-    }
-
-    private bool IsPlacementValid(Vector3 position)
-    {
-        var step = Mathf.Max(0.001f, map.tileSize * map.tileScale);
-        Vector2Int gridPos = new Vector2Int(
-            Mathf.RoundToInt((position.x - map.transform.position.x) / step),
-            Mathf.RoundToInt((position.z - map.transform.position.z) / step)
-        );
-
-        if (map.GetTile(gridPos).IsVoid)
+        // Ensure we're pointing at the ground (not walls or trees)
+        // The normal should be pointing mostly upward
+        if (hit.normal.y < 0.5f)
         {
             return false;
         }
 
+        point = hit.point;
+        return true;
+    }
+
+    private bool IsPlacementValid(Vector3 position)
+    {
         if (!HasRequiredItem())
         {
             return false;
@@ -371,7 +356,40 @@ public class StreetlightTool : MonoBehaviour
             return false;
         }
 
+        if (HasCollisionAtPosition(position))
+        {
+            return false;
+        }
+
         return HasStreetlightInRange(position);
+    }
+
+    private bool HasCollisionAtPosition(Vector3 position)
+    {
+        // Check for collisions with walls, trees, etc. using a small sphere overlap
+        float checkRadius = 0.4f;
+        Collider[] colliders = Physics.OverlapSphere(position, checkRadius, ~0, QueryTriggerInteraction.Ignore);
+        
+        foreach (var col in colliders)
+        {
+            // Ignore triggers (like the beacon detection zones)
+            if (col.isTrigger) continue;
+            
+            // Check if this is a blocking object (MeshCollider = wall/tree/obstacle)
+            // BoxColliders and CapsuleColliders on the ground tiles are allowed
+            if (col is MeshCollider)
+            {
+                // Check if it's the ground plane (usually has a specific tag or layer)
+                // If the collider is below the placement point, it's likely ground
+                if (col.bounds.max.y > position.y + 0.1f)
+                {
+                    // Object extends above placement point - it's an obstacle
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private bool IsTooCloseToStreetlight(Vector3 candidatePosition)

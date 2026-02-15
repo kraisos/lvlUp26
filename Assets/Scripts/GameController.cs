@@ -1,7 +1,6 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
-using System.Collections;
+using UnityEngine.Serialization;
 
 public class GameController : MonoBehaviour
 {
@@ -139,29 +138,6 @@ public class GameController : MonoBehaviour
             }
 
         }
-    }
-
-    // ─── Positioning ───
-
-    /// <summary>
-    /// Returns a world position at the given tile distance from origin in a random direction.
-    /// Uses the Map's tileSize and tileScale to convert tile units to world units.
-    /// </summary>
-    Vector3 GetRandomTilePosition(Vector3 origin, int tileDistance)
-    {
-        float worldStep = 3f; // default: tileSize(1) * tileScale(3)
-        if (map != null)
-        {
-            worldStep = map.tileSize * map.tileScale;
-        }
-
-        float angle = Random.Range(0f, 360f);
-        float worldDistance = tileDistance * worldStep;
-
-        float x = origin.x + Mathf.Cos(angle * Mathf.Deg2Rad) * worldDistance;
-        float z = origin.z + Mathf.Sin(angle * Mathf.Deg2Rad) * worldDistance;
-
-        return new Vector3(x, origin.y, z);
     }
 
     // ─── Events ───

@@ -1,9 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class MobAI : MonoBehaviour
 {
-    private static readonly System.Collections.Generic.List<MobAI> ActiveMobs = new System.Collections.Generic.List<MobAI>();
+    private static readonly List<MobAI> ActiveMobs = new List<MobAI>();
 
     [Header("Detection")]
     public float detectionRange = 15f;
@@ -27,14 +29,26 @@ public class MobAI : MonoBehaviour
     public string speedAnimParam = "Speed";
     [Tooltip("moveSpeed at which the animator transitions from walk to run (Speed param crosses 0.6)")]
     public float runMoveSpeed = 3f;
+    [Tooltip("Multiplier applied to animator Speed parameter. 0.5 = 50% slower animation")]
+    public float animationSpeedMultiplier = 0.5f;
+
+    [Header("Sanity")]
+    public float sanityDamage = 25f;
+    public float sanityProximityRate = 3f;
 
     [Header("Debug")]
     public bool showDebugGizmos = true;
+
+    [Header("Fade Out")]
+    public float fadeDuration = .8f;
 
     private Transform currentTarget;
     private Animator animator;
     private NavMeshAgent agent;
     private bool isWalking;
+    private Vector3 desiredMoveDirection;
+    private bool shouldMove;
+    private bool isFading;
     private float pathUpdateTimer;
 
     void Awake()
@@ -266,6 +280,66 @@ public class MobAI : MonoBehaviour
             }
             animator.SetFloat(speedAnimParam, animSpeed);
         }
+    }
+
+    public void FadeOutAndDestroy()
+    {
+        if (isFading)
+        {
+            return;
+        }
+
+        isFading = true;
+        StartCoroutine(FadeCoroutine());
+    }
+
+    private IEnumerator FadeCoroutine()
+    {
+        var player = FindFirstObjectByType<FirstPersonController>();
+        if (player != null)
+        {
+            var playerColliders = player.GetComponentsInChildren<Collider>();
+            var mobColliders = GetComponentsInChildren<Collider>();
+            foreach (var mc in mobColliders)
+            {
+                foreach (var pc in playerColliders)
+                {
+                    Physics.IgnoreCollision(mc, pc, true);
+                }
+            }
+        }
+
+        var renderers = GetComponentsInChildren<Renderer>();
+        var allMaterials = new List<Material>();
+
+        foreach (var r in renderers)
+        {
+            allMaterials.AddRange(r.materials);
+        }
+
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float fade = 1f - (elapsed / fadeDuration);
+
+            foreach (var mat in allMaterials)
+            {
+                if (mat.HasProperty("_FadeOut"))
+                {
+                    mat.SetFloat("_FadeOut", fade);
+                }
+                else
+                {
+                    Color c = mat.color;
+                    mat.color = new Color(c.r, c.g, c.b, fade);
+                }
+            }
+
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 
     void OnDrawGizmos()

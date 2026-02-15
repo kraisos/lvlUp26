@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 4459864850019384741}
   - component: {fileID: 4459864850019384740}
   - component: {fileID: 7297036129225718128}
+  - component: {fileID: 6785216970149861823}
   m_Layer: 0
   m_Name: FirstPersonController
   m_TagString: Player
@@ -313,6 +314,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53311803461e7e442920ec06c87995a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Target
+--- !u!114 &6785216970149861823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4459864850019384750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ae1e09e03e30deb7bdb636689c01b6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SanitySystem
+  maxSanity: 100
+  lightDrainRate: 5
+  darkRiseRate: 2
+  mobProximityRate: 3
+  mobDetectionRadius: 15
+  mobTouchSpike: 25
+  barWidth: 200
+  barHeight: 16
+  barOffset: {x: 0, y: -40}
 --- !u!1 &4459864850190357393
 GameObject:
   m_ObjectHideFlags: 0
