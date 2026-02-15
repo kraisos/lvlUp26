@@ -56,7 +56,7 @@ public class NavMeshRebaker : MonoBehaviour
     void Start()
     {
         // Schedule the initial bake after a short delay so the first batch of tiles exists
-        StartCoroutine(InitialBakeCoroutine());
+        // StartCoroutine(InitialBakeCoroutine());
     }
 
     void Update()
@@ -91,8 +91,7 @@ public class NavMeshRebaker : MonoBehaviour
 
         // Build initial NavMeshData (synchronous but on a small initial set of tiles)
         // We need this once to create the NavMeshData asset that UpdateNavMesh can work with
-        surface.BuildNavMesh();
-
+        RebakeAsync();
         if (logRebakes)
         {
             Debug.Log("[NavMeshRebaker] Initial NavMesh bake completed.");
