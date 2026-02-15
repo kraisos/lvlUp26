@@ -22,7 +22,13 @@
       "mcp__UnityMCP__apply_text_edits",
       "Bash(find:*)",
       "mcp__UnityMCP__manage_texture",
-      "mcp__UnityMCP__manage_material"
+      "mcp__UnityMCP__manage_material",
+      "mcp__UnityMCP__manage_shader",
+      "mcp__Windows-MCP__Wait",
+      "mcp__UnityMCP__find_gameobjects",
+      "Bash(dir:*)",
+      "mcp__UnityMCP__manage_editor",
+      "Bash(ls -la \"C:\\\\Users\\\\micha\\\\Documents\\\\GitHub\\\\lvlUp26\\\\Assets\"\" 2>nul || dir \"C:UsersmichaDocumentsGitHublvlUp26Assets \")"
     ]
   }
 }
