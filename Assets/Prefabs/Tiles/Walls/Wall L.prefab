@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5443323458011254361}
   - component: {fileID: 7430024707292931643}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ItemSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,7 +59,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8893839110756985240}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wall L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,6 +141,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall_Set
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7824128036929741958, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 1001247641106111415, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
@@ -187,6 +195,10 @@ PrefabInstance:
     - target: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_Name
       value: Floor
+      objectReference: {fileID: 0}
+    - target: {fileID: 4339614922478637303, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5536615615626025789, guid: 6a8e8720dd6335f449cc402db9957bd3, type: 3}
       propertyPath: m_LocalScale.x
@@ -301,6 +313,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
       propertyPath: m_Name
       value: Wall_Set
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7824128036929741958, guid: 30368613249f4cf48a86b1392890df5b, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

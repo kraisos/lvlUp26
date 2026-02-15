@@ -14,12 +14,12 @@ public class TilesGenerator : MonoBehaviour
         // Find the map reference
         mapReference = FindFirstObjectByType<Map>();
 
-        // Register with the map
-        mapReference.RegisterLightSource(this);
-
         // Initialize position tracking
         UpdateGridPosition();
         lastGridPosition = gridPosition;
+
+        // Register with the map
+        mapReference.RegisterLightSource(this);
 
         // Update tiles around this light source
         NotifyMapOfPositionChange();

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MobAI : MonoBehaviour
 {
@@ -15,17 +16,14 @@ public class MobAI : MonoBehaviour
     public float rotationSpeed = 5f;
     public float stoppingDistance = 1.5f;
 
-    [Header("Physics")]
-    public bool autoConfigureRigidbody = true;
-
     [Header("Mob Separation")]
     public float separationRadius = 2f;
     [Tooltip("How strongly this mob pushes away from nearby mobs while moving")]
     public float separationStrength = 2f;
 
-    [Header("Ground")]
-    public float groundCheckDistance = 2f;
-    public LayerMask groundLayer;
+    [Header("NavMesh")]
+    [Tooltip("How often (in seconds) the mob recalculates its path to the target")]
+    public float pathUpdateInterval = 0.25f;
 
     [Header("Animation")]
     public string speedAnimParam = "Speed";
@@ -46,28 +44,31 @@ public class MobAI : MonoBehaviour
 
     private Transform currentTarget;
     private Animator animator;
-    private Rigidbody rb;
+    private NavMeshAgent agent;
     private bool isWalking;
     private Vector3 desiredMoveDirection;
     private bool shouldMove;
     private bool isFading;
+    private float pathUpdateTimer;
 
     void Awake()
     {
         animator = GetComponent<Animator>();
 
-        rb = GetComponent<Rigidbody>();
-        if (rb == null)
+        agent = GetComponent<NavMeshAgent>();
+        if (agent == null)
         {
-            rb = gameObject.AddComponent<Rigidbody>();
+            agent = gameObject.AddComponent<NavMeshAgent>();
         }
 
-        if (autoConfigureRigidbody && rb != null)
-        {
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-        }
+        // Disable immediately so Unity doesn't complain about not being on a NavMesh
+        agent.enabled = false;
+
+        // Sync inspector values to NavMeshAgent
+        agent.speed = moveSpeed;
+        agent.angularSpeed = rotationSpeed * 100f;
+        agent.stoppingDistance = stoppingDistance;
+        agent.autoBraking = true;
     }
 
     void OnEnable()
@@ -76,6 +77,24 @@ public class MobAI : MonoBehaviour
         {
             ActiveMobs.Add(this);
         }
+
+        // Try to place the agent on the NavMesh then enable it
+        PlaceOnNavMesh();
+    }
+
+    /// <summary>
+    /// Warp the agent to the nearest NavMesh point and enable it.
+    /// </summary>
+    private void PlaceOnNavMesh()
+    {
+        if (agent == null) return;
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+        {
+            agent.enabled = true;
+            agent.Warp(hit.position);
+        }
+        // else: agent stays disabled, Update will keep retrying
     }
 
     void OnDisable()
@@ -85,8 +104,22 @@ public class MobAI : MonoBehaviour
 
     void Update()
     {
-        shouldMove = false;
-        desiredMoveDirection = Vector3.zero;
+        // Agent not yet placed on NavMesh — keep trying
+        if (!agent.enabled)
+        {
+            PlaceOnNavMesh();
+            return;
+        }
+
+        // If the agent fell off the NavMesh (can happen with dynamic rebakes), try to recover
+        if (!agent.isOnNavMesh)
+        {
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+            }
+            return;
+        }
 
         FindClosestTarget();
 
@@ -96,46 +129,40 @@ public class MobAI : MonoBehaviour
 
             if (distance <= detectionRange && distance > stoppingDistance)
             {
-                MoveTowardTarget();
+                pathUpdateTimer -= Time.deltaTime;
+                if (pathUpdateTimer <= 0f)
+                {
+                    MoveTowardTarget();
+                    pathUpdateTimer = pathUpdateInterval;
+                }
                 UpdateAnimation(true);
             }
             else
             {
+                StopMoving();
                 UpdateAnimation(false);
             }
         }
         else
         {
+            StopMoving();
             UpdateAnimation(false);
         }
     }
 
-    void FixedUpdate()
-    {
-        if (rb == null)
-        {
-            return;
-        }
-
-        Vector3 currentVelocity = rb.linearVelocity;
-
-        if (!shouldMove || desiredMoveDirection.sqrMagnitude < 0.001f)
-        {
-            rb.linearVelocity = new Vector3(0f, currentVelocity.y, 0f);
-            return;
-        }
-
-        Vector3 horizontalVelocity = desiredMoveDirection * moveSpeed;
-        rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
-
-        Quaternion targetRotation = Quaternion.LookRotation(desiredMoveDirection);
-        Quaternion smoothedRotation = Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
-        rb.MoveRotation(smoothedRotation);
-    }
-
     void FindClosestTarget()
     {
-        currentTarget = null;
+        if (currentTarget != null)
+        {
+            float currentDistance = Vector3.Distance(transform.position, currentTarget.position);
+            if (currentDistance <= detectionRange)
+            {
+                return;
+            }
+
+            currentTarget = null;
+        }
+
         float closestDistance = detectionRange;
 
         foreach (Target target in Target.AllTargets)
@@ -162,24 +189,37 @@ public class MobAI : MonoBehaviour
 
     void MoveTowardTarget()
     {
-        Vector3 direction = currentTarget.position - transform.position;
-        direction.y = 0f;
+        if (!agent.isOnNavMesh) return;
 
-        if (direction.sqrMagnitude < 0.001f) return;
+        // Calculate separation offset to avoid clumping with other mobs
+        Vector3 separationOffset = GetSeparationDirection() * separationStrength;
 
-        Vector3 chaseDirection = direction.normalized;
-        Vector3 separationDirection = GetSeparationDirection();
-        Vector3 moveDirection = chaseDirection + separationDirection * separationStrength;
-        moveDirection.y = 0f;
+        // Set the destination with a slight offset for separation
+        Vector3 destination = currentTarget.position + separationOffset;
 
-        if (moveDirection.sqrMagnitude < 0.001f)
+        // Make sure the offset destination is still on the NavMesh
+        if (separationOffset.sqrMagnitude > 0.01f)
         {
-            moveDirection = chaseDirection;
+            if (NavMesh.SamplePosition(destination, out NavMeshHit hit, separationRadius, NavMesh.AllAreas))
+            {
+                destination = hit.position;
+            }
+            else
+            {
+                destination = currentTarget.position; // Fallback: go straight to target
+            }
         }
 
-        moveDirection.Normalize();
-        desiredMoveDirection = moveDirection;
-        shouldMove = true;
+        agent.isStopped = false;
+        agent.SetDestination(destination);
+    }
+
+    void StopMoving()
+    {
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+        }
     }
 
     Vector3 GetSeparationDirection()
@@ -231,9 +271,13 @@ public class MobAI : MonoBehaviour
 
         if (animator != null)
         {
-            // Map moveSpeed to animator Speed param:
-            // 0 -> 0 (idle), moveSpeed -> 0.5 (walk), runMoveSpeed -> 1.0 (run)
-            float animSpeed = moving ? Mathf.Clamp01(moveSpeed / runMoveSpeed) * animationSpeedMultiplier : 0f;
+            float animSpeed = 0f;
+            if (moving && agent != null)
+            {
+                // Use actual agent velocity for smoother animation blending
+                float currentSpeed = agent.velocity.magnitude;
+                animSpeed = Mathf.Clamp01(currentSpeed / runMoveSpeed);
+            }
             animator.SetFloat(speedAnimParam, animSpeed);
         }
     }
@@ -352,6 +396,17 @@ public class MobAI : MonoBehaviour
             // Small sphere on target
             Gizmos.color = new Color(1f, 0.5f, 0f, 0.8f);
             Gizmos.DrawWireSphere(currentTarget.position, 0.3f);
+
+            // Draw NavMesh path
+            if (Application.isPlaying && agent != null && agent.hasPath)
+            {
+                Gizmos.color = Color.cyan;
+                Vector3[] corners = agent.path.corners;
+                for (int i = 0; i < corners.Length - 1; i++)
+                {
+                    Gizmos.DrawLine(corners[i], corners[i + 1]);
+                }
+            }
         }
     }
 
@@ -371,6 +426,11 @@ public class MobAI : MonoBehaviour
         {
             float animSpeed = animator.GetFloat(speedAnimParam);
             label += $"\nSpeed: {animSpeed:F2}";
+        }
+        if (agent != null && Application.isPlaying)
+        {
+            label += $"\nOnNavMesh: {agent.isOnNavMesh}";
+            label += $"\nHasPath: {agent.hasPath}";
         }
 
         GUIStyle style = new GUIStyle();

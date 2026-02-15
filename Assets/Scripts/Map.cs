@@ -16,7 +16,7 @@ public class TileInfoMap
         {
             return info;
         }
-        return TileInfo.VOID; // Default to VOID if not set
+        return TileInfo.Void; // Default to VOID if not set
     }
 
     public void Remove(Vector2Int pos)
@@ -72,22 +72,7 @@ public class Map : MonoBehaviour
         {
             lightSources.Add(lightSource);
 
-            // Pre-seed the 3x3 tiles around the light source as Ground
-            Vector2Int lightPos = lightSource.GetGridPosition();
-            for (int dx = -1; dx <= 1; dx++)
-            {
-                for (int dz = -1; dz <= 1; dz++)
-                {
-                    Vector2Int adjustedPos = new Vector2Int(
-                        lightPos.x + dx + maxGridSize / 2,
-                        lightPos.y + dz + maxGridSize / 2
-                    );
-                    if (IsValidGridPosition(adjustedPos) && tileInfoMap.Get(adjustedPos).IsVoid)
-                    {
-                        tileInfoMap.Set(adjustedPos, new TileInfo(TileType.Ground));
-                    }
-                }
-            }
+            SeedGroundArea(lightSource.GetGridPosition(), 2);
 
             UpdateTilesAroundLightSources();
             Debug.Log($"Light source registered. Total: {lightSources.Count}");
@@ -159,10 +144,34 @@ public class Map : MonoBehaviour
 
         foreach (Vector2Int pos in tilesToActivate)
         {
-            CreateTileAt(pos);
+            ActivateTile(pos);
         }
 
         activeTiles = newActiveTiles;
+
+        // Request a NavMesh rebake if tiles changed
+        if (tilesToDeactivate.Count > 0 || tilesToActivate.Count > 0)
+        {
+            NavMeshRebaker.RequestRebake();
+        }
+    }
+
+    /// <summary>
+    /// Activates a tile at the given adjusted grid position, creating it if necessary.
+    /// </summary>
+    void ActivateTile(Vector2Int adjustedPos)
+    {
+        if (!IsValidGridPosition(adjustedPos))
+            return;
+
+        // Add to active tiles
+        activeTiles.Add(adjustedPos);
+
+        // Create the tile if it doesn't exist yet
+        if (tileGrid[adjustedPos.x, adjustedPos.y] == null)
+        {
+            CreateTileAt(adjustedPos);
+        }
     }
 
     void CreateTileAt(Vector2Int pos)
@@ -175,8 +184,8 @@ public class Map : MonoBehaviour
         if (tileInfo.IsVoid)
         {
             tileInfo = mapGenerator.CreateTile(pos);
+            tileInfoMap.Set(pos, tileInfo);
         }
-        tileInfoMap.Set(pos, tileInfo);
 
         GameObject selectedPrefab = GetPrefabForTileInfo(tileInfo);
         if (selectedPrefab == null)
@@ -207,6 +216,9 @@ public class Map : MonoBehaviour
         tile.transform.parent = gridParent.transform;
         tile.name = $"Tile_{pos.x - maxGridSize / 2}_{pos.y - maxGridSize / 2}";
 
+        // Assign the Ground layer so the NavMeshSurface only scans these objects
+        // SetLayerRecursively(tile, LayerMask.NameToLayer("Ground"));
+
         TileComponent tileComponent = tile.GetComponent<TileComponent>();
         if (tileComponent != null)
         {
@@ -217,6 +229,26 @@ public class Map : MonoBehaviour
         tileGrid[pos.x, pos.y] = tile;
 
         ApplyTreeRandomRotation(tile, tileInfo);
+    }
+
+    /// <summary>
+    /// Set the Ground layer only on objects that won't cause "mesh does not allow read access"
+    /// warnings. Skips children that have a MeshCollider (e.g. bushes, decorations with
+    /// non-readable meshes). The NavMesh only needs the ground plane and box/capsule colliders.
+    /// </summary>
+    private static void SetLayerRecursively(GameObject obj, int layer)
+    {
+        // Only assign the layer if this object has no MeshCollider
+        Collider col = obj.GetComponent<Collider>();
+        if (col == null || col is not MeshCollider)
+        {
+            obj.layer = layer;
+        }
+
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
     }
 
     private void ApplyTreeRandomRotation(GameObject tile, TileInfo tileInfo)
@@ -267,9 +299,9 @@ public class Map : MonoBehaviour
         for (int i = 0; i < tileDataList.Length; i++)
         {
             if (tileDataList[i] != null && tileDataList[i].type == prefabType)
-            matchingPrefabs.Add(tileDataList[i].prefab);
+                matchingPrefabs.Add(tileDataList[i].prefab);
         }
-        
+
         if (matchingPrefabs.Count > 0)
             return matchingPrefabs[Random.Range(0, matchingPrefabs.Count)];
 
@@ -321,27 +353,27 @@ public class Map : MonoBehaviour
         switch (tileType)
         {
             // Straight walls
-            case TileType.WallHorizontal:   return 0f;
-            case TileType.WallVertical:     return 90f;
+            case TileType.WallHorizontal: return 0f;
+            case TileType.WallVertical: return 90f;
 
             // Corners (base: NW ┌)
-            case TileType.WallSW:           return 0f;
-            case TileType.WallNW:           return 90f;
-            case TileType.WallNE:           return 180f;
-            case TileType.WallSE:           return 270f;
+            case TileType.WallSW: return 0f;
+            case TileType.WallNW: return 90f;
+            case TileType.WallNE: return 180f;
+            case TileType.WallSE: return 270f;
 
             // T-junctions (base: TN ┬)
-            case TileType.WallTS:           return 0f;
-            case TileType.WallTW:           return 90f;
-            case TileType.WallTN:           return 180f;
-            case TileType.WallTE:           return 270f;
+            case TileType.WallTS: return 0f;
+            case TileType.WallTW: return 90f;
+            case TileType.WallTN: return 180f;
+            case TileType.WallTE: return 270f;
 
             // Doors
-            case TileType.DoorHorizontal:   return 0f;
-            case TileType.DoorVertical:     return 90f;
+            case TileType.DoorHorizontal: return 0f;
+            case TileType.DoorVertical: return 90f;
 
             // Cross, terrain, void — no rotation
-            default:                        return 0f;
+            default: return 0f;
         }
     }
 
@@ -361,16 +393,12 @@ public class Map : MonoBehaviour
                pos.y >= 0 && pos.y < maxGridSize;
     }
 
-    public GameObject GetTile(Vector2Int pos)
+    public TileInfo GetTile(Vector2Int pos)
     {
         // Adjust for grid centering
         Vector2Int adjusted = new Vector2Int(pos.x + maxGridSize / 2, pos.y + maxGridSize / 2);
 
-        if (IsValidGridPosition(adjusted))
-        {
-            return tileGrid[adjusted.x, adjusted.y];
-        }
-        return null;
+        return tileInfoMap.Get(adjusted);
     }
 
     public Vector2Int? GetTileCoordinates(GameObject tile)
@@ -479,7 +507,7 @@ public class Map : MonoBehaviour
 
     /// <summary>
     /// Seeds all tiles within the given tile radius (circular) of gridPos
-    /// with Ground tiles in the tile info map.
+    /// with Ground tiles in the tile info map, and activates them (creates GameObjects).
     /// </summary>
     private void SeedGroundArea(Vector2Int gridPos, int radiusTiles)
     {
@@ -497,7 +525,10 @@ public class Map : MonoBehaviour
 
                 if (IsValidGridPosition(adjusted))
                 {
+                    // Seed the ground tile info
                     tileInfoMap.Set(adjusted, new TileInfo(TileType.Ground));
+                    // Activate the tile (creates it if needed)
+                    ActivateTile(adjusted);
                 }
             }
         }

@@ -14,11 +14,15 @@ public class GameController : MonoBehaviour
     public int beaconDistanceTiles = 30;
     public float beaconClearRadius = 5f;
 
+    [Header("Airship")]
+    public GameObject airshipPrefab;
+    public int airshipDistanceTiles = 15;
+
     [FormerlySerializedAs("resourceCachePrefab")] [Header("Resources")]
     public GameObject resourcePrefab;
     public int resourcesCount = 2;
-    public int resourceMinDistanceTiles = 10;
-    public int resourceMaxDistanceTiles = 20;
+    public int resourceMinDistanceTiles = 2;
+    public int resourceMaxDistanceTiles = 4;
 
     // Runtime references
     private GameObject player;
@@ -54,6 +58,7 @@ public class GameController : MonoBehaviour
         SpawnPlayer(spawnPoint.position);
         SpawnBeacon();
         SpawnResources();
+        SpawnAirship();
     }
 
     void Update()
@@ -103,6 +108,17 @@ public class GameController : MonoBehaviour
         beacon.OnBeaconReached += () => OnGameWon();
 
         Debug.Log($"Beacon spawned at {beaconPos} ({beaconDistanceTiles} tiles from player)");
+    }
+
+    void SpawnAirship()
+    {
+        if (airshipPrefab == null) return;
+
+        Vector3 airshipPos = map.ReserveClearTile(originPosition, airshipDistanceTiles);
+        airshipPos.y = 18f;
+
+        Instantiate(airshipPrefab, airshipPos, Quaternion.identity);
+        Debug.Log($"Airship spawned at {airshipPos} ({airshipDistanceTiles} tiles from origin)");
     }
 
     void SpawnResources()
