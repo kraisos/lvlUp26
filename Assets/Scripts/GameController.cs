@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
+using TMPro;
 
 public class GameController : MonoBehaviour
 {
@@ -241,21 +243,85 @@ public class GameController : MonoBehaviour
         if (StoryAudioManager.Instance != null)
             StoryAudioManager.Instance.TriggerStory(StoryTriggerType.FirstDeath);
 
-        if (player != null)
-        {
-            Destroy(player);
-            player = null;
-        }
-
         if (restartOnPlayerDeath)
         {
-            ShowGameOverScene();
+            ShowDeathOverlay();
         }
     }
 
-    void ShowGameOverScene()
+    void ShowDeathOverlay()
     {
-        SceneManager.LoadScene(deathSceneName);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Full-screen canvas
+        var canvasObj = new GameObject("DeathOverlayCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        var canvas = canvasObj.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
+
+        var scaler = canvasObj.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        // Dark vignette overlay
+        var overlayObj = new GameObject("DarkOverlay", typeof(RectTransform), typeof(Image));
+        overlayObj.transform.SetParent(canvasObj.transform, false);
+        var overlayRect = overlayObj.GetComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+        var overlayImage = overlayObj.GetComponent<Image>();
+        overlayImage.color = new Color(0f, 0f, 0f, 0.5f);
+
+        // Death message
+        var titleObj = new GameObject("DeathTitle", typeof(RectTransform), typeof(TextMeshProUGUI));
+        titleObj.transform.SetParent(canvasObj.transform, false);
+        var titleRect = titleObj.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.5f, 0.5f);
+        titleRect.anchorMax = new Vector2(0.5f, 0.5f);
+        titleRect.pivot = new Vector2(0.5f, 0.5f);
+        titleRect.anchoredPosition = Vector2.zero;
+        titleRect.sizeDelta = new Vector2(1200f, 200f);
+
+        var title = titleObj.GetComponent<TextMeshProUGUI>();
+        title.text = "VOUS AVEZ SUCCOMB\u00C9 \u00C0 LA FOLIE";
+        title.fontSize = 52f;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = new Color(0.85f, 0.75f, 0.9f, 1f);
+
+        // Restart button
+        var buttonObj = new GameObject("RestartButton", typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonObj.transform.SetParent(canvasObj.transform, false);
+        var btnRect = buttonObj.GetComponent<RectTransform>();
+        btnRect.anchorMin = new Vector2(0.5f, 0.3f);
+        btnRect.anchorMax = new Vector2(0.5f, 0.3f);
+        btnRect.pivot = new Vector2(0.5f, 0.5f);
+        btnRect.anchoredPosition = Vector2.zero;
+        btnRect.sizeDelta = new Vector2(300f, 70f);
+
+        var btnImage = buttonObj.GetComponent<Image>();
+        btnImage.color = new Color(0.15f, 0.05f, 0.2f, 0.85f);
+
+        // Button label
+        var labelObj = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        labelObj.transform.SetParent(buttonObj.transform, false);
+        var labelRect = labelObj.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+
+        var label = labelObj.GetComponent<TextMeshProUGUI>();
+        label.text = "R\u00C9ESSAYER";
+        label.fontSize = 32f;
+        label.alignment = TextAlignmentOptions.Center;
+        label.color = new Color(0.85f, 0.75f, 0.9f, 1f);
+
+        var button = buttonObj.GetComponent<Button>();
+        button.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().name));
     }
 
     // ─── Placeholder visuals (used when no prefab is assigned) ───

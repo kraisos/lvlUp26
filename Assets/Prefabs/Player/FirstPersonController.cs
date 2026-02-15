@@ -622,6 +622,40 @@ public class FirstPersonController : MonoBehaviour
             rb.isKinematic = true;
         }
 
+        StartCoroutine(DeathCameraFall(mobTransform));
+    }
+
+    private IEnumerator DeathCameraFall(Transform mobTransform)
+    {
+        Transform cam = playerCamera.transform;
+        Vector3 startLocalPos = cam.localPosition;
+        Quaternion startRot = cam.localRotation;
+
+        // Target: drop camera to ground level and look straight up
+        float groundY = -0.7f;
+        Vector3 endLocalPos = new Vector3(startLocalPos.x + 0.3f, groundY, startLocalPos.z);
+        // 80 degrees up (not fully 90 so it still feels natural) with a slight roll
+        Quaternion endRot = Quaternion.Euler(-80f, cam.localEulerAngles.y + 15f, 12f);
+
+        float duration = 1.5f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            // Ease-in curve: slow start, accelerating fall
+            float eased = t * t;
+
+            cam.localPosition = Vector3.Lerp(startLocalPos, endLocalPos, eased);
+            cam.localRotation = Quaternion.Slerp(startRot, endRot, eased);
+
+            yield return null;
+        }
+
+        cam.localPosition = endLocalPos;
+        cam.localRotation = endRot;
+
         GameController gameController = FindFirstObjectByType<GameController>();
         gameController.OnPlayerCaught(mobTransform);
     }
