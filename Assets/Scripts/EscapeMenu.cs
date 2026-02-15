@@ -18,22 +18,6 @@ public class EscapeMenu : MonoBehaviour
     private bool useTimeScalePause;
     private float previousTimeScale = 1f;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void EnsureMenuExists()
-    {
-        // Don't create escape menu in the main menu scene
-        if (SceneManager.GetActiveScene().name == "MainMenu")
-            return;
-
-        if (FindFirstObjectByType<EscapeMenu>() != null)
-        {
-            return;
-        }
-
-        var menuObject = new GameObject("EscapeMenuController");
-        menuObject.AddComponent<EscapeMenu>();
-    }
-
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -43,7 +27,6 @@ public class EscapeMenu : MonoBehaviour
         }
 
         instance = this;
-        DontDestroyOnLoad(gameObject);
 
         useTimeScalePause = ShouldUseTimeScalePause();
         BuildMenuUI();
@@ -148,7 +131,6 @@ public class EscapeMenu : MonoBehaviour
 #else
             var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
 #endif
-            DontDestroyOnLoad(eventSystemObject);
             return;
         }
 
