@@ -69,7 +69,6 @@ public class MapGenerator
         return new TileInfo(terrainType);
     }
 
-
     private TileType ChooseTerrainType(TileInfo north, TileInfo east, TileInfo south, TileInfo west)
     {
         // Count neighboring terrain types for clustering
@@ -88,7 +87,7 @@ public class MapGenerator
         // Base weights
         float groundWeight = 0.6f;
         float woodsWeight = 0.25f;
-        float lakeWeight = 0.15f;
+        float lakeWeight = 0.0f;
 
         // Apply clustering boost (neighbors of same type increase weight)
         float clusterBoost = 2.0f;
