@@ -18,7 +18,7 @@ public class PickaxeTool : MonoBehaviour
 
     [Header("Swing")]
     [SerializeField] private float swingAngle = 35f;
-    [SerializeField] private float swingDuration = 0.16f;
+    [SerializeField] private float swingDuration = 0.5f;
 
     [Header("Mining UI")]
     [SerializeField] private Vector2 barSize = new Vector2(240f, 18f);
@@ -29,6 +29,14 @@ public class PickaxeTool : MonoBehaviour
     [Header("View Model")]
     [SerializeField] private Vector3 cameraOffset = new Vector3(0.35f, -0.3f, 0.5f);
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip swingSound;
+    [SerializeField] private AudioClip miningCompleteSound;
+    [SerializeField] private float swingSoundVolume = 1f;
+    [SerializeField] private float completeVolume = 1f;
+
+    private AudioSource audioSource;
+    private AudioSource completionAudioSource;
     private MineableObject activeMineable;
     private float activeMineProgress;
     private bool isSwinging;
@@ -45,6 +53,7 @@ public class PickaxeTool : MonoBehaviour
         ResolveReferences();
         BuildMiningUI();
         HideMiningUI();
+        SetupAudio();
     }
 
     private void LateUpdate()
@@ -185,12 +194,35 @@ public class PickaxeTool : MonoBehaviour
         miningSlider.direction = Slider.Direction.LeftToRight;
     }
 
+    private void SetupAudio()
+    {
+        // AudioSource for continuous swing sound
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f; // 2D sound
+        audioSource.loop = true; // Loop for continuous swing sound
+        
+        // Separate AudioSource for one-shot completion sound
+        completionAudioSource = gameObject.AddComponent<AudioSource>();
+        completionAudioSource.playOnAwake = false;
+        completionAudioSource.spatialBlend = 0f; // 2D sound
+        completionAudioSource.loop = false;
+    }
+
     private void ContinueMining(MineableObject mineable, RaycastHit hit)
     {
         if (activeMineable != mineable)
         {
             activeMineable = mineable;
             activeMineProgress = 0f;
+        }
+
+        // Start playing swing sound if not already playing
+        if (audioSource != null && swingSound != null && !audioSource.isPlaying)
+        {
+            audioSource.clip = swingSound;
+            audioSource.volume = swingSoundVolume;
+            audioSource.Play();
         }
 
         ShowMiningUI();
@@ -208,6 +240,18 @@ public class PickaxeTool : MonoBehaviour
 
     private void CompleteMining(Vector3 hitPoint, MineableObject mineable)
     {
+        // Stop swing sound
+        if (audioSource != null && audioSource.isPlaying && audioSource.clip == swingSound)
+        {
+            audioSource.Stop();
+        }
+        
+        // Play completion sound on separate AudioSource
+        if (completionAudioSource != null && miningCompleteSound != null)
+        {
+            completionAudioSource.PlayOneShot(miningCompleteSound, completeVolume);
+        }
+
         var dropPrefab = mineable.DropPrefab;
         if (dropPrefab == null)
         {
@@ -218,9 +262,9 @@ public class PickaxeTool : MonoBehaviour
         var dropPosition = hitPoint + dropOffset;
         var spawned = Instantiate(dropPrefab, dropPosition, Quaternion.identity);
 
-        if (spawned.TryGetComponent<Rigidbody>(out var rigidbody))
+        if (spawned.TryGetComponent<Rigidbody>(out var rb))
         {
-            rigidbody.AddForce((Vector3.up + transform.forward * 0.15f) * dropForce, ForceMode.Impulse);
+            rb.AddForce((Vector3.up + transform.forward * 0.15f) * dropForce, ForceMode.Impulse);
         }
 
         mineable.OnMined();
@@ -259,6 +303,7 @@ public class PickaxeTool : MonoBehaviour
     private System.Collections.IEnumerator SwingRoutine()
     {
         isSwinging = true;
+
         var elapsed = 0f;
 
         while (elapsed < swingDuration)
@@ -302,6 +347,12 @@ public class PickaxeTool : MonoBehaviour
         activeMineable = null;
         activeMineProgress = 0f;
         HideMiningUI();
+        
+        // Stop swing sound when mining stops
+        if (audioSource != null && audioSource.isPlaying && audioSource.clip == swingSound)
+        {
+            audioSource.Stop();
+        }
     }
 
     private void ShowMiningUI()
