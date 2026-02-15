@@ -695,7 +695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7239392704bf5d89990cedfc8e7b6dbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SanityDistortionEffect
-  sanityThreshold: 0.4
+  sanityThreshold: 0.6
   maxIntensity: 1
 --- !u!1 &4459864851397454630
 GameObject:
