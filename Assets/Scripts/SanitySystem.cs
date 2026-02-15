@@ -7,13 +7,13 @@ public class SanitySystem : MonoBehaviour
     [Header("Sanity")]
     [SerializeField] private float maxSanity = 100f;
     [SerializeField] private float lightDrainRate = 5f;
-    [SerializeField] private float darkRiseRate = 2f;
+    [SerializeField] private float darkRiseRate = 0.667f;
     [SerializeField] private float mobDetectionRadius = 15f;
 
     [Header("UI")]
-    [SerializeField] private float barWidth = 300f;
-    [SerializeField] private float barHeight = 24f;
-    [SerializeField] private float iconSize = 40f;
+    [SerializeField] private float barWidth = 600f;
+    [SerializeField] private float barHeight = 48f;
+    [SerializeField] private float iconSize = 80f;
     [SerializeField] private Vector2 barOffset = new Vector2(40f, -20f);
     [SerializeField] private Sprite sanityIcon;
     [SerializeField] private float breathingSpeed = 2f;
@@ -26,6 +26,10 @@ public class SanitySystem : MonoBehaviour
 
     private Image barFill;
     private CanvasGroup barCanvasGroup;
+    private RectTransform barBgRect;
+    private RectTransform iconRect;
+    private Vector2 barBgBasePos;
+    private Vector2 iconBasePos;
 
     public float CurrentSanity => currentSanity;
     public float MaxSanity => maxSanity;
@@ -114,14 +118,55 @@ public class SanitySystem : MonoBehaviour
         }
 
         float t = SanityNormalized;
-        barFill.rectTransform.localScale = new Vector3(t, 1f, 1f);
-        barFill.color = Color.Lerp(new Color(0.2f, 0.55f, 0.2f, 1f), new Color(0.7f, 0.15f, 0.15f, 1f), t);
 
+        // Wiggle effect: the fill bar squirms like it's alive
+        float wiggle = t * t; // intensity scales with sanity squared
+        float wiggleRotation = Mathf.Sin(Time.time * 6f) * 1.5f * wiggle;
+        float wiggleScaleY = 1f + Mathf.Sin(Time.time * 9f) * 0.06f * wiggle;
+        float wiggleScaleX = t + Mathf.Sin(Time.time * 7.3f) * 0.015f * wiggle;
+        barFill.rectTransform.localScale = new Vector3(wiggleScaleX, wiggleScaleY, 1f);
+        barFill.rectTransform.localRotation = Quaternion.Euler(0f, 0f, wiggleRotation);
+
+        // Horror color gradient: dark teal -> bruised purple -> deep crimson
+        Color calmColor = new Color(0.1f, 0.35f, 0.3f, 1f);
+        Color midColor = new Color(0.35f, 0.1f, 0.4f, 1f);
+        Color panicColor = new Color(0.6f, 0.05f, 0.05f, 1f);
+        barFill.color = t < 0.5f
+            ? Color.Lerp(calmColor, midColor, t * 2f)
+            : Color.Lerp(midColor, panicColor, (t - 0.5f) * 2f);
+
+        // Bar jitter at high sanity
+        if (barBgRect != null && t > 0.6f)
+        {
+            float jitterStrength = (t - 0.6f) / 0.4f * 3f;
+            float jx = (Mathf.PerlinNoise(Time.time * 25f, 0f) - 0.5f) * jitterStrength;
+            float jy = (Mathf.PerlinNoise(0f, Time.time * 25f) - 0.5f) * jitterStrength;
+            barBgRect.anchoredPosition = barBgBasePos + new Vector2(jx, jy);
+        }
+        else if (barBgRect != null)
+        {
+            barBgRect.anchoredPosition = barBgBasePos;
+        }
+
+        // Icon wobble at critical sanity
+        if (iconRect != null && t > 0.7f)
+        {
+            float wobbleStrength = (t - 0.7f) / 0.3f;
+            float angle = Mathf.Sin(Time.time * 8f) * 15f * wobbleStrength;
+            iconRect.localRotation = Quaternion.Euler(0f, 0f, angle);
+        }
+        else if (iconRect != null)
+        {
+            iconRect.localRotation = Quaternion.identity;
+        }
+
+        // More aggressive pulsing
         if (barCanvasGroup != null && t > breathingThreshold)
         {
             float intensity = (t - breathingThreshold) / (1f - breathingThreshold);
-            float pulse = Mathf.Sin(Time.time * breathingSpeed * Mathf.Lerp(1f, 3f, intensity)) * 0.5f + 0.5f;
-            float minAlpha = Mathf.Lerp(1f, 0.35f, intensity);
+            float speed = breathingSpeed * Mathf.Lerp(1f, 5f, intensity);
+            float pulse = Mathf.Sin(Time.time * speed) * 0.5f + 0.5f;
+            float minAlpha = Mathf.Lerp(1f, 0.2f, intensity);
             barCanvasGroup.alpha = Mathf.Lerp(minAlpha, 1f, pulse);
         }
         else if (barCanvasGroup != null)
@@ -147,12 +192,13 @@ public class SanitySystem : MonoBehaviour
         var iconObj = new GameObject("SanityIcon", typeof(RectTransform), typeof(Image));
         iconObj.transform.SetParent(canvasObj.transform, false);
 
-        var iconRect = iconObj.GetComponent<RectTransform>();
+        iconRect = iconObj.GetComponent<RectTransform>();
         iconRect.anchorMin = new Vector2(0f, 1f);
         iconRect.anchorMax = new Vector2(0f, 1f);
         iconRect.pivot = new Vector2(0f, 1f);
         iconRect.anchoredPosition = barOffset;
         iconRect.sizeDelta = new Vector2(iconSize, iconSize);
+        iconBasePos = barOffset;
 
         var iconImage = iconObj.GetComponent<Image>();
         if (sanityIcon != null)
@@ -171,15 +217,16 @@ public class SanitySystem : MonoBehaviour
         bgObj.transform.SetParent(canvasObj.transform, false);
         barCanvasGroup = bgObj.GetComponent<CanvasGroup>();
 
-        var bgRect = bgObj.GetComponent<RectTransform>();
-        bgRect.anchorMin = new Vector2(0f, 1f);
-        bgRect.anchorMax = new Vector2(0f, 1f);
-        bgRect.pivot = new Vector2(0f, 0.5f);
-        bgRect.anchoredPosition = new Vector2(barOffset.x + iconSize + 6f, barOffset.y - iconSize * 0.5f);
-        bgRect.sizeDelta = new Vector2(barWidth, barHeight);
+        barBgRect = bgObj.GetComponent<RectTransform>();
+        barBgRect.anchorMin = new Vector2(0f, 1f);
+        barBgRect.anchorMax = new Vector2(0f, 1f);
+        barBgRect.pivot = new Vector2(0f, 0.5f);
+        barBgBasePos = new Vector2(barOffset.x + iconSize + 6f, barOffset.y - iconSize * 0.5f);
+        barBgRect.anchoredPosition = barBgBasePos;
+        barBgRect.sizeDelta = new Vector2(barWidth, barHeight);
 
         var bgImage = bgObj.GetComponent<Image>();
-        bgImage.color = new Color(1f, 1f, 1f, 0.2f);
+        bgImage.color = new Color(0.15f, 0.05f, 0.2f, 0.7f);
 
         // Inner background (dark fill area)
         var innerObj = new GameObject("SanityBarInner", typeof(RectTransform), typeof(Image));
@@ -192,7 +239,7 @@ public class SanitySystem : MonoBehaviour
         innerRect.offsetMax = new Vector2(-2f, -2f);
 
         var innerImage = innerObj.GetComponent<Image>();
-        innerImage.color = new Color(0f, 0f, 0f, 0.5f);
+        innerImage.color = new Color(0.02f, 0f, 0.05f, 0.8f);
 
         // Bar fill
         var fillObj = new GameObject("SanityBarFill", typeof(RectTransform), typeof(Image));
@@ -206,7 +253,7 @@ public class SanitySystem : MonoBehaviour
         fillRect.pivot = new Vector2(0f, 0.5f);
 
         barFill = fillObj.GetComponent<Image>();
-        barFill.color = new Color(0.2f, 0.55f, 0.2f, 1f);
+        barFill.color = new Color(0.1f, 0.35f, 0.3f, 1f);
         barFill.rectTransform.localScale = new Vector3(0f, 1f, 1f);
     }
 }

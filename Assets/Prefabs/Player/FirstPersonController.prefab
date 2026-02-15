@@ -328,13 +328,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SanitySystem
   maxSanity: 100
   lightDrainRate: 5
-  darkRiseRate: 2
+  darkRiseRate: 0.667
   mobDetectionRadius: 15
-  barWidth: 200
-  barHeight: 16
-  iconSize: 40
-  barOffset: {x: 0, y: -40}
-  sanityIcon: {fileID: 0}
+  barWidth: 600
+  barHeight: 48
+  iconSize: 80
+  barOffset: {x: 40, y: -20}
+  sanityIcon: {fileID: 21300000, guid: 642c394cdcc90627e83431bcb1caaf45, type: 3}
   breathingSpeed: 2
   breathingThreshold: 0.4
 --- !u!1 &4459864850190357393
