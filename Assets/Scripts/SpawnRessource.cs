@@ -7,10 +7,29 @@ public class SpawnRessource : MonoBehaviour
 
     void Start()
     {
-        if (Random.value < spawnChance)
+        if (Random.value < spawnChance && !HasNearbyItem(10f))
         {
             SpawnRandomRessource();
         }
+    }
+
+    bool HasNearbyItem(float radius)
+    {
+        Item[] items = FindObjectsByType<Item>(FindObjectsSortMode.None);
+        foreach (Item item in items)
+        {
+            if (Vector3.Distance(transform.position, item.transform.position) < radius)
+                return true;
+        }
+
+        MineableObject[] mineables = FindObjectsByType<MineableObject>(FindObjectsSortMode.None);
+        foreach (MineableObject mineable in mineables)
+        {
+            if (Vector3.Distance(transform.position, mineable.transform.position) < radius)
+                return true;
+        }
+
+        return false;
     }
 
     void SpawnRandomRessource()
